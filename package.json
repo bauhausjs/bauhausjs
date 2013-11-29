@@ -1,0 +1,38 @@
+{
+  "name": "bauhausjs",
+  "version": "0.0.0",
+  "description": "A modular CMS for Node.js",
+  "scripts": {
+    "test": "mocha server/test frontend/test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bauhausjs/bauhausjs.git"
+  },
+  "keywords": [
+    "cms",
+    "content",
+    "backend"
+  ],
+  "contributors": [
+    {
+      "name": "Philipp Schächtele",
+      "email": "philipp@digitalwerft.com"
+    },
+    {
+      "name": "Evgenij Terehov",
+      "email": "evgenij@digitalwerft.com"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bauhausjs/bauhausjs/issues"
+  },
+  "dependencies": {
+    "express": "~3.4.5",
+    "architect": "~0.1.10"
+  },
+  "devDependencies": {
+    "mocha": "~1.14.0"
+  }
+}
