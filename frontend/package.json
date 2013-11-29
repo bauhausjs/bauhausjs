@@ -1,0 +1,13 @@
+{
+  "name": "frontend",
+  "version": "0.0.0",
+  "description": "Root frontend express app, were all frontend middleware and routes are atached to",
+  "main": "app.js",
+  "private": true,
+  "plugin": {
+    "provides": [
+      "frontend"
+    ],
+    "consumes": ["server"]
+  }
+}
