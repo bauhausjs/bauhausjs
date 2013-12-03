@@ -1,0 +1,11 @@
+{
+  "name": "mongoose",
+  "version": "0.0.0",
+  "description": "Setup connection to MongoDB via Mongoose",
+  "main": "app.js",
+  "private": true,
+  "plugin": {
+    "provides": [],
+    "consumes": []
+  }
+}
