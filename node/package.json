@@ -1,0 +1,13 @@
+{
+  "name": "node",
+  "version": "0.0.0",
+  "description": "Module which provides rendering and mangement for pages",
+  "main": "app.js",
+  "private": true,
+  "plugin": {
+    "provides": [
+      "node"
+    ],
+    "consumes": ["frontend", "backend"]
+  }
+}
