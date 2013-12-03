@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "A modular CMS for Node.js",
   "scripts": {
-    "test": "mocha server/test frontend/test"
+    "test": "mocha server/test/ frontend/test/ backend/test/ event/test/ mongoose/test"
   },
   "repository": {
     "type": "git",
@@ -30,9 +30,14 @@
   },
   "dependencies": {
     "express": "~3.4.5",
-    "architect": "~0.1.10"
+    "architect": "~0.1.10",
+    "mongoose": "~3.8.1",
+    "mongoose-materialized": "~0.1.5",
+    "baucis": "~0.6.25",
+    "debug": "~0.7.4"
   },
   "devDependencies": {
-    "mocha": "~1.14.0"
+    "mocha": "~1.14.0",
+    "should": "~2.1.0"
   }
 }
