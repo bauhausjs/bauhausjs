@@ -1,5 +1,6 @@
-var assert = require('assert');
-var app = require('../app');
+var assert = require('assert'),
+    EventEmitter = require('events').EventEmitter,
+    app = require('../app');
 
 describe('server module', function () {
     it('should expose an express server', function (done) {
@@ -10,6 +11,11 @@ describe('server module', function () {
             done();
         };
         // init module with empty options and empty inherits
-        app({}, {}, register);
+        var imports = {
+            event: {
+                emitter: new EventEmitter()
+            }
+        };
+        app({}, imports, register);
     });
 });
