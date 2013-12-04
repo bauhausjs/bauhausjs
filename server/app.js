@@ -2,7 +2,7 @@
 var express = require('express'),
     helper = require('./helper');
     debug = require('debug')('bauhaus:server'),
-    bdebug = require('debug')('bauhaus:app');
+    appdebug = require('debug')('bauhaus:app');
 
 module.exports = function setup(options, imports, register) {    
     var app = express(),
@@ -15,8 +15,8 @@ module.exports = function setup(options, imports, register) {
         if (welcome) helper.logWelcome(app); 
         // listen to port as soon as all modules are loaded
         app.listen(port);
-        bdebug("All modules loaded.");
-        bdebug("Server started at http://0.0.0.0:" + port)
+        appdebug("All modules loaded.");
+        appdebug("Server started at http://0.0.0.0:" + port)
     });
 
     register(null, {
