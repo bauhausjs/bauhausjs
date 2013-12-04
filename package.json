@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A modular CMS for Node.js",
   "scripts": {
-    "test": "mocha server/test/ frontend/test/ backend/test/ event/test/ mongoose/test/ node/test/"
+    "test": "mocha server/test/ frontend/test/ backend/test/ event/test/ mongoose/test/ node/test/ content/test/"
   },
   "repository": {
     "type": "git",
