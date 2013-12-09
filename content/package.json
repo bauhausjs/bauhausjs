@@ -8,9 +8,9 @@
     "provides": [
       "content"
     ],
-    "consumes": [
-      "node", 
-      "backend"
+    "consumes": [ 
+      "backend",
+      "frontend"
     ]
   }
 }

@@ -15,12 +15,13 @@ var Schema = mongoose.Schema;
 /** Schema of Content */
 content.schema = new Schema({
   _node : { type: Schema.ObjectId, ref: 'Node' },
+  _type: String,
   content: {},
   meta: {
     position: Number,
     slot: Number
   }
-}, { collection : 'content', discriminatorKey : '_type' });
+}, { collection : 'content', discriminatorKey : '_model' });
 
 
 /** Model of Content */

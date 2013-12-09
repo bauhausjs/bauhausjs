@@ -1,12 +1,20 @@
-var controllers = require('./controllers'),
+var middleware = require('./middleware'),
     content = require('./model');
 
 module.exports = function setup(options, imports, register) {
     var backend = imports.backend.app,
-        node = imports.node;
+        frontend = imports.frontend.app;
 
     var module = { 
-        models: {}
+        models: {},
+        middleware: middleware,
+        types: {
+            'article': {
+                title: 'Article',
+                model: 'Article',
+                template: __dirname + '/article.ejs'
+            }
+        }
     };
     module.models[ content.config.name.toLowerCase() ] = content;
 
