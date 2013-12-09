@@ -18,10 +18,11 @@ node.schema = new Schema({
   name : String,
   route: { type: String, index: true, unique: true },
   title: String,
-  label: String
+  label: String,
+  _type: String,
 }, { 
     collection : node.config.collection, 
-    discriminatorKey : '_type' 
+    discriminatorKey : '_model' 
 });
 
 // Add plugin which provides automatic support for mongodb`s materialized path
