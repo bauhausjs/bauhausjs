@@ -15,8 +15,8 @@ module.exports = function setup(options, imports, register) {
                 model: 'Page',
                 template: __dirname + '/page.ejs',
                 slots: [
-                    { name: 'Content' },
-                    { name: 'Sidebar' }
+                    { name: 'content', title: 'Content' },
+                    { name: 'left', title: 'Sidebar' }
                 ]
             }
         }
@@ -32,7 +32,7 @@ module.exports = function setup(options, imports, register) {
 
     var renderStack = [
         middleware.loadPage,
-        middleware.generateLoadPageTypes(module.types),
+        middleware.loadPageType(module.types),
         content.middleware.loadContent,
         content.middleware.renderContent(content.types),
         middleware.renderSlots,

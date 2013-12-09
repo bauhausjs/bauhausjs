@@ -12,8 +12,7 @@ var middleware = module.exports = {};
  */
 middleware.generateLoadContentTypes = function generateLoadContentTypes (contentTypes) {
     var loadContentTypes = function loadContentTypes (req, res, next) {
-        if (!req.bauhaus) return next();
-        if (!req.bauhaus.content) return next();
+        if (!req.bauhaus || !req.bauhaus.content) return next();
 
         req.bauhaus.content.types = contentTypes;
         next();
@@ -23,15 +22,11 @@ middleware.generateLoadContentTypes = function generateLoadContentTypes (content
 
 /**
  * Middleware which loads contents for loaded page to req.bauhaus.content.data
- * @param  {[type]}   req  [description]
- * @param  {[type]}   res  [description]
- * @param  {Function} next [description]
- * @return {[type]}        [description]
  */
 middleware.loadContent = function loadContent (req, res, next) {
-    if (!req.bauhaus || !req.bauhaus.page || !req.bauhaus.page.current) return next();
+    if (!req.bauhaus || !req.bauhaus.page) return next();
 
-    content.find({'_page': req.bauhaus.page.current._id}, 'content meta _type', function (err, contents) {
+    content.find({'_page': req.bauhaus.page._id}, 'content meta _type', function (err, contents) {
         if (err || contents.length === 0) return next();
         debug("Loaded " + contents.length + " content blocks");
         req.bauhaus.content = {
@@ -41,6 +36,14 @@ middleware.loadContent = function loadContent (req, res, next) {
     });
 };
 
+/**
+ * Returns middleware function, which renders content from Array.<Object> 
+ * req.bauhaus.content.data according to the passed content types to 
+ * Array.<String> req.bauhaus.content.rendered.
+ * 
+ * @param  {Array} contentTypes Pass service content.types
+ * @return {Function}           Middleware
+ */
 middleware.renderContent = function (contentTypes) {
     return function renderContent (req, res, next) {
         if (!req.bauhaus || !req.bauhaus.content) return next();
@@ -58,6 +61,7 @@ middleware.renderContent = function (contentTypes) {
                 });
             }
         });
+        debug("Rendered content");
 
         next();
     };
