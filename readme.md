@@ -15,18 +15,14 @@ Each module represents an self-containing application, which is added to a root 
 
 ### Server
 
-Provides an express server, which listens to port `1919` on default. All other middleware of other modules is added to this server. This pattern of multiple express servers is used to allow to define custom middleware for each route. 
+* **server**: Provides an express server, which listens to port `1919` on default. All other middleware of other modules is added to this server. This pattern of multiple express servers is used to allow to define custom middleware for each route. 
+* **frontend**: Provides an express server, were all frontend middleware (e.g. render page) is added to. The frontend is mounted at root `/` by default.
+* **page**: Provides frontend (rendering) and backend (mangement) functionality for pages.
+* **content**: Provides functionality for content 
+* **backend**: Provides an express server were all backend middleware (e.g. manage page) is added to. The backend is mouted at server route `/backend` by default.
+* **event**: EventEmitter service, which can be shared by all modules
+* **mongoose**: Creates conntection to MongoDB, which can be used by all Mongoose Models without requirement depend on this module.
 
-### Frontend
 
-Provides an express server, were all frontend middleware (e.g. render page) is added to. The frontend is mounted at root `/` by default.
-
-### Backend 
-
-Provides an express server were all backend middleware (e.g. manage page) is added to. The backend is mouted at server route `/backend` by default.
-
-### Node
-
-Module which provides frontend (rendering) and backend (mangement) functionality for pages.
 
 
