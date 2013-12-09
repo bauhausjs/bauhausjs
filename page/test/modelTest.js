@@ -3,7 +3,7 @@ var model  = require('../model');
     should = require('should'),
     mongoose = require('mongoose');
 
-describe('Node', function () {
+describe('Page', function () {
     describe('config', function () {
         it('should have name and collection configured', function () {
             model.config.name.should.be.type('string');

@@ -1,5 +1,5 @@
 var middleware = require('./middleware'),
-    node = require('./model');
+    page = require('./model');
 
 module.exports = function setup(options, imports, register) {
     var frontend = imports.frontend.app,
@@ -21,28 +21,28 @@ module.exports = function setup(options, imports, register) {
             }
         }
     };
-    module.models[ node.config.name.toLowerCase() ] = node;
+    module.models[ page.config.name.toLowerCase() ] = page;
 
 
-    node.api.get('/', function (req, res) {
+    page.api.get('/', function (req, res) {
         res.send("Here is the API");
     })
     // register REST api at backend
-    backend.use('/api', node.api);
+    backend.use('/api', page.api);
 
     var renderStack = [
-        middleware.loadNode,
-        middleware.generateLoadNodeTypes(module.types),
+        middleware.loadPage,
+        middleware.generateLoadPageTypes(module.types),
         content.middleware.loadContent,
         content.middleware.renderContent(content.types),
         middleware.renderSlots,
-        middleware.renderNode,
+        middleware.renderPage,
         middleware.errorHandler
     ];
     // register render stack
     frontend.get('*', renderStack);
 
     register(null, {
-        node: module
+        page: module
     });
 };

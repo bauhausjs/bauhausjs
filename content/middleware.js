@@ -29,9 +29,9 @@ middleware.generateLoadContentTypes = function generateLoadContentTypes (content
  * @return {[type]}        [description]
  */
 middleware.loadContent = function loadContent (req, res, next) {
-    if (!req.bauhaus || !req.bauhaus.node || !req.bauhaus.node.current) return next();
+    if (!req.bauhaus || !req.bauhaus.page || !req.bauhaus.page.current) return next();
 
-    content.find({'_node': req.bauhaus.node.current._id}, 'content meta _type', function (err, contents) {
+    content.find({'_page': req.bauhaus.page.current._id}, 'content meta _type', function (err, contents) {
         if (err || contents.length === 0) return next();
         debug("Loaded " + contents.length + " content blocks");
         req.bauhaus.content = {
