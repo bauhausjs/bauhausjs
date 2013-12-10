@@ -4,5 +4,9 @@ module.exports = function setup(options, imports, register) {
     var connection = (options.connection !== undefined) ? options.connection : 'mongodb://localhost/bauhausjs';
     mongoose.connect(connection);
 
-    register(null, {});
+    register(null, {
+        mongoose: {
+            connection: mongoose.connection
+        }
+    });
 };
