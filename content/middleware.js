@@ -10,7 +10,7 @@ var middleware = module.exports = {};
  * @param  {Array}   contentTypes List of content types from service content.types
  * @return {Function}             Middleware function
  */
-middleware.generateLoadContentTypes = function generateLoadContentTypes (contentTypes) {
+middleware.loadContentTypes = function (contentTypes) {
     var loadContentTypes = function loadContentTypes (req, res, next) {
         if (!req.bauhaus || !req.bauhaus.content) return next();
 
@@ -54,9 +54,9 @@ middleware.renderContent = function (contentTypes) {
             var typeName = item._type;
             if (typeName in contentTypes) {
                 var contentType = contentTypes[ typeName ];
-
+                
                 res.render(contentType.template, item.content, function (err, html) {
-                    if (err) html = null;
+                    if (err) html = "";
                     req.bauhaus.content.rendered.push(html);
                 });
             }
