@@ -41,7 +41,7 @@ middleware.loadPageType = function (pageTypes) {
 middleware.renderSlots = function renderSlots (req, res, next) {
     if (!req.bauhaus.pageType.slots) return next();
 
-    req.bauhaus.slots = [];
+    req.bauhaus.slots = {};
     var slotNameMap = [];
     req.bauhaus.pageType.slots.forEach(function (element, index) {
         slotNameMap[index] = element.name; 
