@@ -1,13 +1,13 @@
 {
   "name": "server",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Root express app, were all other apps are atached to",
   "main": "app.js",
   "private": true,
   "plugin": {
     "provides": [
       "server"
-    ], 
+    ],
     "consumes": [
       "event"
     ]

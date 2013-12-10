@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Provides a shared EventEmitter",
   "main": "app.js",
   "private": true,

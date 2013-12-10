@@ -1,6 +1,6 @@
 {
   "name": "page",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Module which provides rendering and mangement for pages",
   "main": "app.js",
   "private": true,
@@ -8,6 +8,10 @@
     "provides": [
       "page"
     ],
-    "consumes": ["frontend", "backend", "content"]
+    "consumes": [
+      "frontend",
+      "backend",
+      "content"
+    ]
   }
 }

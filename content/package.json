@@ -1,6 +1,6 @@
 {
   "name": "content",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Module which provides functionality to access and render content",
   "main": "app.js",
   "private": true,
@@ -8,7 +8,7 @@
     "provides": [
       "content"
     ],
-    "consumes": [ 
+    "consumes": [
       "backend",
       "frontend"
     ]
