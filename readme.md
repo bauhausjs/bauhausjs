@@ -4,14 +4,14 @@
 
 BauhausJS is a modular CMS for NodeJS. BauhausJS is supported by [DigitalWerft](http://digitalwerft.com). This is an open source project and pull requests are welcome.
 
-**The development is in very early stage and there's not much to see yet.** We plan to provide an beta by spring 2014 and be production ready until summer 2014.
+**The development is in very early stage and there's not much to see yet.** We plan to provide a beta by spring 2014 and be production ready until summer 2014.
 
 
 ## Modules
 
 BauhausJS is based on node packages. These packages are spiced with dependency injection, provided by [Architect](https://github.com/c9/architect) from Cloud9. This allows each module to expose objects as services to other modules. Each module can define dependencies to other modules, which are injected to this module on load time.
 
-Each module represents an self-containing application, which is added to a root server as middleware. Usually an module creates an express app, which is added to a root express app.
+Each module represents a self-containing application, which is added to a root server as middleware. Usually a module creates an express app, which is added to a root express app.
 
 ### Server
 
