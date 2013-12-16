@@ -4,7 +4,7 @@ var middleware = require('../middleware'),
     Page = require('../model').model;
 
 
-describe('Middleware', function () {
+describe('PageMiddleware', function () {
 
     describe('loadPage', function () {
         it('should load page and add it to request', function (done) {

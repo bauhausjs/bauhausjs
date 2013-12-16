@@ -27,6 +27,16 @@ module.exports = function setup(options, imports, register) {
     page.api.get('/', function (req, res) {
         res.send("Here is the API");
     })
+
+    var allowCrossDomain = function(req, res, next) {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+        res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+        next();
+    }
+    backend.use(allowCrossDomain);
+
     // register REST api at backend
     backend.use('/api', page.api);
 

@@ -63,8 +63,7 @@ middleware.renderSlots = function renderSlots (req, res, next) {
 middleware.renderPage = function renderPage (req, res, next) {
     var template = req.bauhaus.pageType.template;
     var data = req.bauhaus;
-    debug('Render and send page');
-    console.log(req.bauhaus);
+    debug('Render and send page', req.bauhaus);
     res.render(template, data);
 };
 
@@ -73,6 +72,6 @@ middleware.renderPage = function renderPage (req, res, next) {
  * Middleware error handler which is added to end of render stack and resolves error which occured
  * during rendering (e.g. page not found) and contiues on the express middleware stack without error.
  */
-middleware.errorHandler = function (err, req, res, next) {
+middleware.errorHandler = function errorHandler (err, req, res, next) {
     next();
 };
