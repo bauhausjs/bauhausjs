@@ -11,6 +11,13 @@ describe('frontend module', function () {
                 addedToServer = true;
             }
         };
+        var securityMock = {
+            passport: {
+                initialize: function () { return function (req, res, next) { return next(); } },
+                session: function () { return function (req, res, next) { return next(); } },
+                authenticate: function () { return function (req, res) {} }
+            }
+        };
         var register = function (err, services) {
             assert(err === null, "App should not return error");
             assert(services.frontend.app.stack, "App should be instance of express (and have prop stack)");
@@ -19,7 +26,7 @@ describe('frontend module', function () {
             done();
         };
         // init module with empty options and mocked server import
-        var imports = {server: {app: serverMock }};
+        var imports = {server: {app: serverMock}, security: securityMock };
         app({}, imports, register);
     });
 });

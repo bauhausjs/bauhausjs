@@ -9,7 +9,7 @@
       "frontend"
     ],
     "consumes": [
-      "server"
+      "server", "security"
     ]
   }
 }
