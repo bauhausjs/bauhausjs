@@ -12,7 +12,8 @@
   "keywords": [
     "cms",
     "content",
-    "backend"
+    "backend",
+    "bauhaus"
   ],
   "contributors": [
     {
@@ -35,7 +36,11 @@
     "mongoose-materialized": "~0.1.5",
     "baucis": "~0.6.28",
     "debug": "~0.7.4",
-    "ejs": "~0.8.5"
+    "ejs": "~0.8.5",
+    "passport": "~0.1.17",
+    "passport-local": "~0.1.6",
+    "passport-local-mongoose": "~0.2.5",
+    "connect-flash": "~0.1.1"
   },
   "devDependencies": {
     "mocha": "~1.14.0",
