@@ -1,6 +1,6 @@
 
 var express = require('express'),
-    helper = require('./helper');
+    helper = require('./helper'),
     debug = require('debug')('bauhaus:server'),
     appdebug = require('debug')('bauhaus:app');
 
