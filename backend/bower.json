@@ -1,0 +1,8 @@
+{
+  "name": "backend",
+  "dependencies": {
+    "angular": "~1.2.5",
+    "angular-resource": "~1.2.5",
+    "angular-route": "~1.2.5"
+  }
+}
