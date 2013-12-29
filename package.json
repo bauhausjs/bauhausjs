@@ -44,6 +44,10 @@
   },
   "devDependencies": {
     "mocha": "~1.14.0",
-    "should": "~2.1.0"
+    "should": "~2.1.0",
+    "grunt": "~0.4.2",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-less": "~0.8.3",
+    "connect-livereload": "~0.3.1"
   }
 }
