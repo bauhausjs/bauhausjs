@@ -25,8 +25,14 @@ page.schema = new Schema({
     discriminatorKey : '_model' 
 });
 
+
 // Add plugin which provides automatic support for mongodb`s materialized path
 page.schema.plugin(materializedPlugin);
+
+// overwrite types defined by mongoose-materialized plugin, since its schema format dont work with baucis swagger
+page.schema.path('parentId', Schema.Types.ObjectId);
+page.schema.path('path', String);
+page.schema.path('_w', String);
 
 /** Model of Page */
 page.model = mongoose.model(page.config.name, page.schema);
@@ -34,9 +40,9 @@ page.model = mongoose.model(page.config.name, page.schema);
 
 baucis.rest({
     singular:'Page', 
-    select:'_type name route title label parentId', swagger: true
+    select:'_type name route title label parentId'
 });
 
 
-page.api = baucis();
+page.api = baucis({swagger:true});
 
