@@ -1,0 +1,21 @@
+
+
+<script type="text/ng-template" id="tree-item">
+    <div class="page-tree-item-link" ng-click="changePage(data.id)" ng-init="data.open = false" ng-class="{ open: data.open === true }">
+        <div class="page-tree-item-collapse" ng-click="data.open = !data.open" ng-class="{ visible: hasChildren(data) }">
+            <i class="page-tree-collapse-icon fa fa-caret-right"></i>
+        </div>
+        <div class="page-tree-item-title">{{data.title}}</div>
+    </div>
+    <ul ng-show="data.open" class="page-tree">
+        <li class="page-tree-item" ng-repeat="data in data.children" ng-include="'tree-item'"></li>
+    </ul>
+</script>
+
+<ul class="page-tree">
+    <li class="page-tree-item" ng-repeat="data in tree" ng-include="'tree-item'"></li>
+</ul>
+
+<div class="page-editor">
+  <input class="title" ng-model="page.title" />
+</div>
