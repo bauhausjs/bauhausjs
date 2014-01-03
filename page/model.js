@@ -1,6 +1,5 @@
 var mongoose = require('mongoose'),
-    materializedPlugin = require('mongoose-materialized'),
-    baucis = require('baucis');
+    materializedPlugin = require('mongoose-materialized');
 
 /** @module page/model */
 var page = module.exports = {};
@@ -37,12 +36,4 @@ page.schema.path('_w', String);
 /** Model of Page */
 page.model = mongoose.model(page.config.name, page.schema);
 
-
-baucis.rest({
-    singular:'Page', 
-    select:'_type name route title label parentId'
-});
-
-
-page.api = baucis({swagger:true});
 

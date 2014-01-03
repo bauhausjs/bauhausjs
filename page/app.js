@@ -1,5 +1,6 @@
 var middleware = require('./middleware'),
-    page = require('./model');
+    page = require('./model'),
+    api = require('./api');
 
 module.exports = function setup(options, imports, register) {
     var frontend = imports.frontend.app,
@@ -23,11 +24,6 @@ module.exports = function setup(options, imports, register) {
     };
     module.models[ page.config.name.toLowerCase() ] = page;
 
-
-    page.api.get('/', function (req, res) {
-        res.send("Here is the API");
-    })
-
     // Allow origin access for testing
     if (process.env.NODE_ENV == 'development')
     var allowCrossDomain = function(req, res, next) {
@@ -40,7 +36,7 @@ module.exports = function setup(options, imports, register) {
     backend.use(allowCrossDomain);
 
     // register REST api at backend
-    backend.use('/api', page.api);
+    backend.use('/api', api);
 
     var renderStack = [
         middleware.loadPage,
