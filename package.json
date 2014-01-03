@@ -50,5 +50,8 @@
     "mocha": "~1.14.0",
     "should": "~2.1.0",
     "grunt": "~0.4.2"
+  },
+  "scripts": {
+    "postinstall": "npm install backend/"
   }
 }
