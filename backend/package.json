@@ -4,7 +4,9 @@
   "description": "Root backend express app, were all backend middleware and routes are atached to",
   "main": "app.js",
   "private": true,
-  "postinstall": "../node_modules/.bin/bower install",
+  "scripts": {
+    "postinstall": "node_modules/.bin/bower install"
+  },
   "plugin": {
     "provides": [
       "backend"
@@ -16,8 +18,9 @@
   "dependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-less": "~0.8.3",
-    "grunt-contrib-watch": "~0.5.3"
+    "grunt-contrib-watch": "~0.5.3",
+    "connect-livereload": "~0.3.1",
+    "bower": "~1.2.8"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }
