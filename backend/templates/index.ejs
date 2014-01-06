@@ -9,17 +9,19 @@
         <header class="header">
             <div class="header-title">BauhausJS</div>
         </header>
-        <nav class="navigation">
-            <ul class="navigation-list">
-                <li class="navigation-list-item">
-                    <a href="#/dashboard"><i class="navigation-icon fa fa-dashboard"></i> Dashboard</a>
-                </li>
-                <li class="navigation-list-item">
-                    <a href="#/page"><i class="navigation-icon fa fa-file-o"></i> Pages</a>
-                </li>
-            </ul>
-        </nav>
-        <div class="content" ng-view></div>
+        <div class="body">
+            <nav class="navigation">
+                <ul class="navigation-list">
+                    <li class="navigation-list-item">
+                        <a href="#/dashboard"><i class="navigation-icon fa fa-dashboard"></i> Dashboard</a>
+                    </li>
+                    <li class="navigation-list-item">
+                        <a href="#/page"><i class="navigation-icon fa fa-file-o"></i> Pages</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="content" ng-view></div>
+        </div>
 
 
         <script src="components/angular/angular.js"></script>

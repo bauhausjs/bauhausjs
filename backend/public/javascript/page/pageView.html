@@ -1,7 +1,7 @@
 
 
 <script type="text/ng-template" id="tree-item">
-    <div class="page-tree-item-link" ng-click="changePage(data.id)" ng-init="data.open = false" ng-class="{ open: data.open === true }">
+    <div class="page-tree-item-link clickable" ng-click="changePage(data.id)" ng-init="data.open = isRoot(data._id) ? true : false" ng-class="{ open: data.open === true, selected: data._id === currentPageId }">
         <div class="page-tree-item-collapse" ng-click="data.open = !data.open" ng-class="{ visible: hasChildren(data) }">
             <i class="page-tree-collapse-icon fa fa-caret-right"></i>
         </div>
@@ -17,5 +17,17 @@
 </ul>
 
 <div class="page-editor">
-    <input class="title" ng-model="page.title" />
+    <input type="text" class="title" ng-model="page.title" /><br/>
+    <i class="fa fa-code-fork"></i> Route <input type="text" class="route" ng-model="page.route" /><br />
+    <i class="fa fa-columns"></i> Page Type: <select ng-model="page._type" ng-options="name as type.title for (name, type) in pageTypes"></select>
+    <input type="submit" class="button" value="Save" ng-click="updatePage(page)" /><br /><br />
+
+    <div class="content-slots">
+        <div class="content-slot" ng-repeat="slot in currentPageType.slots">
+            <h2>{{slot.name}}</h2>
+            <div class="content" ng-repeat="content in slots[$index]">
+                {{ content.content }}
+            </div>
+        </div>
+    </div> 
 </div>
