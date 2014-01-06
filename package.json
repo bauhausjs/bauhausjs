@@ -3,7 +3,8 @@
   "version": "0.0.3",
   "description": "A modular CMS for Node.js",
   "scripts": {
-    "test": "mocha server/test/ frontend/test/ backend/test/ event/test/ mongoose/test/ page/test/ content/test/"
+    "test": "env NODE_ENV=test mocha server/test/ frontend/test/ backend/test/ event/test/ mongoose/test/ page/test/ content/test/",
+    "postinstall": "npm --prefix ./backend install ./backend"
   },
   "repository": {
     "type": "git",
@@ -50,8 +51,5 @@
     "mocha": "~1.14.0",
     "should": "~2.1.0",
     "grunt": "~0.4.2"
-  },
-  "scripts": {
-    "postinstall": "npm --prefix ./backend install ./backend"
   }
 }
