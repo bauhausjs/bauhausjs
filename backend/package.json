@@ -20,7 +20,8 @@
     "grunt-contrib-less": "~0.8.3",
     "grunt-contrib-watch": "~0.5.3",
     "connect-livereload": "~0.3.1",
-    "bower": "~1.2.8"
+    "bower": "~1.2.8",
+    "grunt-cli": "~0.1.11"
   },
   "devDependencies": {}
 }
