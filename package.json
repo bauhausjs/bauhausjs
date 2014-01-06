@@ -52,6 +52,6 @@
     "grunt": "~0.4.2"
   },
   "scripts": {
-    "postinstall": "npm install backend/"
+    "postinstall": "npm --prefix ./backend install ./backend"
   }
 }
