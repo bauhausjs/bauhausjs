@@ -35,6 +35,10 @@ module.exports = function setup(options, imports, register) {
     }
     backend.use(allowCrossDomain);
 
+    api.get('/PageTypes', function (req, res) {
+        res.json(module.types);
+    });
+
     // register REST api at backend
     backend.use('/api', api);
 
