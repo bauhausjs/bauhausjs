@@ -23,9 +23,13 @@ select {
 }
 
 .button {
+    display: inline-block;
     background: #ccc;
     border: 1px solid #aaa;
     border-radius: 3px;
+    text-decoration: none;
+    padding: 0 0.5em;
+    color: #000000;
 }
 
 .clickable {
@@ -65,7 +69,7 @@ select {
 */
 
 .page-tree {
-    width: 300px;
+    width: 350px;
     list-style-type: none;
     color: #555555;
     float: left;
@@ -83,6 +87,7 @@ select {
             line-height: 36px;
             background: #eeeeee;
             border-bottom: 1px solid #ffffff;
+            clear: both;
 
             &:hover, &.selected {
                 background: #dddddd;
@@ -91,7 +96,8 @@ select {
             .page-tree-item-collapse {
                 width: 36px;
                 height: 36px;
-                display: inline-block;
+                display: block;
+                float: left;
                 text-align: center;
                 visibility: hidden;
                 &:hover {
@@ -108,8 +114,28 @@ select {
                 }
             }
             .page-tree-item-title {
-                display: inline-block;
+                display: block;
+                float: left;
                 padding-left: 0px;
+                max-height: 36px;
+                overflow: hidden; 
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                width: 270px;
+            }
+
+            .page-tree-item-add {
+                float: right;
+                width: 36px;
+                height: 36px;
+                text-align: center;
+                opacity: 0.15;
+                display: block;
+
+                &:hover {
+                    background: #bbbbbb;
+                    opacity: 1;
+                }
             }
 
             &.open > .page-tree-item-collapse > {
@@ -124,14 +150,36 @@ select {
     .page-tree {
         .page-tree-item-link {
             padding-left: 36px;
+
+            .page-tree-item-title {
+                width: 234px;
+            }
         }
         .page-tree {
             .page-tree-item-link {
                 padding-left: 72px;
+
+                .page-tree-item-title {
+                    width: 198px;
+                }
             }
             .page-tree {
                 .page-tree-item-link {
                     padding-left: 98px;
+
+                    .page-tree-item-title {
+                        width: 162px;
+                    }
+                }
+
+                .page-tree {
+                    .page-tree-item-link {
+                        padding-left: 134px;
+
+                        .page-tree-item-title {
+                            width: 126px;
+                        }
+                    }
                 }
             } 
         } 
@@ -139,7 +187,7 @@ select {
 }
 
 .page-editor {
-    margin-left: 320px;
+    margin-left: 370px;
     padding: 20px;
 
     input.title {

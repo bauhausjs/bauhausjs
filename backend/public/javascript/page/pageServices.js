@@ -10,6 +10,10 @@ angular.module('bauhaus.page.services').factory('Page', function ($resource) {
         put: {
             method: 'PUT',
             params: { pageId: '@_id' }
+        },
+        create: {
+            method: 'POST',
+            params: { pageId: '' }
         }
     });
 });
@@ -22,6 +26,34 @@ angular.module('bauhaus.page.services').factory('PageTree', function ($resource)
         }
     });
 });
+
+angular.module('bauhaus.page.services').factory('SharedPageTree', function (PageTree, $rootScope) {
+    var scope = $rootScope.$new();
+    scope.store = {
+        current: {
+            rootPageId: null,
+            pageId: null
+        },
+        expanded: {}
+    };
+
+    PageTree.get(function (result) {
+        scope.store.tree = result.tree;
+
+        for (var rootKey in result.tree) {
+            // set root key
+            scope.store.current.rootPageId = rootKey;
+            
+            // set current pageId if not set 
+            if (!scope.store.current.pageId) {
+                scope.store.current.pageId = rootKey;
+            }
+        }
+        
+    });
+    return scope;
+});
+
 
 angular.module('bauhaus.page.services').factory('PageType', function ($resource) {
     return $resource('api/PageTypes', {}, {

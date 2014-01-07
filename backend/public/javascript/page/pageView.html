@@ -1,11 +1,12 @@
 
 
 <script type="text/ng-template" id="tree-item">
-    <div class="page-tree-item-link clickable" ng-click="changePage(data.id)" ng-init="data.open = isRoot(data._id) ? true : false" ng-class="{ open: data.open === true, selected: data._id === currentPageId }">
-        <div class="page-tree-item-collapse" ng-click="data.open = !data.open" ng-class="{ visible: hasChildren(data) }">
+    <div href="#/page/{{data._id}}" class="page-tree-item-link clickable" ng-click="changePage(data._id)" ng-init="data.open = isExpanded(data) ? true : false" ng-class="{ open: data.open === true, selected: data._id === store.current.pageId }">
+        <div class="page-tree-item-collapse clickable" ng-click="data.open = !data.open; toggle(data)" ng-class="{ visible: hasChildren(data) }" prevent-default>
             <i class="page-tree-collapse-icon fa fa-caret-right"></i>
         </div>
-        <div class="page-tree-item-title">{{data.title}}</div>
+        <div class="page-tree-item-title" title="{{data.title}}">{{data.title}}</div>
+        <div class="page-tree-item-add clickable" ng-click="newPage(data)" prevent-default><i class="fa fa-plus"></i></div>
     </div>
     <ul ng-show="data.open" class="page-tree">
         <li class="page-tree-item" ng-repeat="data in data.children" ng-include="'tree-item'"></li>
@@ -13,14 +14,16 @@
 </script>
 
 <ul class="page-tree root">
-    <li class="page-tree-item" ng-repeat="data in tree" ng-include="'tree-item'"></li>
+    <li class="page-tree-item" ng-repeat="data in store.tree" ng-include="'tree-item'"></li>
 </ul>
 
 <div class="page-editor">
     <input type="text" class="title" ng-model="page.title" /><br/>
     <i class="fa fa-code-fork"></i> Route <input type="text" class="route" ng-model="page.route" /><br />
+    <i class="fa fa-label"></i> Label <input type="text" class="label" ng-model="page.label" /><br />
     <i class="fa fa-columns"></i> Page Type: <select ng-model="page._type" ng-options="name as type.title for (name, type) in pageTypes"></select>
     <input type="submit" class="button" value="Save" ng-click="updatePage(page)" /><br /><br />
+    <button class="button" ng-click="deletePage(page)" />Delete</button><br /><br />
 
     <div class="content-slots">
         <div class="content-slot" ng-repeat="slot in currentPageType.slots">

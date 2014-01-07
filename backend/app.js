@@ -6,8 +6,6 @@ module.exports = function setup(options, imports, register) {
     var server = imports.server.app;
     var route = typeof options.route === 'string' ? options.route : '/backend';
 
-
-
     app.configure('development', function () {
         process.chdir(__dirname);
         var gruntConfig = require('./Gruntfile');

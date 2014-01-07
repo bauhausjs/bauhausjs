@@ -1,5 +1,5 @@
 
-angular.module('bauhaus.page', ['bauhaus.page.controllers']).config(['$routeProvider', function ($routeProvider) {
+angular.module('bauhaus.page', ['bauhaus.page.controllers', 'bauhaus.page.directives']).config(['$routeProvider', function ($routeProvider) {
     'use strict';
     $routeProvider.when('/page', {
         templateUrl: 'javascript/page/pageView.html',
