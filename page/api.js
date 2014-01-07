@@ -14,11 +14,10 @@ var getTree = function (request, response, next) {
     if (pageId) {
         query['_id'] = pageId;
     } else {
-        query['_parentId'] = null;
+        query['parentId'] = null;
     }
 
     page.model.findOne(query, function (err, doc) {
-
         doc.getTree(function (err, tree) {
             response.json({tree: tree});
         });
