@@ -16,8 +16,8 @@ module.exports = function setup(options, imports, register) {
                 model: 'Page',
                 template: __dirname + '/page.ejs',
                 slots: [
-                    { name: 'content', title: 'Content' },
-                    { name: 'left', title: 'Sidebar' }
+                    { name: 'content', label: 'Content' },
+                    { name: 'left', label: 'Sidebar' }
                 ]
             }
         }
