@@ -18,6 +18,10 @@ module.exports = function setup(options, imports, register) {
     };
     module.models[ content.config.name.toLowerCase() ] = content;
 
+    content.api.get('/ContentTypes', function (req, res, next) {
+        res.json(module.types);
+    });
+
     // register REST api at backend
     backend.use('/api', content.api);
 
