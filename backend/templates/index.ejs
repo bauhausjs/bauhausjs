@@ -3,25 +3,22 @@
     <head>
         <title>BauhausJS</title>
         <link type="text/css" rel="stylesheet" href="components/font-awesome/css/font-awesome.css">
-        <link type="text/css" rel="stylesheet" href="css/styles.css">
         <link type="text/css" rel="stylesheet" href="css/all.css">
     <body>
-        <header class="header">
-            <div class="header-title">BauhausJS</div>
-        </header>
-        <div class="body">
-            <nav class="navigation">
-                <ul class="navigation-list">
-                    <li class="navigation-list-item">
-                        <a href="#/dashboard"><i class="navigation-icon fa fa-dashboard"></i> Dashboard</a>
-                    </li>
-                    <li class="navigation-list-item">
-                        <a href="#/page"><i class="navigation-icon fa fa-file-o"></i> Pages</a>
-                    </li>
-                </ul>
-            </nav>
-            <div class="content" ng-view></div>
-        </div>
+
+        <nav class="navigation">
+            <div class="bauhaus-title">BauhausJS</div>
+            <ul class="navigation-list">
+                <li class="navigation-list-item">
+                    <a href="#/dashboard"><i class="navigation-icon fa fa-dashboard"></i> Dashboard</a>
+                </li>
+                <li class="navigation-list-item">
+                    <a href="#/page"><i class="navigation-icon fa fa-file-o"></i> Pages</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="content" ng-view></div>
+
 
 
         <script src="components/angular/angular.js"></script>
