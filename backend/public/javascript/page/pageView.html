@@ -1,41 +1,10 @@
-
-
-<script type="text/ng-template" id="tree-item">
-    <div href="#/page/{{data._id}}" class="page-tree-item-link clickable" ng-click="changePage(data._id)" ng-init="data.open = tree.isExpanded(data) ? true : false" ng-class="{ open: data.open === true, selected: data._id === tree.current.pageId }">
-        <div class="page-tree-item-collapse clickable" ng-click="tree.toggle(data)" ng-class="{ visible: tree.hasChildren(data) === true }" prevent-default>
-            <i class="page-tree-collapse-icon fa fa-caret-right"></i>
-        </div>
-        <div class="page-tree-item-title" title="{{data.title}}">
-            <span ng-switch="tree.isRoot(data)">
-                <span ng-switch-when="true"><i class="fa fa-home"></i></span>
-                <span ng-switch-default><i class="fa fa-file-o"></i></span>
-            </span>
-            &nbsp;{{data.title}}</div>
-        <div class="page-tree-item-add clickable" ng-click="newPage(data)" prevent-default><i class="fa fa-plus"></i></div>
-    </div>
-    <ul ng-show="data.open" class="page-tree">
-        <li class="page-tree-item" ng-repeat="data in data.children" ng-include="'tree-item'"></li>
-    </ul>
-</script>
-
-<ul class="page-tree root">
-    <li class="page-tree-item" ng-repeat="data in tree.all" ng-include="'tree-item'"></li>
-</ul>
+<div bauhaus-page-tree></div>
 
 <div class="page-editor">
     <div class="page-editor-header">
 
         <div class="page-editor-status">
-            <div ng-switch="pageHasChanges">
-                <span ng-switch-when="true">Page has changes, please save</span>
-                <span ng-switch-default>Page up to date</span>
-            </div>
-            <div ng-switch="contentHasChanges.length === 0">
-                <span ng-switch-when="true">Content up to date</span>
-                <span ng-switch-default>Content has changes {{contentHasChanges}}</span>
-            </div>
-
-            <input type="submit" class="button" value="Save" ng-click="updatePage(page)" /><br /><br />
+            <button class="button" ng-class="{ primary: (pageHasChanges || contentHasChanges() ) }" ng-click="updatePage(page)" />Save</button><br /><br />
         </div>
 
         <div class="page-editor-header-title">
@@ -48,9 +17,6 @@
         <div class="page-editor-header-route">
             <i class="fa fa-globe"></i> Route <input type="text" class="route" ng-model="page.route" />
         </div>
-        
-        
-
     </div>
 
     <div class="page-editor-tabs">
@@ -74,15 +40,31 @@
             <select ng-options="name as type.title for (name, type) in contentTypes.all" ng-model="newContentType"></select>    
             <div class="button clickable" ng-click="createContent()">Add Content</div>
         </div>
-        <div class="page-slot">
+        <div class="page-slot" ng-init="slotIndex = $index">
             <div class="page-content" ng-repeat="content in slots[$index]">
+
+                <div class="page-content-actions">
+                    <ul class="page-content-actions-list">
+                        <li class="page-content-actions-list-item clickable" title="Move up" ng-class="{ inactive: content.meta.position === 0 }" ng-click="moveContentUp(content)">
+                            <i class="fa fa-chevron-up"></i>
+                        </li>
+                        <li class="page-content-actions-list-item clickable" title="Move down" ng-class="{ inactive: content.meta.position === slots[slotIndex].length - 1}" ng-click="moveContentDown(content)">
+                            <i class="fa fa-chevron-down"></i>
+                        </li>
+                        <li class="page-content-actions-list-item clickable" title="Delete content" ng-click="deleteContent(content)">
+                            <i class="fa fa-times"></i>
+                        </li>
+                    </ul>
+                </div>
+
                 <div class="page-content-type"><i class="fa fa-puzzle-piece"></i> {{ contentTypes.all[content._type].title }}</div>
+
                 <div bauhaus-form ng-model="content" config="contentTypes.all[content._type]"></div>  
             </div>
         </div>
     </div>
 
     <div class="page-editor-container page-layout" ng-show="tab === 'layout'">
-        <i class="fa fa-columns"></i> Page Type: <select ng-model="page._type" ng-options="name as type.title for (name, type) in pageTypes"></select> 
+        Page Type: <select ng-model="page._type" ng-options="name as type.title for (name, type) in pageTypes.all"></select> 
     </div>
 </div>

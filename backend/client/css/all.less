@@ -11,6 +11,9 @@ html, body {
     height: 100%;
 }
 
+body {
+    background: -webkit-linear-gradient(left, #eeeeee 0px, #eeeeee 200px, transparent 201px);
+}
 
 
 input {
@@ -51,20 +54,33 @@ textarea {
 }
 
 select {
-   line-height: 160%;
+    line-height: 160%;
     padding: 0 0.5em;
     font-size: 1em; 
     outline: none;
+    height: 36px;
 }
 
 .button {
     display: inline-block;
-    background: #ccc;
+    background: #eeeeee;
     border: 1px solid #aaa;
     border-radius: 3px;
     text-decoration: none;
     padding: 0 0.5em;
-    color: #000000;
+    color: #555555;
+    font-size: 16px;
+    line-height: 34px;
+
+    &:hover {
+        background: #ffffff;
+    }
+
+    &.primary {
+        color: #FFFFFF;
+        background-color: #5cb85c;
+        border-color: #4cae4c;
+    }
 }
 
 .clickable {
@@ -77,7 +93,6 @@ select {
 
 .navigation {
     width: 200px;
-    background: #dddddd;
     display: block;
     float: left;
     padding: 20px 0;
@@ -279,6 +294,7 @@ select {
 
             input.title {
                 font-size: 24px;
+                width: 500px;
             }
 
             .page-editor-header-show-label {
@@ -293,7 +309,11 @@ select {
         }
 
 
-        .page-editor-header-route {}
+        .page-editor-header-route {
+            input {
+                width: 400px;
+            }
+        }
     }
 
     .page-editor-tabs {
@@ -328,11 +348,44 @@ select {
     }
 
     .page-content-type {
-        width: 100%;
-        text-align: right;
         color: #555555;
         padding: 10px 0 0 0;
     }
+
+    .page-content-actions {
+        float: right;
+
+        .page-content-actions-list {
+            list-style-type: none;
+            height: 36px;
+
+            .page-content-actions-list-item {
+                width: 36px;
+                height: 36px;
+                display: inline-block;
+                text-align: center;
+                line-height: 36px;
+                background: #ffffff;
+                color: #dddddd;
+
+                &.inactive {
+                    color: #ffffff;
+                    background: transparent;
+
+                    &:hover {
+                        background: transparent;
+                        color: #ffffff;
+                    }
+                }
+
+                &:hover {
+                    background: #bbbbbb;
+                    color: #555555;
+                }
+            }
+        }
+    }
+                    
 
     .page-content-field {
         padding: 10px;

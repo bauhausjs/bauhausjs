@@ -31,6 +31,36 @@ angular.module('bauhaus.page.directives').directive('bauhausForm', function ($co
     };
 });
 
+angular.module('bauhaus.page.directives').directive('bauhausPageTree', function (SharedPageTree, Page, $location) {
+    return {
+        templateUrl: 'javascript/page/pageTree.html',
+        scope: {},
+        link: function (scope, el, attr) {
+            scope.tree = SharedPageTree.tree;
+
+            scope.changePage = function (id) {
+                $location.path('page/' + id);
+            };
+
+            /* Create new child page at rest service, called from UI */
+            scope.newPage = function (page) {
+                var newPage = {
+                    parentId: page._id,
+                    title: 'New page',
+                    route: page.route + '/newpage',
+                    _type: page._type
+                };
+
+                Page.create(newPage, function (result) {
+                    if (!page.children) page.children = {};
+                    page.children[ result._id ] = result;
+                    scope.changePage(result._id);
+                });
+            };
+        }
+    };
+});
+
 angular.module('bauhaus.page.directives').directive('bauhausText', function () {
     return {
         restrict: 'AEC',

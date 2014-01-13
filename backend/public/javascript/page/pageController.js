@@ -1,29 +1,54 @@
 angular.module('bauhaus.page.controllers', ['bauhaus.page.services']);
 
-angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$routeParams', '$location', 'Page', 'SharedPageType', 'SharedContentType', 'PageTree', 'Content', 'PageContent', 'SharedPageTree', function ($scope, $routeParams, $location, Page, SharedPageType, SharedContentType, PageTree, Content, PageContent, SharedPageTree) {
+angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$routeParams', '$location', 'Page', 'SharedPageType', 'SharedContentType', 'Content', 'PageContent', 'SharedPageTree', function ($scope, $routeParams, $location, Page, SharedPageType, SharedContentType, Content, PageContent, SharedPageTree) {
     'use strict';
 
-    /* Add shared tree scope to local scope */
-    $scope.tree = SharedPageTree.tree;
-    $scope.pageTypes = SharedPageType.store;
-    $scope.contentTypes = SharedContentType.store;
+    /* reference to page tree in service */
+    $scope.tree            = SharedPageTree.tree;   
 
-    // Set current page variable to path var, automatically laods page via watcher
+    /* reference to object of pageTypes configurations in service */    
+    $scope.pageTypes       = SharedPageType.store; 
+    /* Contains the configuration of the current page type, is updated when page._type is updated */
+    $scope.currentPageType = null;
+
+    /* reference to object of contentType configuations in service */
+    $scope.contentTypes    = SharedContentType.store;
+    /* Contains name content type selected by user to add, uses first in list as default */
+    $scope.newContentType  = null;
+
+
+    /* current page object */
+    $scope.page           = {};    
+    /* bool which is updated by content watcher, if true page was updated by user */ 
+    $scope.pageHasChanges = false;
+
+    /* array of slots, which contain arrays of content objects */
+    $scope.slots             = [];
+    /* object that contains all content element, which were updated
+       by user in shape hasContentChanges[ _id ] = [slotIndex, index] */
+    $scope.contentChanges    = {};
+
+    /* Set current page path variable tree service, automatically laods page via watcher */
     if ($routeParams.id) {
         $scope.tree.current.pageId = $routeParams.id;
     }
 
-    $scope.pageHasChanges = false;
-    $scope.contentHasChanges = {};
-    $scope.slots = [];
 
-    /** Sets current page to given id, used by UI to change current page,  **/
+    /********************
+     ** PAGE ************
+     ********************/
+
+    /* Helper: Sets current page to given id, used by UI to change current page */
     $scope.changePage = function (id) {
-        //$scope.tree.current.pageId = id;
         $location.path('page/' + id);
     };
 
-    /** Load page from server if currentPageId is changed **/
+    /* Helper */
+    $scope.contentHasChanges = function () {
+        return (Object.keys($scope.contentChanges).length > 0) ? true : false;
+    };
+
+    /* Watcher: Load page from server if currentPageId is changed */
     $scope.$watch('tree.current.pageId', function (newVal, oldVal) {
         if (newVal) {
             $scope.page = Page.get({ pageId: newVal }, function (result) {
@@ -60,40 +85,34 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
         }
     });
 
-    $scope.watchContent = function (slot, position) {
-        $scope.$watch(function () { return $scope.slots[slot][position] }, function (newVal, oldVal) {
-            if (JSON.stringify(oldVal) !== JSON.stringify(newVal) ) {
-                var coordinates = [slot, position];
-                if ($scope.contentHasChanges[ newVal._id ] == null) {
-                    $scope.contentHasChanges[ newVal._id ] = [slot, position];
-                }
-            }
-        }, true); 
-    }
-
+    /* Watcher: Update page update flag, if user updated page */
     $scope.$watch('page', function (newVal, oldVal) {
         if (newVal && newVal._id && oldVal && oldVal._id) {
             $scope.pageHasChanges = true;
         }
     }, true);
 
+    /* Watcher: Change currentPageType if type is changed by user */
+    $scope.$watch('page._type', function (newVal) {
+        if ($scope.pageTypes.all[newVal]) {
+            $scope.currentPageType = $scope.pageTypes.all[newVal];
+            // set default tab
+            $scope.tab = 'slot:' + $scope.currentPageType.slots[0].name;
+            $scope.currentSlot = 0;
+            // add slots if unexistend
+            while ($scope.currentPageType.slots.length > $scope.slots.length) {
+                $scope.slots.push([]);
+            }
+        }
+    });
 
-
-    /* Create new child page at rest service, called from UI */
-    $scope.newPage = function (page) {
-        var newPage = {
-            parentId: page._id,
-            title: 'New page',
-            route: page.route + '/newpage',
-            _type: page._type
-        };
-
-        Page.create(newPage, function (result) {
-            if (!page.children) page.children = {};
-            page.children[ result._id ] = result;
-            $scope.changePage(result._id);
-        });
-    };
+    /* Set first content type as current */
+    $scope.$watch('contentTypes.all', function (newVal, oldVal) {
+        for (var type in newVal) {
+            $scope.newContentType = type;
+            break;
+        }
+    }, true);
 
     /** Sends currently viewed page and updated content to server and update tree, to avoid tree reload **/
     $scope.updatePage = function (page) {
@@ -108,18 +127,10 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
             });
         }
 
-        // iterate over all content elements, which were updated
-        for (var id in $scope.contentHasChanges) {
-            var position = $scope.contentHasChanges[ id ];
-            var content = $scope.slots[position[0]][position[1]];
-            Content.put(content, function (result) {
-                // remove content from list of content blocks which should be updated
-                delete $scope.contentHasChanges[ id ];
-            });
-        }
+        $scope.updateContents();
     };
 
-    /* Deletes page at rest service, called by UI */
+    /* UI: Deletes page at rest service */
     $scope.deletePage = function (page) {
         var pageInTree = $scope.tree.getByPath(page.path, page._id);
 
@@ -138,9 +149,51 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
 
     };
 
+
+    /********************
+     ** CONTENT *********
+     ********************/
+
+    /* Sends all updated content elements to server */
+    $scope.updateContents = function () {
+        // iterate over all content elements, which were updated
+        var contentToUpdate = Object.keys($scope.contentChanges).length;
+
+        var contentUpdated = 0;
+        for (var id in $scope.contentChanges) {
+            var position = $scope.contentChanges[ id ];
+            var content = $scope.slots[position[0]][position[1]];
+
+            Content.put(content, function (result) {
+                // remove content from list of content blocks which should be updated
+                contentUpdated++;
+                // Count if all content elements to update have been updated, if finished clear list
+                if (contentUpdated >= contentToUpdate) {
+                    $scope.contentChanges = {};
+                }
+            });
+        }
+    };
+
+    /* Register watcher for changes in single content element */
+    $scope.watchContent = function (slot, position) {
+        $scope.$watch(function () { return $scope.slots[slot][position] }, function (newVal, oldVal) {
+            if (newVal && JSON.stringify(oldVal) !== JSON.stringify(newVal) ) {
+                var coordinates = [slot, position];
+                if ($scope.contentChanges[ newVal._id ] == null) {
+                    // add content to list of changed content
+                    $scope.contentChanges[ newVal._id ] = [slot, position];
+                } else {
+                    // update coordinates of content in list of changed content
+                    $scope.contentChanges[ newVal._id ] = [slot, position];
+                }
+            }
+        }, true); 
+    };
+
+    /* UI: Create content element of selected type at server and add to current slot */
     $scope.createContent = function () {
         var slot = $scope.currentSlot;
-
         var position = $scope.slots[slot].length; 
         var content = {
             _page: $scope.tree.current.pageId,
@@ -157,27 +210,75 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
         });
     };
 
-    /* Set first content type as current */
-    $scope.$watch('contentTypes.all', function (newVal, oldVal) {
-        for (var type in newVal) {
-            $scope.newContentType = type;
-            break;
-        }
-    }, true);
+    /* UI: Moves content element up in slot */
+    $scope.moveContentUp = function (content) {
+        var slot = content.meta.slot,
+            oldIndex = content.meta.position,
+            newIndex = oldIndex - 1;
+        // change positions in content array
+        $scope.moveContent(slot, oldIndex, newIndex);
+    };
 
-    /** Change currentPageType if type is changed by user **/
-    $scope.$watch('page._type', function (newVal) {
-        if ($scope.pageTypes.all[newVal]) {
-            $scope.currentPageType = $scope.pageTypes.all[newVal];
-            // set default tab
-            $scope.tab = 'slot:' + $scope.currentPageType.slots[0].name;
-            $scope.currentSlot = 0;
-            // add slots if unexistend
-            while ($scope.currentPageType.slots.length > $scope.slots.length) {
-                $scope.slots.push([]);
+    /* UI: Moves content element down in slot */
+    $scope.moveContentDown = function (content) {  
+        var slot = content.meta.slot,
+            oldIndex = content.meta.position,
+            newIndex = oldIndex + 1;
+        // change positions in content array
+        $scope.moveContent(slot, oldIndex, newIndex);
+    };
+
+    /* UI: Delete content from server after confirm and update positions of other elements */
+    $scope.deleteContent = function (content) {
+        var ok = confirm('Do you really want to delete this content element?');
+        if (ok) {
+            var position = content.meta.position,
+                slot = content.meta.slot;
+            Content.delete({}, {'_id': content._id}, function (result) {
+                $scope.removeContent(slot, position);
+                var unregWatcher = $scope.$watch('slots[' + slot + ']', function (newVal) {
+                    $scope.updateContents();
+                    unregWatcher();
+                });
+                
+            });
+        }
+    };
+
+    /* Helper: Removes content element from scope and update positions of other elements */
+    $scope.removeContent = function (slotId, position) {
+        var slot = $scope.slots[slotId];
+        slot.splice(position, 1);
+
+        for (var c in slot) {
+            var element = slot[c];
+            if (element.meta.position !== c) {
+                element.meta.position = c;
+            }
+        };
+    };
+
+    /* Helper: Changes position of of content element in scope */
+    $scope.moveContent = function (slotId, oldIndex, newIndex) {
+        var slot = $scope.slots[slotId];
+        while (oldIndex < 0) {
+            oldIndex += slot.length;
+        }
+        while (newIndex < 0) {
+            newIndex += slot.length;
+        }
+        if (newIndex >= slot.length) {
+            var k = new_Index - slot.length;
+            while ((k--) + 1) {
+                this.push(undefined);
             }
         }
-    });
-
-
+        // change position of moved element
+        var content = $scope.slots[slotId][oldIndex];
+        content.meta.position = newIndex;
+        // change position of element which is moved by other element moving up or down
+        var content2 = $scope.slots[slotId][newIndex];
+        content2.meta.position = oldIndex;
+        slot.splice(newIndex, 0, slot.splice(oldIndex, 1)[0]);
+    };
 }]);

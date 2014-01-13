@@ -221,7 +221,7 @@ angular.module('bauhaus.page.services').factory('Content', function ($resource) 
         },
         delete: {
             method: 'DELETE',
-            params: { contentId: '@_id'}
+            params: { contentId: '@_id' }
         }
     });
 });
