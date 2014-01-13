@@ -1,32 +1,33 @@
 angular.module('bauhaus.page.controllers', ['bauhaus.page.services']);
 
-angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$routeParams', '$location', 'Page', 'PageType', 'ContentType', 'PageTree', 'Content', 'PageContent', 'SharedPageTree', function ($scope, $routeParams, $location, Page, PageType, ContentType, PageTree, Content, PageContent, SharedPageTree) {
+angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$routeParams', '$location', 'Page', 'SharedPageType', 'SharedContentType', 'PageTree', 'Content', 'PageContent', 'SharedPageTree', function ($scope, $routeParams, $location, Page, SharedPageType, SharedContentType, PageTree, Content, PageContent, SharedPageTree) {
     'use strict';
 
     /* Add shared tree scope to local scope */
-    $scope.store = SharedPageTree.store;
+    $scope.tree = SharedPageTree.tree;
+    $scope.pageTypes = SharedPageType.store;
+    $scope.contentTypes = SharedContentType.store;
 
     // Set current page variable to path var, automatically laods page via watcher
     if ($routeParams.id) {
-        $scope.store.current.pageId = $routeParams.id;
+        $scope.tree.current.pageId = $routeParams.id;
     }
-
 
     $scope.pageHasChanges = false;
     $scope.contentHasChanges = {};
-    $scope.pageTypes = {};
+    $scope.slots = [];
 
     /** Sets current page to given id, used by UI to change current page,  **/
     $scope.changePage = function (id) {
-        //$scope.store.current.pageId = id;
+        //$scope.tree.current.pageId = id;
         $location.path('page/' + id);
     };
 
     /** Load page from server if currentPageId is changed **/
-    $scope.$watch('store.current.pageId', function (newVal, oldVal) {
+    $scope.$watch('tree.current.pageId', function (newVal, oldVal) {
         if (newVal) {
             $scope.page = Page.get({ pageId: newVal }, function (result) {
-                $scope.store.expand(result);
+                $scope.tree.expand(result);
                 $scope.pageHasChanges = false;
                 $scope.showPageLabel = ($scope.page.label && $scope.page.label.length != null && $scope.page.label.length > 0);
             });
@@ -34,6 +35,13 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
             $scope.content = PageContent.get({pageId: newVal}, function () {
                 // reset slots
                 $scope.slots = [];
+
+                // add slots if unexistend
+                if ($scope.currentPageType) {
+                    while ($scope.currentPageType.slots.length > $scope.slots.length) {
+                        $scope.slots.push([]);
+                    }
+                }
                 for (var c in $scope.content) {
                     var contentElement = $scope.content[c];
                     if (contentElement.meta) {
@@ -45,19 +53,23 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
                         }
                         $scope.slots[slot][position] = contentElement;
 
-                        $scope.$watch(function () { return $scope.slots[slot][position] }, function (newVal, oldVal) {
-                            if (JSON.stringify(oldVal) !== JSON.stringify(newVal) ) {
-                                var coordinates = [slot, position];
-                                if ($scope.contentHasChanges[ newVal._id ] == null) {
-                                    $scope.contentHasChanges[ newVal._id ] = [slot, position];
-                                }
-                            }
-                        }, true);
+                        $scope.watchContent(slot, position);
                     }
                 }
             });
         }
     });
+
+    $scope.watchContent = function (slot, position) {
+        $scope.$watch(function () { return $scope.slots[slot][position] }, function (newVal, oldVal) {
+            if (JSON.stringify(oldVal) !== JSON.stringify(newVal) ) {
+                var coordinates = [slot, position];
+                if ($scope.contentHasChanges[ newVal._id ] == null) {
+                    $scope.contentHasChanges[ newVal._id ] = [slot, position];
+                }
+            }
+        }, true); 
+    }
 
     $scope.$watch('page', function (newVal, oldVal) {
         if (newVal && newVal._id && oldVal && oldVal._id) {
@@ -89,7 +101,7 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
             Page.put(page, function (result) {
                 if (result.path != null) {
                     // Choose corrosponding page in tree to update without reload
-                    var pageInTree = $scope.store.getByPath(result.path, result._id);
+                    var pageInTree = $scope.tree.getByPath(result.path, result._id);
                     pageInTree.title = $scope.page.title;
                 }
                 $scope.pageHasChanges = false;
@@ -109,7 +121,7 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
 
     /* Deletes page at rest service, called by UI */
     $scope.deletePage = function (page) {
-        var pageInTree = $scope.store.getByPath(page.path, page._id);
+        var pageInTree = $scope.tree.getByPath(page.path, page._id);
 
         if (pageInTree.children && Object.keys(pageInTree.children).length > 0) {
             alert('You cannot delete this page because it has sub page. Please delete this pages first.');
@@ -118,29 +130,52 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
         var del = confirm('Do you really want to delete this page?');
         if (del) {
             Page.delete({pageId: page._id }, function (result) {
-                $scope.store.deleteByPath(page.path, page._id);
-                var parentId = $scope.store.getParentId(page);
+                $scope.tree.deleteByPath(page.path, page._id);
+                var parentId = $scope.tree.getParentId(page);
                 $scope.changePage(parentId);
             });
         }
 
     };
 
-    /** Initial PageType loading **/
-    PageType.get(function (result) {
-        $scope.pageTypes = result;
-    });
+    $scope.createContent = function () {
+        var slot = $scope.currentSlot;
 
-    ContentType.get(function (result) {
-        $scope.contentTypes = result;
-    });
+        var position = $scope.slots[slot].length; 
+        var content = {
+            _page: $scope.tree.current.pageId,
+            _type: $scope.newContentType,
+            meta: {
+                slot: slot,
+                position: position
+            },
+            content: {}
+        };
+        Content.create(content, function (result) {
+            $scope.slots[ slot ].push(result);
+            $scope.watchContent(slot, position);
+        });
+    };
+
+    /* Set first content type as current */
+    $scope.$watch('contentTypes.all', function (newVal, oldVal) {
+        for (var type in newVal) {
+            $scope.newContentType = type;
+            break;
+        }
+    }, true);
 
     /** Change currentPageType if type is changed by user **/
     $scope.$watch('page._type', function (newVal) {
-        if ($scope.pageTypes[newVal]) {
-            $scope.currentPageType = $scope.pageTypes[newVal];
+        if ($scope.pageTypes.all[newVal]) {
+            $scope.currentPageType = $scope.pageTypes.all[newVal];
             // set default tab
             $scope.tab = 'slot:' + $scope.currentPageType.slots[0].name;
+            $scope.currentSlot = 0;
+            // add slots if unexistend
+            while ($scope.currentPageType.slots.length > $scope.slots.length) {
+                $scope.slots.push([]);
+            }
         }
     });
 

@@ -1,11 +1,16 @@
 
 
 <script type="text/ng-template" id="tree-item">
-    <div href="#/page/{{data._id}}" class="page-tree-item-link clickable" ng-click="changePage(data._id)" ng-init="data.open = store.isExpanded(data) ? true : false" ng-class="{ open: data.open === true, selected: data._id === store.current.pageId }">
-        <div class="page-tree-item-collapse clickable" ng-click="store.toggle(data)" ng-class="{ visible: store.hasChildren(data) === true }" prevent-default>
+    <div href="#/page/{{data._id}}" class="page-tree-item-link clickable" ng-click="changePage(data._id)" ng-init="data.open = tree.isExpanded(data) ? true : false" ng-class="{ open: data.open === true, selected: data._id === tree.current.pageId }">
+        <div class="page-tree-item-collapse clickable" ng-click="tree.toggle(data)" ng-class="{ visible: tree.hasChildren(data) === true }" prevent-default>
             <i class="page-tree-collapse-icon fa fa-caret-right"></i>
         </div>
-        <div class="page-tree-item-title" title="{{data.title}}"><i class="fa fa-file-o"></i> &nbsp;{{data.title}}</div>
+        <div class="page-tree-item-title" title="{{data.title}}">
+            <span ng-switch="tree.isRoot(data)">
+                <span ng-switch-when="true"><i class="fa fa-home"></i></span>
+                <span ng-switch-default><i class="fa fa-file-o"></i></span>
+            </span>
+            &nbsp;{{data.title}}</div>
         <div class="page-tree-item-add clickable" ng-click="newPage(data)" prevent-default><i class="fa fa-plus"></i></div>
     </div>
     <ul ng-show="data.open" class="page-tree">
@@ -14,7 +19,7 @@
 </script>
 
 <ul class="page-tree root">
-    <li class="page-tree-item" ng-repeat="data in store.tree" ng-include="'tree-item'"></li>
+    <li class="page-tree-item" ng-repeat="data in tree.all" ng-include="'tree-item'"></li>
 </ul>
 
 <div class="page-editor">
@@ -51,7 +56,7 @@
     <div class="page-editor-tabs">
         <ul class="tabs">
             <li class="tabs-item" ng-repeat="slot in currentPageType.slots" ng-class="{ selected: tab === ('slot:' + slot.name) }">    
-                <div class="tabs-item-button clickable" ng-click="$parent.tab = 'slot:' + slot.name"><i class="fa fa-file-text-o"></i> {{ slot.label }}</div>
+                <div class="tabs-item-button clickable" ng-click="$parent.tab = 'slot:' + slot.name; $parent.currentSlot = $index"><i class="fa fa-file-text-o"></i> {{ slot.label }}</div>
             </li>
 
             <li class="tabs-item" ng-class="{ selected: tab === 'layout' }">    
@@ -64,16 +69,15 @@
         </ul>
     </div>
 
-
-    <!--div class="page-slot-content-add">
-        <select ng-options="name as type.title for (name, type) in contentTypes" ng-model="newContentType"></select>    
-    </div-->
-
     <div class="page-editor-container page-slots" ng-repeat="slot in currentPageType.slots" ng-show="tab === 'slot:' + slot.name">
+        <div class="page-slot-content-add">
+            <select ng-options="name as type.title for (name, type) in contentTypes.all" ng-model="newContentType"></select>    
+            <div class="button clickable" ng-click="createContent()">Add Content</div>
+        </div>
         <div class="page-slot">
             <div class="page-content" ng-repeat="content in slots[$index]">
-                <div class="page-content-type"><i class="fa fa-puzzle-piece"></i> {{ contentTypes[content._type].title }}</div>
-                <div bauhaus-form ng-model="content" config="contentTypes[content._type]"></div>  
+                <div class="page-content-type"><i class="fa fa-puzzle-piece"></i> {{ contentTypes.all[content._type].title }}</div>
+                <div bauhaus-form ng-model="content" config="contentTypes.all[content._type]"></div>  
             </div>
         </div>
     </div>

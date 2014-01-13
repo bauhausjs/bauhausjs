@@ -30,7 +30,7 @@ angular.module('bauhaus.page.services').factory('PageTree', function ($resource)
 /** This Service stores the status of the page tree, which can be shared between views **/
 angular.module('bauhaus.page.services').factory('SharedPageTree', function (PageTree, $rootScope) {
     var scope = $rootScope.$new();
-    scope.store = {
+    scope.tree = {
         current: {
             rootPageId: null,
             pageId: null
@@ -42,31 +42,31 @@ angular.module('bauhaus.page.services').factory('SharedPageTree', function (Page
         },
         /** Check if given page is root node **/
         isRoot: function (page) {
-            return scope.store.current.rootPageId === page._id ? true : false;
+            return scope.tree.current.rootPageId === page._id ? true : false;
         },
 
 
         /** Expand given root by expanding all parent nodes **/
         expand: function (page) {
-            scope.store.expanded[page._id] = true;
-            page = scope.store.getByPath(page.path, page._id);
+            scope.tree.expanded[page._id] = true;
+            page = scope.tree.getByPath(page.path, page._id);
             if (page) {
                 page.open = true;
-                scope.store.forEachParentByPath(page.path, page._id, function (parent) {
-                    scope.store.expanded[parent._id] = true;
+                scope.tree.forEachParentByPath(page.path, page._id, function (parent) {
+                    scope.tree.expanded[parent._id] = true;
                     if (!parent.open) parent.open = true;
                 });
             }
         },
         toggle: function (page) {
-            var newStatus = (scope.store.expanded[page._id] && scope.store.expanded[page._id] === true) ? false : true;
-            scope.store.expanded[page._id] = newStatus;
+            var newStatus = (scope.tree.expanded[page._id] && scope.tree.expanded[page._id] === true) ? false : true;
+            scope.tree.expanded[page._id] = newStatus;
             page.open = newStatus;
         },
         isExpanded: function (page) {
             // always expand root
             if (page.parentId === null) return true;
-            return (scope.store.expanded[page._id] && scope.store.expanded[page._id] === true) ? true : false;
+            return (scope.tree.expanded[page._id] && scope.tree.expanded[page._id] === true) ? true : false;
         },
 
 
@@ -80,14 +80,14 @@ angular.module('bauhaus.page.services').factory('SharedPageTree', function (Page
         },
         /** Convert path to array of page objects **/ 
         pathToPageArray: function (path) {
-            var hierachy = scope.store.pathToIdArray(path);
+            var hierachy = scope.tree.pathToIdArray(path);
 
             var pages = [];
-            var subtree = scope.store.tree;
+            var subtree = scope.tree.all;
 
             for (var h in hierachy) {
                 var id = hierachy[ h ];
-                if (scope.store.hasChildren(subtree) && subtree.children[ id ]) {
+                if (scope.tree.hasChildren(subtree) && subtree.children[ id ]) {
                     subtree = subtree.children[ id ];
                     pages.push(subtree);
                 } else if (subtree && subtree[ id ]) {
@@ -100,24 +100,24 @@ angular.module('bauhaus.page.services').factory('SharedPageTree', function (Page
         },
         /** Get a page object by parent id **/
         getParentId: function (page) {
-            var parents = scope.store.pathToIdArray(page.path);
+            var parents = scope.tree.pathToIdArray(page.path);
             return parents[ parents.length - 1 ];
         },
         /** Get an page by passing path and id **/
         getByPath: function (path, id) {
-            var hierachy = scope.store.pathToPageArray(path);
+            var hierachy = scope.tree.pathToPageArray(path);
             var parent = hierachy[ hierachy.length - 1 ];
             
             if (parent && parent.children && parent.children[ id ]) {
                 return parent.children[ id ];
-            } else if (path === '' && id === scope.store.current.rootPageId) {
-                return scope.store.tree[ id ];
+            } else if (path === '' && id === scope.tree.current.rootPageId) {
+                return scope.tree.all[ id ];
             } 
             return null;
         },
         /** Deleting a page from tree by passing path and id **/
         deleteByPath: function (path, id) {
-            var hierachy = scope.store.pathToPageArray(path);
+            var hierachy = scope.tree.pathToPageArray(path);
             // get parent (last element in hierachy)
             var parent = hierachy[ hierachy.length - 1 ];
             if (parent.children && parent.children[ id ]) {
@@ -126,7 +126,7 @@ angular.module('bauhaus.page.services').factory('SharedPageTree', function (Page
         },
         /** Execute callback on all parents **/
         forEachParentByPath: function (path, id, callback) {
-            var parents = scope.store.pathToPageArray(path);
+            var parents = scope.tree.pathToPageArray(path);
             for (var p in parents) {
                 callback(parents[p]);
             }
@@ -136,15 +136,15 @@ angular.module('bauhaus.page.services').factory('SharedPageTree', function (Page
     
 
     PageTree.get(function (result) {
-        scope.store.tree = result.tree;
+        scope.tree.all = result.tree;
 
         for (var rootKey in result.tree) {
             // set root key
-            scope.store.current.rootPageId = rootKey;
+            scope.tree.current.rootPageId = rootKey;
             
             // set current pageId if not set 
-            if (!scope.store.current.pageId) {
-                scope.store.current.pageId = rootKey;
+            if (!scope.tree.current.pageId) {
+                scope.tree.current.pageId = rootKey;
             }
         }
         
@@ -162,6 +162,23 @@ angular.module('bauhaus.page.services').factory('PageType', function ($resource)
     });
 });
 
+angular.module('bauhaus.page.services').factory('SharedPageType', function (PageType, $rootScope) {
+    var scope = $rootScope.$new();
+    scope.store =  {
+        all: {},
+    };
+
+    PageType.get(function (result) {
+        for (var key in result) {
+            if (result[key].title) {
+                scope.store.all[key] = result[key];
+            }
+        }
+    });
+
+    return scope;
+});
+
 angular.module('bauhaus.page.services').factory('ContentType', function ($resource) {
     return $resource('api/ContentTypes', {}, {
         get: {
@@ -169,6 +186,23 @@ angular.module('bauhaus.page.services').factory('ContentType', function ($resour
             isArray: false
         }
     });
+});
+
+angular.module('bauhaus.page.services').factory('SharedContentType', function (ContentType, $rootScope) {
+    var scope = $rootScope.$new();
+    scope.store =  {
+        all: {},
+    };
+
+    ContentType.get(function (result) {
+        for (var key in result) {
+            if (result[key].title) {
+                scope.store.all[key] = result[key];
+            }
+        }
+    });
+
+    return scope;
 });
 
 angular.module('bauhaus.page.services').factory('Content', function ($resource) {
@@ -180,6 +214,14 @@ angular.module('bauhaus.page.services').factory('Content', function ($resource) 
         put: {
             method: 'PUT',
             params: { contentId: '@_id' }
+        },
+        create: {
+            method: 'POST',
+            params: { contentId: '' }
+        },
+        delete: {
+            method: 'DELETE',
+            params: { contentId: '@_id'}
         }
     });
 });
