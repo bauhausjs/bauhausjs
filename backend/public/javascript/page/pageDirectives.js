@@ -11,7 +11,6 @@ angular.module('bauhaus.page.directives').directive('preventDefault', function()
 
 angular.module('bauhaus.page.directives').directive('bauhausForm', function ($compile) {
     return {
-        //template: 'Config: {{config}} Content: {{content}} <div bauhaus-text ng-model="content.content.headline" field-config="config"></div>',
         scope: {
             content: '=ngModel',
             config: '=config'
@@ -25,7 +24,7 @@ angular.module('bauhaus.page.directives').directive('bauhausForm', function ($co
                         '" field-config="config.fields[' + f + ']" ></bauhaus-' + field.type + '>';
             }
             html += '</div>';
-            //var html = '<div><bauhaus-text ng-model="content.content.headline" field-config="config" /></div>';
+
             el.replaceWith($compile(html)(scope));
         }
     };
@@ -67,6 +66,20 @@ angular.module('bauhaus.page.directives').directive('bauhausText', function () {
         template: '<div class="page-content-field">' + 
                   '     <label class="page-content-field-label">{{config.label}}</label>' +
                   '     <input class="page-content-field-input input-big" type="text" ng-model="value" />' + 
+                  '</div>',
+        scope: {
+            value: '=ngModel',
+            config: '=fieldConfig'
+        }
+    };
+});
+
+angular.module('bauhaus.page.directives').directive('bauhausPassword', function () {
+    return {
+        restrict: 'AEC',
+        template: '<div class="page-content-field">' + 
+                  '     <label class="page-content-field-label">{{config.label}}</label>' +
+                  '     <input class="page-content-field-input input-big" type="password" ng-model="value" />' + 
                   '</div>',
         scope: {
             value: '=ngModel',

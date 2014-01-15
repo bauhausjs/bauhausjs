@@ -140,13 +140,28 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
         }
         var del = confirm('Do you really want to delete this page?');
         if (del) {
-            Page.delete({pageId: page._id }, function (result) {
-                $scope.tree.deleteByPath(page.path, page._id);
-                var parentId = $scope.tree.getParentId(page);
-                $scope.changePage(parentId);
-            });
+            
+            // Iterate over all content elements and delete them before deleting page
+            var remainingContentElements = 0;
+            for (var s in $scope.slots) {
+                var slot = $scope.slots[s];
+                remainingContentElements += slot.length;
+                for (var c in slot) {
+                    var content = slot[c];
+                    Content.delete({}, {'_id': content._id}, function (result) {
+                        remainingContentElements--;
+                        if (remainingContentElements == 0) {
+                            // delete page if all content elements were deleted
+                            Page.delete({pageId: page._id }, function (result) {
+                                $scope.tree.deleteByPath(page.path, page._id);
+                                var parentId = $scope.tree.getParentId(page);
+                                $scope.changePage(parentId);
+                            });  
+                        }
+                    });
+                }
+            }
         }
-
     };
 
 
