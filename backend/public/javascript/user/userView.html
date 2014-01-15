@@ -1,0 +1,10 @@
+<div class="crud user-crud">
+    <h2 class="crud-title">User</h2>
+    <button class="button" ng-click="createUser()">Create User</button>
+
+    <ul class="crud-list">
+        <li class="crud-list-item" ng-repeat="user in users">
+            <a href="#/user/{{user._id}}"><i class="fa fa-user"></i> {{user.username}}</a>
+        </li>
+    </div>
+</div>
