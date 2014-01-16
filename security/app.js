@@ -1,6 +1,6 @@
 var passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
-    user = require('./model'),
+    models = require('./model'),
     debug = require('debug')('bauhaus:security');
 
 module.exports = function setup(options, imports, register) {
@@ -10,14 +10,12 @@ module.exports = function setup(options, imports, register) {
     var security = {
         passport: passport,
         helper: {},
-        models: {
-            user: user
-        }
+        models: models
     };
-
+    
     passport.use(new LocalStrategy(
         function(username, password, done) {
-            User.findOne({ username: username }, function (err, user) {
+            models.user.findOne({ username: username }, function (err, user) {
                 if (err) { return done(err); }
                 if (!user) {
                     return done(null, false, { message: 'Incorrect username.' });
@@ -31,11 +29,11 @@ module.exports = function setup(options, imports, register) {
     ));
 
     // use static authenticate method of model in LocalStrategy
-    passport.use(new LocalStrategy(user.model.authenticate()));
+    passport.use(new LocalStrategy(models.user.model.authenticate()));
 
     // use static serialize and deserialize of model for passport session support
-    passport.serializeUser(user.model.serializeUser());
-    passport.deserializeUser(user.model.deserializeUser());
+    passport.serializeUser(models.user.model.serializeUser());
+    passport.deserializeUser(models.user.model.deserializeUser());
 
     register(null, {
         security: security

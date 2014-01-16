@@ -2,19 +2,52 @@ var mongoose = require('mongoose'),
     passportLocalMongoose = require('passport-local-mongoose'),
     baucis = require('baucis');
 
-var user = module.exports = {};
-
 var Schema = mongoose.Schema;
+var model = module.exports = {
+    user: {},
+    role: {},
+    permission: {}
+};
 
-user.schema = new Schema({});
+var user = model.user,
+    role = model.role,
+    permission = model.permission;
 
+/* Role */
+role.schema = new Schema({
+    name: String,
+    label: String
+});
+
+role.model = mongoose.model('Role', role.schema);
+baucis.rest({
+    singular:'Role', 
+    select:'name label', swagger: true
+});
+
+/* Permissions */
+permission.schema = new Schema({
+    subject: String,
+    name: String,
+    label: String
+});
+
+role.model = mongoose.model('Role', role.schema);
+baucis.rest({
+    singular:'Role', 
+    select:'name label', swagger: true
+});
+
+/* User */
+user.schema = new Schema({
+    roles: [Schema.Types.ObjectId]
+});
 user.schema.plugin(passportLocalMongoose);
-
 user.model = mongoose.model('User', user.schema);
 
 var controller = baucis.rest({
     singular:'User', 
-    select:'username password', swagger: true
+    select:'username roles', swagger: true
 });
 
 /* Middleware which is add for put method (=update user) to store password after user was stored */
