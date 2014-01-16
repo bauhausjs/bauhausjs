@@ -24,16 +24,17 @@ module.exports = function setup(options, imports, register) {
     };
     module.models[ page.config.name.toLowerCase() ] = page;
 
-    // Allow origin access for testing
-    if (process.env.NODE_ENV == 'development')
-    var allowCrossDomain = function(req, res, next) {
-        res.header('Access-Control-Allow-Origin', '*');
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-        res.header('Access-Control-Allow-Headers', 'Content-Type');
+    // Allow cross origin access for testing
+    backend.configure('development', function () {
+        var allowCrossDomain = function(req, res, next) {
+            res.header('Access-Control-Allow-Origin', '*');
+            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+            res.header('Access-Control-Allow-Headers', 'Content-Type');
 
-        next();
-    }
-    backend.use(allowCrossDomain);
+            next();
+        }
+        backend.use(allowCrossDomain);
+    });
 
     api.get('/PageTypes', function (req, res) {
         res.json(module.types);
