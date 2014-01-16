@@ -12,7 +12,7 @@
       "backend"
     ],
     "consumes": [
-      "server"
+      "server", "security"
     ]
   },
   "dependencies": {

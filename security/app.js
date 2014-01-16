@@ -9,6 +9,7 @@ module.exports = function setup(options, imports, register) {
 
     var security = {
         passport: passport,
+        helper: {},
         models: {
             user: user
         }
@@ -35,8 +36,6 @@ module.exports = function setup(options, imports, register) {
     // use static serialize and deserialize of model for passport session support
     passport.serializeUser(user.model.serializeUser());
     passport.deserializeUser(user.model.deserializeUser());
-
-    backend.app.use('/api',user.api);
 
     register(null, {
         security: security
