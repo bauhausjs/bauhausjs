@@ -1,0 +1,28 @@
+<div class="crud user-crud">
+    <h2 class="crud-title">
+        <span ng-switch on="isNew()">
+            <span ng-switch-when="true">
+                Create new Role
+            </span>
+            <span ng-switch-default>   
+                Edit Role {{ user.username }}
+            </span>
+        </span>
+    </h2>
+
+    <div class="crud-actions">
+        <button class="button" ng-click="updateRole()">Save</button> <button class="button" ng-click="deleteUser()">Delete</button>
+    </div>
+
+    <ul class="crud-form">
+        <div class="form">
+            <div class="form-field">
+                <div bauhaus-text ng-model="role.name" field-config="{label: 'Name'}"></div>
+            </div>
+            <div class="form-field">
+                <div bauhaus-text ng-model="role.label" field-config="{label: 'Label'}"></div>
+            </div>
+
+        </div>
+    </div>
+</div>

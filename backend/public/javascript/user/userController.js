@@ -3,8 +3,6 @@ angular.module('bauhaus.user.controllers', ['bauhaus.user.services']);
 angular.module('bauhaus.user.controllers').controller('UserCtrl', ['$scope', '$location', 'User',  function ($scope, $location, User) {
     'use strict';
 
-    $scope.message = "UserCtrl";
-
     $scope.users = [];
 
     User.query({}, function (result) {
@@ -24,11 +22,12 @@ angular.module('bauhaus.user.controllers').controller('UserCtrl', ['$scope', '$l
 
 }]);
 
-angular.module('bauhaus.user.controllers').controller('UserDetailCtrl', ['$scope', '$location', '$routeParams', 'User', function ($scope, $location, $routeParams, User) {
+angular.module('bauhaus.user.controllers').controller('UserDetailCtrl', ['$scope', '$location', '$routeParams', 'User', 'SharedRoles', function ($scope, $location, $routeParams, User, SharedRoles) {
     'use strict';
 
     $scope.user = null;
     $scope.userId = null;
+    $scope.roles = SharedRoles.store;
 
     if ($routeParams.id && $routeParams.id != 'new') {
         $scope.userId = $routeParams.id;
