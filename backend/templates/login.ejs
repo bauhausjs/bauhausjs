@@ -1,15 +1,30 @@
-<form action="login" method="post">
-    <%- error %>
-    <%- info %>
-    <div>
-        <label>Username:</label>
-        <input type="text" name="username"/>
-    </div>
-    <div>
-        <label>Password:</label>
-        <input type="password" name="password"/>
-    </div>
-    <div>
-        <input type="submit" value="Log In"/>
-    </div>
-</form>
+<!DOCTYPE html>
+<html ng-app="bauhaus">
+    <head>
+        <title>BauhausJS</title>
+        <link type="text/css" rel="stylesheet" href="components/font-awesome/css/font-awesome.css">
+        <link type="text/css" rel="stylesheet" href="css/all.css">
+    </head>
+    <body>
+        <div class="login-wrapper">
+            <div class="login">
+                <div class="login-title">
+                    BauhausJS
+                </div>
+                <form action="login" method="post">
+                    <%- error %>
+                    <%- info %>
+                    <div>
+                        <input type="text" name="username" placeholder="Username"/>
+                    </div>
+                    <div>
+                        <input type="password" name="password" placeholder="Password" />
+                    </div>
+                    <div>
+                        <input type="submit" value="Log In"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
