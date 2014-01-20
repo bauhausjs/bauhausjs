@@ -2,9 +2,9 @@
 
 ![CI Status](https://travis-ci.org/bauhausjs/bauhausjs.png)
 
-BauhausJS is a modular CMS for NodeJS. BauhausJS is supported by [DigitalWerft](http://digitalwerft.com). This is an open source project and pull requests are welcome.
+BauhausJS is a modular CMS for NodeJS. BauhausJS is developed by [DigitalWerft](http://digitalwerft.com) and supported by [Bettervest](https://bettervest.de/). This is an open source project and pull requests are welcome.
 
-**The development is in very early stage and there's not much to see yet.** We plan to provide a beta by spring 2014 and be production ready until summer 2014.
+**The development is in early stage.** We plan to provide a beta by spring 2014 and be production ready until summer 2014.
 
 
 ## Modules
