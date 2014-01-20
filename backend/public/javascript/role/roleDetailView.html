@@ -14,7 +14,7 @@
         <button class="button" ng-click="updateRole()">Save</button> <button class="button" ng-click="deleteUser()">Delete</button>
     </div>
 
-    <ul class="crud-form">
+    <div class="crud-form">
         <div class="form">
             <div class="form-field">
                 <div bauhaus-text ng-model="role.name" field-config="{label: 'Name'}"></div>
@@ -23,6 +23,11 @@
                 <div bauhaus-text ng-model="role.label" field-config="{label: 'Label'}"></div>
             </div>
 
+        </div>
+
+        
+        <div class="form">
+            <div bauhaus-permissions role-permissions="role.permissions" config="{label: 'Permissions'}"></div>
         </div>
     </div>
 </div>

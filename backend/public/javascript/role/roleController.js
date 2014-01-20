@@ -34,6 +34,10 @@ angular.module('bauhaus.role.controllers').controller('RoleDetailCtrl', ['$scope
         Role.get({ roleId: $scope.roleId }, function (result) {
             if (result && result._id) {
                 $scope.role = result;
+                console.log(result);
+                if (!result.permissions) {
+                    $scope.role.permissions = {};
+                }
             }
         });
     } else {

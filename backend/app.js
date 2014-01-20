@@ -21,10 +21,12 @@ module.exports = function setup(options, imports, register) {
     app.use(express.cookieParser());
     app.use(express.json());
     app.use(express.urlencoded());
-    app.use(express.session({ secret: 'dynamize this secret' }));
+    // make secret configurable
+    app.use(express.session({ secret: 'nhtuhtnc4o3tcb847grnc428o' }));
     app.use(flash());
     app.use(security.passport.initialize());
     app.use(security.passport.session());
+    app.use(security.middleware.loadRoles);
     app.use(app.router);
 
 
@@ -32,6 +34,9 @@ module.exports = function setup(options, imports, register) {
 
     // replace by including files compiled to public/ later
     app.use(express.static(__dirname + '/client'));
+
+    // Configure backend permissions
+    security.permissions.backend = ['login'];
 
     var isAuthenticated = function (req, res, next) {
         if (req.user) return next();
@@ -71,8 +76,11 @@ module.exports = function setup(options, imports, register) {
     security.models.user.api.get('/CurrentUser', function (req, res, next) {
         if (req.user) {
             var user = {
-                '_id': req.user._id,
-                'username': req.user.username
+                _id: req.user._id,
+                username: req.user.username,
+                roles: req.bauhaus.roles,
+                permissions: req.bauhaus.permissions
+
             };
             res.json(user);
         } else {
@@ -84,7 +92,8 @@ module.exports = function setup(options, imports, register) {
 
     // register user API
     app.use('/api', isAuthenticated);
-    app.use('/api', security.models.user.api);
+    app.use('/api', security.models.user.api); // add user AND roles
+    app.use('/api', security.models.permission.api);
 
     // Add backend app to server
     server.use(route, app);

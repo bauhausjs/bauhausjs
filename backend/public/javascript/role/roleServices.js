@@ -41,3 +41,29 @@ angular.module('bauhaus.role.services').factory('SharedRoles', function ($rootSc
 
     return scope;
 });
+
+angular.module('bauhaus.role.services').factory('Permission', function ($resource) {
+    return $resource('api/Permissions', {}, {
+        query: {
+            method: 'GET',
+            isArray: false
+        }
+    });
+});
+
+angular.module('bauhaus.role.services').factory('SharedPermissions', function ($rootScope, Permission) {
+    var scope = $rootScope.$new();
+    scope.store =  {
+        all: {},
+    };
+
+    Permission.query({}, function (result) {
+        for (var service in result) {
+            if (Array.isArray(result[service])) {
+                scope.store.all[ service ] = result[service];
+            }
+        }
+    });
+
+    return scope;
+});
