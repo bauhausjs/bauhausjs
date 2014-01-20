@@ -1,18 +1,19 @@
-var passport = require('passport'),
+var express = require('express'),
+    passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
     models = require('./model'),
+    middleware = require('./middleware'),
     debug = require('debug')('bauhaus:security');
 
 module.exports = function setup(options, imports, register) {
-
-    var backend = imports.backend;    
-
     var security = {
         passport: passport,
         helper: {},
-        models: models
+        models: models,
+        middleware: middleware,
+        permissions: {}
     };
-    
+
     passport.use(new LocalStrategy(
         function(username, password, done) {
             models.user.findOne({ username: username }, function (err, user) {
@@ -27,6 +28,12 @@ module.exports = function setup(options, imports, register) {
             });
         }
     ));
+
+    var permissionsApi = express();
+    permissionsApi.get('/Permissions', function (req, res, next) {
+        res.send(security.permissions)
+    });
+    security.models.permission = { api: permissionsApi };
 
     // use static authenticate method of model in LocalStrategy
     passport.use(new LocalStrategy(models.user.model.authenticate()));

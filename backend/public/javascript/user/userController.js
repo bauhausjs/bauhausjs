@@ -43,9 +43,12 @@ angular.module('bauhaus.user.controllers').controller('UserDetailCtrl', ['$scope
 
     $scope.customFields = {
         fields: [
-            { name: 'customfield', 
+            { name: 'public.firstname', 
               type: 'text',
-              label: 'custom' }
+              label: 'First name' }, 
+            { name: 'public.lastname', 
+              type: 'text',
+              label: 'Last name' }
         ]
     };
 

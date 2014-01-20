@@ -11,7 +11,8 @@
     "consumes": [
       "frontend",
       "backend",
-      "content"
+      "content",
+      "security"
     ]
   }
 }

@@ -5,7 +5,11 @@ var middleware = require('./middleware'),
 module.exports = function setup(options, imports, register) {
     var frontend = imports.frontend.app,
         backend = imports.backend.app,
-        content = imports.content;
+        content = imports.content,
+        security = imports.security;
+
+
+    security.permissions.page = ['use', 'content'];
 
     var module = { 
         models: {},
