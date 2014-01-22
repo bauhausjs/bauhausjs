@@ -47,6 +47,7 @@ middleware.renderSlots = function renderSlots (req, res, next) {
         slotNameMap[index] = element.name; 
     });
 
+    if (!req.bauhaus.content) return next();
     req.bauhaus.content.data.forEach(function (content, index) {
         var slot = content.meta.slot ? content.meta.slot : 0;
         var key = slotNameMap[ slot ];
