@@ -43,11 +43,14 @@ angular.module('bauhaus.page.directives').directive('bauhausPageTree', function 
 
             /* Create new child page at rest service, called from UI */
             scope.newPage = function (page) {
+                var seperator = (page.route[ page.route.length - 1 ] === '/') ? '' : '/';
+
                 var newPage = {
                     parentId: page._id,
-                    title: 'New page',
-                    route: page.route + '/newpage',
-                    _type: page._type
+                    title: '',
+                    route: page.route + seperator,
+                    _type: page._type,
+                    public: false
                 };
 
                 Page.create(newPage, function (result) {

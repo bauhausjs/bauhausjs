@@ -3,7 +3,7 @@
         <div class="page-tree-item-collapse clickable" ng-click="tree.toggle(data)" ng-class="{ visible: tree.hasChildren(data) === true }" prevent-default>
             <i class="page-tree-collapse-icon fa fa-caret-right"></i>
         </div>
-        <div class="page-tree-item-title" title="{{data.title}}">
+        <div class="page-tree-item-title" title="{{data.title}}" ng-class="{ private: data.public === false }">
             <span ng-switch="tree.isRoot(data)">
                 <span ng-switch-when="true"><i class="fa fa-home"></i></span>
                 <span ng-switch-default><i class="fa fa-file-o"></i></span>

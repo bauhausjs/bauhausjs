@@ -1,6 +1,6 @@
 angular.module('bauhaus.page.controllers', ['bauhaus.page.services']);
 
-angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$routeParams', '$location', 'Page', 'SharedPageType', 'SharedContentType', 'Content', 'PageContent', 'SharedPageTree', function ($scope, $routeParams, $location, Page, SharedPageType, SharedContentType, Content, PageContent, SharedPageTree) {
+angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$routeParams', '$location', 'Page', 'SharedPageType', 'SharedContentType', 'Content', 'PageContent', 'SharedPageTree', 'Slug', function ($scope, $routeParams, $location, Page, SharedPageType, SharedContentType, Content, PageContent, SharedPageTree, Slug) {
     'use strict';
 
     /* reference to page tree in service */
@@ -28,6 +28,9 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
        by user in shape hasContentChanges[ _id ] = [slotIndex, index] */
     $scope.contentChanges    = {};
 
+    /* If activated route is automatically generated from title */
+    $scope.generateRoute   = false;
+
     /* Set current page path variable tree service, automatically laods page via watcher */
     if ($routeParams.id) {
         $scope.tree.current.pageId = $routeParams.id;
@@ -51,10 +54,16 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
     /* Watcher: Load page from server if currentPageId is changed */
     $scope.$watch('tree.current.pageId', function (newVal, oldVal) {
         if (newVal) {
+            /* Load new page */
             $scope.page = Page.get({ pageId: newVal }, function (result) {
                 $scope.tree.expand(result);
                 $scope.pageHasChanges = false;
                 $scope.showPageLabel = ($scope.page.label && $scope.page.label.length != null && $scope.page.label.length > 0);
+                /* Activate route generation for new pages */
+                $scope.generateRoute = ($scope.page.title === '' && 
+                                        !$scope.page.public && 
+                                        $scope.page.route.length >= 1 &&
+                                        $scope.page.route[ $scope.page.route.length - 1 ] === '/') ? true : false;
             });
             // Load contents from server and assign to slots when ready
             $scope.content = PageContent.get({pageId: newVal}, function () {
@@ -82,6 +91,33 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
                     }
                 }
             });
+        }
+    });
+
+    /* Watcher: cache parent route if routeGeneration is activated */ 
+    $scope.$watch('generateRoute', function (newVal) {
+        if (newVal === true) {
+            $scope.parentRoute = $scope.page.route;
+            if ($scope.parentRoute.length >= 1 && $scope.parentRoute[ $scope.parentRoute.length - 1 ] !== '/') {
+                /* Add slash to parent route if it doesn't end with one */
+                $scope.parentRoute += '/';
+            }
+        }
+    });
+
+    /* Watcher: Slugify title to route if route generation is activated */
+    $scope.$watch('page.title', function (newVal) {
+        if ($scope.generateRoute) {
+            $scope.page.route = $scope.parentRoute + Slug.slugify(newVal);
+        }
+    });
+
+    /* Watcher: Deactivate route generation if user had changed route */
+    $scope.$watch('page.route', function (newVal) {
+        if ($scope.generateRoute) {
+            if (newVal !== $scope.parentRoute + Slug.slugify($scope.page.title)) {
+                $scope.generateRoute = false;
+            }
         }
     });
 
@@ -122,8 +158,21 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
                     // Choose corrosponding page in tree to update without reload
                     var pageInTree = $scope.tree.getByPath(result.path, result._id);
                     pageInTree.title = $scope.page.title;
+                    pageInTree.route = $scope.page.route;
+                    pageInTree.public = $scope.page.public;
                 }
+                // set route to valid
+                $scope.pageEditor.route.$setValidity('routeExists', true);
                 $scope.pageHasChanges = false;
+            }, function (error) {
+                if (error && error.status === 422 && error.data && error.data.route) {
+                    $scope.invalidRoute = true;
+                    // set route to invalid
+                    $scope.pageEditor.route.$setValidity('routeExists', false);
+                    console.log($scope.pageEditor);
+                    alert('This route does already exist, please choose a different route');
+                }
+                console.log("error", error);
             });
         }
 
@@ -139,10 +188,23 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
             return;
         }
         var del = confirm('Do you really want to delete this page?');
+
+        var deletePage = function () {
+            Page.delete({pageId: page._id }, function (result) {
+                $scope.tree.deleteByPath(page.path, page._id);
+                var parentId = $scope.tree.getParentId(page);
+                $scope.changePage(parentId);
+            }); 
+        };
+
         if (del) {
             
             // Iterate over all content elements and delete them before deleting page
             var remainingContentElements = 0;
+
+            /* Delete page directly, if it has no slots */
+            if ($scope.slots.length === 0) deletePage(); 
+
             for (var s in $scope.slots) {
                 var slot = $scope.slots[s];
                 remainingContentElements += slot.length;
@@ -150,15 +212,16 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
                     var content = slot[c];
                     Content.delete({}, {'_id': content._id}, function (result) {
                         remainingContentElements--;
-                        if (remainingContentElements == 0) {
+                        if (remainingContentElements === 0) {
                             // delete page if all content elements were deleted
-                            Page.delete({pageId: page._id }, function (result) {
-                                $scope.tree.deleteByPath(page.path, page._id);
-                                var parentId = $scope.tree.getParentId(page);
-                                $scope.changePage(parentId);
-                            });  
+                            deletePage();
                         }
                     });
+                }
+
+                if (remainingContentElements === 0 && $scope.slots.length - 1 == s) {
+                    /* delete page if there are no content elements in last slot */
+                    deletePage(); 
                 }
             }
         }

@@ -35,6 +35,10 @@ input {
     &:hover {
         border-color: #888888;
     }
+
+    &.invalid, &.ng-invalid {
+        background: #FF7777;
+    }
 }
 
 textarea {
@@ -222,6 +226,10 @@ a {
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 width: 270px;
+
+                &.private {
+                    color: #999999;
+                }
             }
 
             .page-tree-item-add {
@@ -328,6 +336,15 @@ a {
         .page-editor-header-route {
             input {
                 width: 400px;
+            }
+        }
+
+        .page-editor-header-public {
+            .public {
+                color: green;
+            }
+            .private {
+                color: #B10000;
             }
         }
     }
