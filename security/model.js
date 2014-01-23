@@ -16,14 +16,13 @@ var user = model.user,
 /* Role */
 role.schema = new Schema({
     name: String,
-    label: String,
     permissions: Schema.Types.Mixed
 });
 
 role.model = mongoose.model('Role', role.schema);
 baucis.rest({
     singular:'Role', 
-    select:'name label permissions', swagger: true
+    select:'name permissions', swagger: true
 });
 
 

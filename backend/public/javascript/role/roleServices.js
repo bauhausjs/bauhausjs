@@ -29,15 +29,21 @@ angular.module('bauhaus.role.services').factory('SharedRoles', function ($rootSc
     var scope = $rootScope.$new();
     scope.store =  {
         all: {},
+        reload: function (callback) {
+            Role.query({}, function (result) {
+                scope.store.all = {};
+                
+                for (var id in result) {
+                    if (result[id]._id) {
+                        scope.store.all[ result[id]._id ] = result[id];
+                    }
+                }
+                if (typeof callback === 'function') callback();
+            });     
+        }
     };
 
-    Role.query({}, function (result) {
-        for (var id in result) {
-            if (result[id]._id) {
-                scope.store.all[ result[id]._id ] = result[id];
-            }
-        }
-    });
+    scope.store.reload();
 
     return scope;
 });

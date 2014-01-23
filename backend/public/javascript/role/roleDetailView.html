@@ -5,13 +5,13 @@
                 Create new Role
             </span>
             <span ng-switch-default>   
-                Edit Role {{ user.username }}
+                Edit Role "{{ role.name }}""
             </span>
         </span>
     </h2>
 
     <div class="crud-actions">
-        <button class="button" ng-click="updateRole()">Save</button> <button class="button" ng-click="deleteUser()">Delete</button>
+        <button class="button" ng-click="updateRole()">Save</button> <button class="button" ng-click="deleteRole()">Delete</button>
     </div>
 
     <div class="crud-form">
@@ -19,10 +19,6 @@
             <div class="form-field">
                 <div bauhaus-text ng-model="role.name" field-config="{label: 'Name'}"></div>
             </div>
-            <div class="form-field">
-                <div bauhaus-text ng-model="role.label" field-config="{label: 'Label'}"></div>
-            </div>
-
         </div>
 
         

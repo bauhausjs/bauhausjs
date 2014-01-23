@@ -5,8 +5,8 @@ angular.module('bauhaus.role.directives').directive('bauhausRoles', function (Sh
         restrict: 'AEC',
         template: '<div class="page-content-field">' + 
                   '     <label class="page-content-field-label">{{config.label}}</label>' +
-                  '     <div class="tag-list"><div class="tag" ng-repeat="role in value"><i class="fa fa-group"></i> {{ roles.all[role].label }} <div class="tag-delete" ng-click="removeRole(role)"><span class="fa fa-times"></span></div></div></div>' + 
-                  '     <div class="page-content-field-control"><select ng-model="newRole" ng-options="id as obj.label for (id, obj) in chooseRole"></select> <button class="button" ng-click="addRole()">Add Role</button></div>' +
+                  '     <div class="tag-list"><div class="tag" ng-repeat="role in value"><i class="fa fa-group"></i> {{ roles.all[role].name }} <div class="tag-delete" ng-click="removeRole(role)"><span class="fa fa-times"></span></div></div></div>' + 
+                  '     <div class="page-content-field-control"><select ng-model="newRole" ng-options="id as obj.name for (id, obj) in chooseRole"></select> <button class="button" ng-click="addRole()">Add Role</button></div>' +
                   '</div>',
         scope: {
             value: '=ngModel',
@@ -48,7 +48,6 @@ angular.module('bauhaus.role.directives').directive('bauhausRoles', function (Sh
 
             scope.removeRole = function (role) {
                 var index = scope.value.indexOf( role );
-                console.log("Remove", role, index, scope.value);
                 if (index !== -1) {
                     scope.value.splice(index, 1);
                 }
@@ -88,9 +87,8 @@ angular.module('bauhaus.role.directives').directive('bauhausPermissions', functi
         }, 
         controller: function ($scope) {
             $scope.permissions = SharedPermissions.store;
-            console.log($scope.value);
             $scope.$watchCollection('value', function (newVal) {
-                console.log(newVal);
+                // permission updated
             }), true;
         }
     };

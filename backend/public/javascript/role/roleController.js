@@ -22,7 +22,7 @@ angular.module('bauhaus.role.controllers').controller('RoleCtrl', ['$scope', '$l
 
 }]);
 
-angular.module('bauhaus.role.controllers').controller('RoleDetailCtrl', ['$scope', '$location', '$routeParams', 'Role', function ($scope, $location, $routeParams, Role) {
+angular.module('bauhaus.role.controllers').controller('RoleDetailCtrl', ['$scope', '$location', '$routeParams', 'Role', 'SharedRoles', function ($scope, $location, $routeParams, Role, SharedRoles) {
     'use strict';
 
     $scope.role = null;
@@ -33,15 +33,16 @@ angular.module('bauhaus.role.controllers').controller('RoleDetailCtrl', ['$scope
         // load role data for passed id
         Role.get({ roleId: $scope.roleId }, function (result) {
             if (result && result._id) {
-                $scope.role = result;
-                console.log(result);
                 if (!result.permissions) {
-                    $scope.role.permissions = {};
+                    result.permissions = {};
                 }
+                $scope.role = result;
             }
         });
     } else {
-        $scope.role = {};
+        $scope.role = {
+            permissions: {}
+        };
     } 
 
     $scope.isNew = function () {
@@ -52,7 +53,6 @@ angular.module('bauhaus.role.controllers').controller('RoleDetailCtrl', ['$scope
         // Save role if it already has an _id
         if ($scope.role._id) {
             Role.put($scope.role, function (result) {
-
             });
         } else {
             // create new role
@@ -61,7 +61,9 @@ angular.module('bauhaus.role.controllers').controller('RoleDetailCtrl', ['$scope
                 $scope.roleId =   result._id;
 
                 Role.put($scope.role, function (result) {
-
+                    SharedRoles.store.reload(function () {
+                        $location.path('role/' + result._id);
+                    });
                 });
             })
         }
@@ -71,7 +73,9 @@ angular.module('bauhaus.role.controllers').controller('RoleDetailCtrl', ['$scope
         var ok = confirm('Are you sure you want to delete Role "' + $scope.role.name + '"');
         if (ok) {
             Role.delete({}, {_id: $scope.role._id }, function (result) {
-                $location.path('role');
+                SharedRoles.store.reload(function () {
+                    $location.path('role');
+                });
             });
         }
     }
