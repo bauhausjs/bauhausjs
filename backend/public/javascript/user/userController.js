@@ -35,6 +35,15 @@ angular.module('bauhaus.user.controllers').controller('UserDetailCtrl', ['$scope
         User.get({ userId: $scope.userId }, function (result) {
             if (result && result._id) {
                 $scope.user = result;
+
+                /* Remove unreferenced roles from user */
+                for (var r in $scope.user.roles) {
+                    var roleId = $scope.user.roles[r];
+                    if (Object.keys($scope.roles.all).length >= 1 && !$scope.roles.all[ roleId ]) {
+                        $scope.user.roles.splice(r, 1);
+                    }
+                }
+                console.log(result, $scope.roles);
             }
         });
     } else {
