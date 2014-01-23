@@ -3,7 +3,7 @@ var baucis = require('baucis'),
 
 var pageController = baucis.rest({
     singular:'Page', 
-    select:'_type name route title label parentId path'
+    select:'_type name route title label parentId path public'
 });
 
 var getTree = function (request, response, next) {
