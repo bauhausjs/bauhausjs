@@ -33,7 +33,7 @@ user.schema = new Schema({
         firstname: String,
         lastname: String
     }
-});
+}, { collection: 'bauhaus-users'} );
 user.schema.plugin(passportLocalMongoose);
 user.model = mongoose.model('User', user.schema);
 
