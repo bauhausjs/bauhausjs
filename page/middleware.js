@@ -34,6 +34,26 @@ middleware.loadPageType = function (pageTypes) {
     };
 };
 
+middleware.loadNavigation = function (req, res, next) {
+    req.bauhaus.navigation = {};
+    var query = { parentId: null };
+
+    pages.findOne(query, function (err, doc) {
+        doc.getTree({
+            condition: { public: true },
+            fields: { route: 1, title: 1, label: 1 }
+        }, { 
+            fields: { route: 1, title: 1, label: 1, path: 1, id: 1, parentId: 1, _w: 1 },
+            condition: { public: true }
+        }, function (err, tree) {
+            for (var parentId in tree) {
+                req.bauhaus.navigation.main = tree[ parentId ].children;
+            }
+            next();
+        });
+    });
+};
+
 /**
  * Middleware which concats rendered content to slots, according to page type definition
  * and exposes them as object at req.bauhaus.slots with slotname as key and html string as value

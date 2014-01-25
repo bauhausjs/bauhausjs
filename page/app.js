@@ -50,6 +50,7 @@ module.exports = function setup(options, imports, register) {
     var renderStack = [
         middleware.loadPage,
         middleware.loadPageType(module.types),
+        middleware.loadNavigation,
         content.middleware.loadContent,
         content.middleware.renderContent(content.types),
         middleware.renderSlots,
