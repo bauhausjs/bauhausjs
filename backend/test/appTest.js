@@ -1,5 +1,6 @@
-var assert = require('assert');
-var app = require('../app');
+var assert = require('assert'),
+    app = require('../app')
+    mongoose = require('mongoose');
 
 
 
@@ -43,7 +44,11 @@ describe('backend module', function () {
             done();
         };
         // init module with empty options and mocked server import
-        var imports = {server: {app: serverMock }, security: securityMock };
+        if (!mongoose.connection.host) {
+            var connection = 'mongodb://localhost/bauhausjs_test';
+            mongoose.connect(connection);
+        }
+        var imports = {server: {app: serverMock }, security: securityMock, mongoose: { connection: mongoose.connection } };
         app({}, imports, register);
     });
 });
