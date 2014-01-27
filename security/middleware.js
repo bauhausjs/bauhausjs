@@ -3,7 +3,7 @@ var model = require('./model');
 var middleware = module.exports = {};
 
 middleware.loadRoles = function (req, res, next) {
-    if (req.user) {
+    if (req.user && !req.session.user) {
         model.role.model.find({'_id': { $in: req.user.roles }}, function (err, docs) {
             if (err) next();
 
@@ -20,13 +20,21 @@ middleware.loadRoles = function (req, res, next) {
                     }
                 }
             }
-            if (!req.bauhaus) req.bauhaus = {};
-            req.bauhaus.roles = roles;
-            req.bauhaus.permissions = permissions;
+
+            var user = {
+                id: req.user._id,
+                username: req.user.username,
+                roles: roles,
+                permissions: permissions
+            }
+            // add user info to session
+            req.session.user = user;
 
             next();
         })
     } else {
+        // remove user info from session
+        req.session.user = null;
         next();
     }
 };
