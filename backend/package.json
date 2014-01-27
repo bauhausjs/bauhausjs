@@ -12,7 +12,7 @@
       "backend"
     ],
     "consumes": [
-      "server", "security"
+      "server", "security", "mongoose"
     ]
   },
   "dependencies": {

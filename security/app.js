@@ -11,7 +11,8 @@ module.exports = function setup(options, imports, register) {
         helper: {},
         models: models,
         middleware: middleware,
-        permissions: {}
+        permissions: {},
+        sessionSecret: (options.sessionSecret) ? options.sessionSecret : 'nov9t4ho3ivuth384nct9n'
     };
 
     passport.use(new LocalStrategy(

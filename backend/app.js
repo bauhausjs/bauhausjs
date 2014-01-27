@@ -1,11 +1,13 @@
 var express = require('express'),
     grunt = require('grunt'),
-    flash = require('connect-flash');
+    flash = require('connect-flash'),
+    session = require('connect-mongo')(express);
 
 module.exports = function setup(options, imports, register) {
     var app = express();
     var server = imports.server.app,
-        security = imports.security;
+        security = imports.security,
+        mongoose = imports.mongoose;
 
 
     var route = typeof options.route === 'string' ? options.route : '/backend';
@@ -22,7 +24,12 @@ module.exports = function setup(options, imports, register) {
     app.use(express.json());
     app.use(express.urlencoded());
     // make secret configurable
-    app.use(express.session({ secret: 'nhtuhtnc4o3tcb847grnc428o' }));
+    app.use(express.session({
+        store: new session({ mongoose_connection: mongoose.connection }),
+        secret: security.sessionSecret, 
+        path: '/backend',
+        maxAge: 100 * 60 * 60 * 24
+    }));
     app.use(flash());
     app.use(security.passport.initialize());
     app.use(security.passport.session());
