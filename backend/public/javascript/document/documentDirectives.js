@@ -1,6 +1,6 @@
-angular.module('bauhaus.user.directives', []);
+angular.module('bauhaus.document.directives', []);
 
-angular.module('bauhaus.user.directives').directive('bauhausUserForm', function ($compile) {
+angular.module('bauhaus.document.directives').directive('bauhausDocumentForm', function ($compile) {
     return {
         scope: {
             content: '=ngModel',

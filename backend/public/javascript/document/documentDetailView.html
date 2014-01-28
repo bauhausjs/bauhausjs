@@ -1,0 +1,22 @@
+<div class="crud">
+    <h2 class="crud-title">
+        <span ng-switch on="isNew()">
+            <span ng-switch-when="true">
+                Create new {{ type }}
+            </span>
+            <span ng-switch-default>   
+                Edit {{ type }} "{{ document.title }}"
+            </span>
+        </span>
+    </h2>
+
+    <div class="crud-actions">
+        <button class="button" ng-click="updateDocument()">Save</button> <button class="button" ng-click="deleteDocument()">Delete</button>
+    </div>
+
+    <ul class="crud-form">
+        <div class="form">
+            <div bauhaus-document-form ng-model="document" config="customFields"></div>  
+        </div>
+    </div>
+</div>
