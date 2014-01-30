@@ -1,0 +1,16 @@
+{
+  "name": "document",
+  "version": "0.1.0",
+  "description": "Module which provides functionality for managing and rendering mongo documents",
+  "main": "app.js",
+  "private": true,
+  "plugin": {
+    "provides": [
+      "document"
+    ],
+    "consumes": [
+      "backend",
+      "frontend"
+    ]
+  }
+}
