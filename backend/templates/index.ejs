@@ -12,20 +12,7 @@
         </div>
         <nav class="navigation">
             <div class="bauhaus-title">BauhausJS</div>
-            <ul class="navigation-list">
-                <li class="navigation-list-item">
-                    <a href="#/dashboard"><i class="navigation-icon fa fa-dashboard"></i> Dashboard</a>
-                </li>
-                <li class="navigation-list-item">
-                    <a href="#/page"><i class="navigation-icon fa fa-file-o"></i> Pages</a>
-                </li>
-                <li class="navigation-list-item">
-                    <a href="#/user"><i class="navigation-icon fa fa-user"></i> User</a>
-                </li>
-                <li class="navigation-list-item">
-                    <a href="#/role"><i class="navigation-icon fa fa-group"></i> Role</a>
-                </li>
-            </ul>
+            <bauhaus-navigation></bauhaus-navigation>
         </nav>
         <div class="content" ng-view></div>
 
@@ -33,6 +20,11 @@
         <script src="components/angular-resource/angular-resource.js"></script>
         <script src="components/angular-route/angular-route.js"></script>
         <script src="components/angular-slugify/angular-slugify.js"></script>
+
+
+        <script src="javascript/general/generalServices.js"></script>
+        <script src="javascript/general/generalDirectives.js"></script>
+        <script src="javascript/general/general.js"></script>
 
         <script src="javascript/dashboard/dashboardController.js"></script>
         <script src="javascript/dashboard/dashboard.js"></script>

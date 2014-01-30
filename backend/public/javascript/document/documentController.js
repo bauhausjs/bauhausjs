@@ -35,6 +35,12 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
 
     $scope.service = DocumentService($scope.type);
 
+    $scope.customFields = {};
+
+    $scope.service.info(function (result) {
+        $scope.customFields = result;
+    });
+
     if ($routeParams.id && $routeParams.id != 'new') {
         $scope.documentId = $routeParams.id;
         // load document data for passed id
@@ -46,17 +52,6 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
     } else {
         $scope.document = {};
     } 
-
-    $scope.customFields = {
-        fields: [
-            { name: 'title', 
-              type: 'text',
-              label: 'Title' }, 
-            { name: 'body', 
-              type: 'text',
-              label: 'Body' }
-        ]
-    };
 
     $scope.isNew = function () {
         return ($scope.document && $scope.document._id) ? false : true;
@@ -71,7 +66,6 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
         } else {
             // create new, empty document
             $scope.service.create({}, function (result) {
-                console.log("Created document", result);
                 $scope.document._id = result._id;
                 $scope.documentId =   result._id;
 

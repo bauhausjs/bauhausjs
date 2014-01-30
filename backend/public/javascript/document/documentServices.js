@@ -23,6 +23,10 @@ angular.module('bauhaus.document.services').factory('DocumentService', function 
             create: {
                 method: 'POST',
                 params: { id: '' }
+            },
+            info: {
+                method: 'GET',
+                params: { id: 'info' }
             }
         });
     }
