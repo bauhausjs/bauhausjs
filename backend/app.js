@@ -1,7 +1,8 @@
 var express = require('express'),
-    grunt = require('grunt'),
+    build = require('./build'),
     flash = require('connect-flash'),
-    session = require('connect-mongo')(express);
+    session = require('connect-mongo')(express),
+    path = require('path');;
 
 module.exports = function setup(options, imports, register) {
     var app = express();
@@ -11,14 +12,38 @@ module.exports = function setup(options, imports, register) {
 
 
     var route = typeof options.route === 'string' ? options.route : '/backend';
+    var env = app.get('env');
 
-    app.configure('development', function () {
-        process.chdir(__dirname);
-        var gruntConfig = require('./Gruntfile');
-        gruntConfig(grunt);
-        grunt.tasks(['default', 'watch']);
-        app.use(require('connect-livereload')({ port: 35729 }));
-    });
+    var buildConfig = {
+        env: env,
+        html: {
+            src: [
+                __dirname + '/public/javascript/**/*.html',
+            ],
+            dest: __dirname +  '/build/javascript'
+        },
+        js: {
+            src: [__dirname + '/public/javascript/**/*.js'],
+            dest: __dirname +  '/build/javascript'
+        },
+        css: {
+            src: [__dirname + '/public/css/styles.css'],
+            concat: 'all.css',
+            dest: __dirname +  '/build/css'
+        },
+        less: {
+            src: [__dirname + '/client/css/all.less'],
+            paths: [ __dirname + '/client/css' ]
+        }
+    };
+
+    var gulp = build(buildConfig);
+
+    if (env === 'development') {
+        gulp.start.apply(gulp, ['development']);
+    } else {
+        gulp.start.apply(gulp, ['production']);
+    }
 
     app.use(express.cookieParser());
     app.use(express.json());
@@ -37,9 +62,9 @@ module.exports = function setup(options, imports, register) {
     app.use(app.router);
 
 
-    app.use(express.static(__dirname + '/public'));
+    app.use(express.static(__dirname + '/build'));
 
-    // replace by including files compiled to public/ later
+    // remove by including compiled from build/ later
     app.use(express.static(__dirname + '/client'));
 
     // Configure backend permissions

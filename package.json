@@ -42,15 +42,11 @@
     "passport-local": "~0.1.6",
     "passport-local-mongoose": "~0.2.5",
     "connect-flash": "~0.1.1",
-    "grunt-contrib-watch": "~0.5.3",
-    "grunt-contrib-less": "~0.8.3",
-    "connect-livereload": "~0.3.1",
     "bower": "~1.2.8",
     "connect-mongo": "~0.4.0"
   },
   "devDependencies": {
     "mocha": "~1.14.0",
-    "should": "~2.1.0",
-    "grunt": "~0.4.2"
+    "should": "~2.1.0"
   }
 }

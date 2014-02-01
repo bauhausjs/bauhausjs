@@ -12,16 +12,19 @@
       "backend"
     ],
     "consumes": [
-      "server", "security", "mongoose"
+      "server",
+      "security",
+      "mongoose"
     ]
   },
   "dependencies": {
-    "grunt": "~0.4.2",
-    "grunt-contrib-less": "~0.8.3",
-    "grunt-contrib-watch": "~0.5.3",
-    "connect-livereload": "~0.3.1",
     "bower": "~1.2.8",
-    "grunt-cli": "~0.1.11"
+    "gulp": "~3.5.0",
+    "tiny-lr": "0.0.5",
+    "gulp-less": "~1.2.1",
+    "gulp-livereload": "~0.3.1",
+    "event-stream": "~3.1.0",
+    "gulp-concat": "~2.1.7"
   },
   "devDependencies": {}
 }
