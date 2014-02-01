@@ -1,6 +1,6 @@
 # BauhausJS
 
-![CI Status](https://travis-ci.org/bauhausjs/bauhausjs.png)
+[![CI Status](https://travis-ci.org/bauhausjs/bauhausjs.png)](https://travis-ci.org/bauhausjs/bauhausjs).
 
 BauhausJS is a modular CMS for NodeJS. BauhausJS is developed by [DigitalWerft](http://digitalwerft.com) and supported by [Bettervest](https://bettervest.de/). This is an open source project and pull requests are welcome.
 
@@ -18,8 +18,10 @@ Each module represents a self-containing application, which is added to a root s
 * **server**: Provides an express server, which listens to port `1919` on default. All other middleware of other modules is added to this server. This pattern of multiple express servers is used to allow to define custom middleware for each route. 
 * **frontend**: Provides an express server, were all frontend middleware (e.g. render page) is added to. The frontend is mounted at root `/` by default.
 * **page**: Provides frontend (rendering) and backend (mangement) functionality for pages.
+* **document**: Generic CRUD for documents.
 * **content**: Provides functionality for content 
-* **backend**: Provides an express server were all backend middleware (e.g. manage page) is added to. The backend is mouted at server route `/backend` by default.
+* **[backend](https://github.com/bauhausjs/bauhausjs/tree/master/backend)**: Provides an express server were all backend middleware (e.g. manage page) is added to. The backend is mouted at server route `/backend` by default and also provides the backend client.
+* **security**: User and role managment, middleware and helpers.
 * **event**: EventEmitter service, which can be shared by all modules
 * **mongoose**: Creates conntection to MongoDB, which can be used by all Mongoose Models without requirement depend on this module.
 
