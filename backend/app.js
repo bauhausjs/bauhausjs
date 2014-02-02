@@ -46,6 +46,7 @@ module.exports = function setup(options, imports, register) {
     }
 
     app.use(express.cookieParser());
+    app.use(express.bodyParser());
     app.use(express.json());
     app.use(express.urlencoded());
     // make secret configurable
