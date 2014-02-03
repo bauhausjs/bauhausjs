@@ -1,0 +1,15 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "description": "Express app for REST API",
+  "main": "app.js",
+  "private": true,
+  "plugin": {
+    "provides": [
+      "api"
+    ],
+    "consumes": [
+      "server","security"
+    ]
+  }
+}
