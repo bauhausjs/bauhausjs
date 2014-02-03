@@ -63,3 +63,20 @@ controller.documents('put', function (req, res, next) {
 
 
 user.api = baucis();
+
+user.api.get('/CurrentUser', function (req, res, next) {
+    if (req.session.user) {
+        var user = {
+            _id: req.session.user._id,
+            username: req.session.user.username,
+            roles: req.session.user.roles,
+            permissions: req.session.user.permissions
+
+        };
+        res.json(user);
+    } else {
+       res.status(403);
+       res.write('Not authorized');
+       res.end();
+    }
+});

@@ -1,24 +1,19 @@
-var gulp = require('gulp'),
-    gulpless = require('gulp-less'),
-    gulpconcat = require('gulp-concat'),
-    es = require('event-stream'),
-    lr = require('tiny-lr'),
-    livereload = require('gulp-livereload'),
-    server = lr();
+var gulp = require('./gulp');
 
-module.exports = function (options) {
-    var config = {
+function Build (options) {
+    this.gulp = null;
+    this.options = {
         env: options.env || process.env.NODE_ENV,
         html: {
-            src:  (options.html && options.html.src)  ? options.html.src : [__dirname + '/client/javascript/**/*.html'],
+            src:  (options.html && options.html.src)  ? options.html.src : [],
             dest: (options.html && options.html.dest) ? options.html.dest : __dirname + '/build'
         },
         js: {
-            src:  (options.js && options.js.src)  ? options.js.src : [__dirname + '/client/javascript/**/*.js'],
+            src:  (options.js && options.js.src)  ? options.js.src : [],
             dest: (options.js && options.js.dest) ? options.js.dest : __dirname + '/build/js'
         },
         css: {
-            src:  (options.css && options.css.src)  ? options.css.src : '',
+            src:  (options.css && options.css.src)  ? options.css.src : [],
             concat: (options.css && options.css.concat)  ? options.css.concat : 'all.css',
             dest: (options.css && options.css.dest) ? options.css.dest : __dirname + '/build/css'
         },
@@ -27,55 +22,26 @@ module.exports = function (options) {
             paths: (options.less && options.less.paths)  ? options.less.paths : [],
         }
     };
+};
 
-    gulp.task('styles', function () {
-        var styles = es.merge(
-            gulp.src(config.css.src),
-            gulp.src(config.less.src)
-                .pipe(gulpless({ paths: config.less.paths }))
-        ).pipe(gulpconcat(config.css.concat))
-         .pipe(gulp.dest(config.css.dest));
+Build.prototype.addSrc = function (type, src) {
+    var sources = (typeof src === 'string') ? [src] : src;
 
-        if (config.env === 'development') {
-            styles.pipe(livereload(server))
+    if (this.options[type] && this.options[type].src && Array.isArray(this.options[type].src)) {
+        for (var s in sources) {
+            this.options[type].src.push(sources[s])
         }
-        return styles;
-    });
+    }
+};
 
-    gulp.task('scripts', function () {
-        var scripts = gulp.src(config.js.src)
-                   .pipe(gulp.dest(config.js.dest));
+Build.prototype.initGulp = function () {
+    console.log("Init gulp with", this.options);
+    this.gulp = gulp(this.options);
+};
 
-        if (config.env === 'development') {
-            scripts.pipe(livereload(server))
-        }
-        return scripts;
-    });
+Build.prototype.run = function (tasks) {
+    this.gulp.start.apply(this.gulp, tasks);
+};
 
-    gulp.task('html', function () {
-        var html = gulp.src(config.html.src)
-                   .pipe(gulp.dest(config.html.dest));
+module.exports = Build;
 
-        if (config.env === 'development') {
-            html.pipe(livereload(server))
-        }
-        return html;
-    });
-
-    gulp.task('watch', function () {
-        gulp.watch(config.css.src, ['styles']);
-        gulp.watch(config.less.src, ['styles']);
-        gulp.watch(config.js.src, ['scripts']);
-        gulp.watch(config.html.src, ['html']);
-
-        server.listen(35729, function(err) {
-            if (err) return console.error(err);
-        });
-    });
-
-    gulp.task('production', ['styles', 'scripts']);
-
-    gulp.task('development', ['styles', 'scripts', 'html', 'watch']);
-
-    return gulp;
-}

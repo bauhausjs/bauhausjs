@@ -1,6 +1,7 @@
 var assert = require('assert'),
     app = require('../app')
-    mongoose = require('mongoose');
+    mongoose = require('mongoose'),
+    EventEmitter = require('events').EventEmitter;;
 
 
 
@@ -19,7 +20,8 @@ describe('backend module', function () {
                 authenticate: function () { return function (req, res, next) { next() } }
             },
             middleware: {
-                loadRoles: function (req, res, next) {}
+                loadRoles: function (req, res, next) {},
+                isAuthenticated: function () { return function (req, res, next) { next() } }
             },
             permissions: {},
             models: {
@@ -36,6 +38,8 @@ describe('backend module', function () {
             }  
         };
 
+        var eventMock = { emitter: new EventEmitter };
+
         var register = function (err, services) {
             assert(err === null, "App should not return error");
             assert(services.backend.app.stack, "App should be instance of express (and have prop stack)");
@@ -48,7 +52,7 @@ describe('backend module', function () {
             var connection = 'mongodb://localhost/bauhausjs_test';
             mongoose.connect(connection);
         }
-        var imports = {server: {app: serverMock }, security: securityMock, mongoose: { connection: mongoose.connection } };
+        var imports = {server: {app: serverMock }, security: securityMock, mongoose: { connection: mongoose.connection }, event: eventMock };
         app({}, imports, register);
     });
 });

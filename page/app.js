@@ -1,51 +1,32 @@
-var middleware = require('./middleware'),
-    page = require('./model'),
-    api = require('./api');
+var registerMiddleware = require('./middleware'),
+    registerModel = require('./model'),
+    registerApi = require('./api');
 
 module.exports = function setup(options, imports, register) {
     var frontend = imports.frontend.app,
         backend = imports.backend.app,
         content = imports.content,
-        security = imports.security;
-
+        security = imports.security,
+        mongoose = imports.mongoose.mongoose,
+        api = imports.api.app;
 
     security.permissions.page = ['use', 'content'];
 
     var module = { 
         models: {},
-        middleware: middleware,
-        types: {
-            '2-col-page': {
-                title: "2-column Page",
-                model: 'Page',
-                template: __dirname + '/page.ejs',
-                slots: [
-                    { name: 'content', label: 'Content' },
-                    { name: 'left', label: 'Sidebar' }
-                ]
-            }
-        }
+        middleware: {},
+        types: {}
     };
+
+    var page = registerModel(mongoose);
+    page.api = registerApi(mongoose, page, api);
+
     module.models[ page.config.name.toLowerCase() ] = page;
 
-    // Allow cross origin access for testing
-    backend.configure('development', function () {
-        var allowCrossDomain = function(req, res, next) {
-            res.header('Access-Control-Allow-Origin', '*');
-            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-            res.header('Access-Control-Allow-Headers', 'Content-Type');
-
-            next();
-        }
-        backend.use(allowCrossDomain);
-    });
-
-    api.get('/PageTypes', function (req, res) {
-        res.json(module.types);
-    });
+    module.middleware = registerMiddleware(page);
 
     // register REST api at backend
-    backend.use('/api', api);
+    api.use(page.api);
 
     var renderStack = [
         middleware.loadPage,

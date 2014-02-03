@@ -1,7 +1,8 @@
-var middleware = require('../middleware'),
-    assert = require('assert')
+var assert = require('assert')
     mongoConf = require('./mongoConf'),
-    Page = require('../model').model;
+    mongoose = require('mongoose'),
+    Page = require('../model')(mongoose).model,
+    middleware = require('../middleware')(Page);
 
 
 describe('PageMiddleware', function () {

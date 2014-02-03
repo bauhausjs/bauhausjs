@@ -1,50 +1,67 @@
 var express = require('express'),
-    build = require('./build'),
+    Build = require('./build'),
+    registerRoutes = require('./routes'),
     flash = require('connect-flash'),
     session = require('connect-mongo')(express),
     path = require('path');;
 
 module.exports = function setup(options, imports, register) {
-    var app = express();
     var server = imports.server.app,
         security = imports.security,
-        mongoose = imports.mongoose;
+        mongoose = imports.mongoose,
+        event = imports.event.emitter;
 
-
+    // OPTIONS   
     var route = typeof options.route === 'string' ? options.route : '/backend';
+
+    // Init backend express app
+    var app = express();
     var env = app.get('env');
 
-    var buildConfig = {
+    // MODULE
+    // Init exposed backend object
+    var backend = {
+        app: app,
+        build: null
+    };
+
+    // BUILD
+    // Destination and option config of custom builder
+    var buildOptions = {
         env: env,
         html: {
-            src: [
-                __dirname + '/public/javascript/**/*.html',
-            ],
             dest: __dirname +  '/build/javascript'
         },
         js: {
-            src: [__dirname + '/public/javascript/**/*.js'],
             dest: __dirname +  '/build/javascript'
         },
         css: {
-            src: [__dirname + '/public/css/styles.css'],
             concat: 'all.css',
             dest: __dirname +  '/build/css'
         },
         less: {
-            src: [__dirname + '/client/css/all.less'],
             paths: [ __dirname + '/client/css' ]
         }
     };
 
-    var gulp = build(buildConfig);
+    // Init builder and add assets
+    backend.build = new Build(buildOptions);
+    backend.build.addSrc('html', __dirname + '/public/javascript/**/*.html');
+    backend.build.addSrc('js',   __dirname + '/public/javascript/**/*.js');
+    backend.build.addSrc('css',  __dirname + '/public/css/styles.css');
+    backend.build.addSrc('less', __dirname + '/client/css/all.less');
 
-    if (env === 'development') {
-        gulp.start.apply(gulp, ['development']);
-    } else {
-        gulp.start.apply(gulp, ['production']);
-    }
+    // Run build after all modules have been registrated
+    event.on('modules.loaded', function () {
+        backend.build.initGulp();
+        if (env === 'development') {
+            backend.build.run(['development']);
+        } else {
+            backend.build.run(['production']);
+        }
+    });
 
+    // CONFIG APP
     app.use(express.cookieParser());
     app.use(express.bodyParser());
     app.use(express.json());
@@ -61,77 +78,30 @@ module.exports = function setup(options, imports, register) {
     app.use(security.passport.session());
     app.use(security.middleware.loadRoles);
     app.use(app.router);
+    
+    // Register routes from routes.js
+    registerRoutes(app, security);
 
-
+    // add client as static folder
     app.use(express.static(__dirname + '/build'));
-
     // remove by including compiled from build/ later
     app.use(express.static(__dirname + '/client'));
 
-    // Configure backend permissions
-    security.permissions.backend = ['login'];
 
-    var isAuthenticated = function (req, res, next) {
-        if (req.user) return next();
-        if (req.get('Content-Type') === 'application/json') {
-            res.status('403');
-            res.write('Not authorized');
-            res.end();
-        } else {
-            res.redirect('/backend/login');
-        }
-    }
-
-    app.get('/', isAuthenticated, function (req, res) {
-        res.render(__dirname + '/templates/index.ejs', { env: process.env.NODE_ENV, username: req.user.username });
-    });
-
-    // POST Login endpoint
-    var passportStrategyConf = { successRedirect: '/backend/',
-                                failureRedirect: '/backend/login',
+    var passportStrategyConf = { successRedirect: route + '/',
+                                failureRedirect: route + '/login',
                                 failureFlash: true };
     app.post('/login', security.passport.authenticate('local', passportStrategyConf) );
 
-    // Login Form
-    app.get('/login', function (req, res) {
-        if (req.user) return res.redirect('/backend/');
 
-        res.render(__dirname + '/templates/login.ejs', { error: req.flash('error'), info: req.flash('info') });
-    });
-
-    // Logout request
-    app.get('/logout', function (req, res) {
-        flash('info','Logged out');
-        req.logout();
-        res.redirect('/backend/login');
-    });
-
-    security.models.user.api.get('/CurrentUser', function (req, res, next) {
-        if (req.user) {
-            var user = {
-                _id: req.user._id,
-                username: req.user.username,
-                roles: req.bauhaus.roles,
-                permissions: req.bauhaus.permissions
-
-            };
-            res.json(user);
-        } else {
-           res.status(403);
-           res.write('Not authorized');
-           res.end();
-        }
-    });
-
-    // register user API
-    app.use('/api', isAuthenticated);
-    app.use('/api', security.models.user.api); // add user AND roles
-    app.use('/api', security.models.permission.api);
-
-    // Add backend app to server
+    // REGISTER APP
     server.use(route, app);
 
+    // SECURITY
+    // Configure backend permissions
+    security.permissions.backend = ['login'];
+
     register(null, {
-        backend: { app: app },
+        backend: backend,
     });
 };

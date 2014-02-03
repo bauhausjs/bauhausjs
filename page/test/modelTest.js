@@ -1,7 +1,10 @@
-var model  = require('../model');
+var mongoose = require('mongoose');
+delete mongoose.models.Page;
+
+var mongoConf = require('./mongoConf'),
+    model  = require('../model')(mongoose),
     assert = require('assert'),
-    should = require('should'),
-    mongoose = require('mongoose');
+    should = require('should');
 
 describe('Page', function () {
     describe('config', function () {

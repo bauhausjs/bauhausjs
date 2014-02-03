@@ -11,8 +11,10 @@
     "consumes": [
       "frontend",
       "backend",
+      "api",
       "content",
-      "security"
+      "security",
+      "mongoose"
     ]
   }
 }
