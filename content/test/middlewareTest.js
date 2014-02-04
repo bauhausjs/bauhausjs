@@ -1,10 +1,11 @@
-var middleware = require('../middleware'),
-    assert = require('assert')
-    Content = require('../model').model;
+var mongoose = require('mongoose'),
+    assert = require('assert'),
+    Content = require('../model')(mongoose).model,
+    middleware = require('../middleware')(Content);
 
 describe('Content Middleware', function () {
     describe('loadContentTypes', function () {
-        it('should add conentTypes to request', function (done) {
+        it('should add contentTypes to request', function (done) {
             var contentTypes = {
                 article: {
                     model: 'Article'

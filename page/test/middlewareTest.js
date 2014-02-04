@@ -4,7 +4,6 @@ var assert = require('assert')
     Page = require('../model')(mongoose).model,
     middleware = require('../middleware')(Page);
 
-
 describe('PageMiddleware', function () {
 
     describe('loadPage', function () {
@@ -25,6 +24,7 @@ describe('PageMiddleware', function () {
                     assert(req.bauhaus.page instanceof Page, "Page object has correct type");
                     done();
                 }
+                
                 middleware.loadPage(req, res, next);
             });
         })

@@ -1,7 +1,9 @@
-var model  = require('../model');
+var mongoose = require('mongoose');
+delete mongoose.models.Content;
+
+var model  = require('../model')(mongoose),
     assert = require('assert'),
-    should = require('should'),
-    mongoose = require('mongoose');
+    should = require('should');
 
 describe('Content', function () {
     describe('config', function () {
