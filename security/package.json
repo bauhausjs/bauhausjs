@@ -9,7 +9,7 @@
       "security"
     ],
     "consumes": [
-      
+      "mongoose"
     ]
   }
 }

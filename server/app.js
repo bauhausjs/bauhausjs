@@ -11,6 +11,10 @@ module.exports = function setup(options, imports, register) {
     var port = options.port || 3000,
         welcome = (typeof options.welcome === 'boolean') ? options.welcome : true; 
 
+    var plugin = {
+        app: app
+    }
+
     event.on('modules.loaded', function () {
         if (welcome) helper.logWelcome(app); 
         // listen to port as soon as all modules are loaded
@@ -20,6 +24,6 @@ module.exports = function setup(options, imports, register) {
     });
 
     register(null, {
-        server: { app: app },
+        server: plugin
     });
 };

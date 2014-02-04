@@ -1,16 +1,20 @@
 var express = require('express'),
     passport = require('passport'),
     LocalStrategy = require('passport-local').Strategy,
-    models = require('./model'),
-    middleware = require('./middleware'),
+    registerModels = require('./model'),
+    registerMiddleware = require('./middleware'),
+    registerApi = require('./api'),
     debug = require('debug')('bauhaus:security');
 
 module.exports = function setup(options, imports, register) {
-    var security = {
+    var mongoose = imports.mongoose.mongoose;
+
+    var plugin = {
         passport: passport,
         helper: {},
-        models: models,
-        middleware: middleware,
+        models: {},
+        api: null,
+        middleware: {},
         permissions: {},
         sessionSecret: (options.sessionSecret) ? options.sessionSecret : 'nov9t4ho3ivuth384nct9n'
     };
@@ -30,20 +34,18 @@ module.exports = function setup(options, imports, register) {
         }
     ));
 
-    var permissionsApi = express();
-    permissionsApi.get('/Permissions', function (req, res, next) {
-        res.send(security.permissions)
-    });
-    security.models.permission = { api: permissionsApi };
+    plugin.models = registerModels(mongoose);
+    plugin.api = registerApi(mongoose, plugin);
+    plugin.middleware = registerMiddleware(plugin);
 
     // use static authenticate method of model in LocalStrategy
-    passport.use(new LocalStrategy(models.user.model.authenticate()));
+    passport.use(new LocalStrategy(plugin.models.user.model.authenticate()));
 
     // use static serialize and deserialize of model for passport session support
-    passport.serializeUser(models.user.model.serializeUser());
-    passport.deserializeUser(models.user.model.deserializeUser());
+    passport.serializeUser(plugin.models.user.model.serializeUser());
+    passport.deserializeUser(plugin.models.user.model.deserializeUser());
 
     register(null, {
-        security: security
+        security: plugin
     });
 };

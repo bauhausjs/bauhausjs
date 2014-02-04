@@ -18,8 +18,7 @@ module.exports = function setup(options, imports, register) {
 
     // Register REST API for users and permissions, since security cannot add them itself due
     // to cicular dependencies
-    app.use(security.models.user.api);
-    app.use(security.models.permission.api);
+    app.use(security.api);
 
     register(null, {
         api: api,

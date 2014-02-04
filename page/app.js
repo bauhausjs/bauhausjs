@@ -12,7 +12,7 @@ module.exports = function setup(options, imports, register) {
 
     security.permissions.page = ['use', 'content'];
 
-    var module = { 
+    var plugin = { 
         models: {},
         middleware: {},
         types: {},
@@ -23,18 +23,18 @@ module.exports = function setup(options, imports, register) {
     };
 
     var page = registerModel(mongoose);
-    page.api = registerApi(mongoose, page, api, module);
+    page.api = registerApi(mongoose, page, api, plugin);
 
-    module.models[ page.config.name.toLowerCase() ] = page;
+    plugin.models[ page.config.name.toLowerCase() ] = page;
 
     middleware = registerMiddleware(page);
-    module.middleware = middleware;
+    plugin.middleware = middleware;
     // register REST api at backend
     api.use(page.api);
 
     var renderStack = [
         middleware.loadPage,
-        middleware.loadPageType(module.types),
+        middleware.loadPageType(plugin.types),
         middleware.loadNavigation,
         content.middleware.loadContent,
         content.middleware.renderContent(content.types),
@@ -44,13 +44,13 @@ module.exports = function setup(options, imports, register) {
     ];
 
     // REGISTER client assets
-    backend.build.addSrc('js', module.client.js);
-    backend.build.addSrc('html', module.client.html);
+    backend.build.addSrc('js', plugin.client.js);
+    backend.build.addSrc('html', plugin.client.html);
 
     // register render stack
     frontend.get('*', renderStack);
 
     register(null, {
-        page: module
+        page: plugin
     });
 };
