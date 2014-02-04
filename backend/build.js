@@ -35,7 +35,6 @@ Build.prototype.addSrc = function (type, src) {
 };
 
 Build.prototype.initGulp = function () {
-    console.log("Init gulp with", this.options);
     this.gulp = gulp(this.options);
 };
 

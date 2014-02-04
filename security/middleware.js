@@ -6,7 +6,6 @@ middleware.loadRoles = function (req, res, next) {
     // User roles and permissions are added as soon user is authorized by passport
     // Info is persisted for the hole session, user must login again to receive new roles and permissions
     if (req.user && !req.session.user) {
-        console.log("AUTH USER");
         model.role.model.find({'_id': { $in: req.user.roles }}, function (err, docs) {
             if (err) next();
 
