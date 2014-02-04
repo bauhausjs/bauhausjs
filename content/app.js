@@ -1,29 +1,25 @@
-var middleware = require('./middleware'),
-    content = require('./model');
+var registerMiddleware = require('./middleware'),
+    registerModel = require('./model'),
+    registerApi = require('./api');
 
 module.exports = function setup(options, imports, register) {
-    var backend = imports.backend.app,
-        frontend = imports.frontend.app;
+    var api = imports.api.app,
+        mongoose = imports.mongoose.mongoose;
 
     var module = { 
         models: {},
-        middleware: middleware,
-        types: {
-            'article': {
-                title: 'Article',
-                model: 'Article',
-                template: __dirname + '/article.ejs'
-            }
-        }
+        middleware: {},
+        types: {}
     };
+
+    var content = registerModel(mongoose);
+    content.api = registerApi(mongoose, content, module.types);    
     module.models[ content.config.name.toLowerCase() ] = content;
 
-    content.api.get('/ContentTypes', function (req, res, next) {
-        res.json(module.types);
-    });
+    module.middleware = registerMiddleware(content.model);
 
     // register REST api at backend
-    backend.use('/api', content.api);
+    api.use(content.api);
 
     register(null, {
         content: module

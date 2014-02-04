@@ -10,7 +10,8 @@ function Build (options) {
         },
         js: {
             src:  (options.js && options.js.src)  ? options.js.src : [],
-            dest: (options.js && options.js.dest) ? options.js.dest : __dirname + '/build/js'
+            dest: (options.js && options.js.dest) ? options.js.dest : __dirname + '/build/js',
+            concat: (options.js && options.js.concat)  ? options.js.concat : 'all.js'
         },
         css: {
             src:  (options.css && options.css.src)  ? options.css.src : [],

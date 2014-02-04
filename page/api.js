@@ -1,6 +1,6 @@
 var baucis = require('baucis');
 
-module.exports = function (mongoose, page, api) {
+module.exports = function (mongoose, page, api, module) {
 
     var pageController = baucis.rest({
         singular:'Page', 

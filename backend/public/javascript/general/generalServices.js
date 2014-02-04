@@ -16,7 +16,6 @@ angular.module('bauhaus.general.services').factory('SharedDocuments', function (
     };
 
     Documents.get(function (result) {
-        console.log(result);
         for (var key in result) {
             if (result[key].name) {
                 scope.store.all[key] = result[key];

@@ -30,14 +30,14 @@ module.exports = function setup(options, imports, register) {
     var buildOptions = {
         env: env,
         html: {
-            dest: __dirname +  '/build/javascript'
+            dest: __dirname +  '/build/client/javascript'
         },
         js: {
-            dest: __dirname +  '/build/javascript'
+            dest: __dirname +  '/build/client/javascript'
         },
         css: {
             concat: 'all.css',
-            dest: __dirname +  '/build/css'
+            dest: __dirname +  '/build/client/css'
         },
         less: {
             paths: [ __dirname + '/client/css' ]
@@ -46,7 +46,12 @@ module.exports = function setup(options, imports, register) {
 
     // Init builder and add assets
     backend.build = new Build(buildOptions);
+
     backend.build.addSrc('html', __dirname + '/public/javascript/**/*.html');
+    backend.build.addSrc('js',   __dirname + '/client/components/angular/angular.js');
+    backend.build.addSrc('js',   __dirname + '/client/components/angular-resource/angular-resource.js');
+    backend.build.addSrc('js',   __dirname + '/client/components/angular-route/angular-route.js');
+    backend.build.addSrc('js',   __dirname + '/client/components/angular-slugify/angular-slugify.js');
     backend.build.addSrc('js',   __dirname + '/public/javascript/**/*.js');
     backend.build.addSrc('css',  __dirname + '/public/css/styles.css');
     backend.build.addSrc('less', __dirname + '/client/css/all.less');
@@ -78,12 +83,12 @@ module.exports = function setup(options, imports, register) {
     app.use(security.passport.session());
     app.use(security.middleware.loadRoles);
     app.use(app.router);
-    
+
     // Register routes from routes.js
     registerRoutes(app, security);
 
     // add client as static folder
-    app.use(express.static(__dirname + '/build'));
+    app.use(express.static(__dirname + '/build/client'));
     // remove by including compiled from build/ later
     app.use(express.static(__dirname + '/client'));
 

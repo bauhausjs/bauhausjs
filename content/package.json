@@ -9,8 +9,8 @@
       "content"
     ],
     "consumes": [
-      "backend",
-      "frontend"
+      "api",
+      "mongoose"
     ]
   }
 }

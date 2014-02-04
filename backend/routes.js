@@ -4,7 +4,7 @@ module.exports = function (app, security) {
     var isAuthenticated = security.middleware.isAuthenticated({redirect:'/backend/login'});
 
     app.get('/', isAuthenticated, function (req, res) {
-        res.render(__dirname + '/templates/index.ejs', { env: process.env.NODE_ENV, username: req.user.username });
+        res.render(__dirname + '/build/templates/index.ejs', { env: process.env.NODE_ENV, username: req.user.username });
     });
 
     // Login Form

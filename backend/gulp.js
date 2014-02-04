@@ -1,35 +1,47 @@
 var gulp = require('gulp'),
     gulpless = require('gulp-less'),
     gulpconcat = require('gulp-concat'),
+    gulpinject = require('gulp-inject'),
+    gulpuglify = require('gulp-uglify'),
+    gulputil = require('gulp-util'),
     es = require('event-stream'),
     lr = require('tiny-lr'),
     livereload = require('gulp-livereload'),
     server = lr();
 
 module.exports = function (config) {
-    
+    // cache name of output scripts and styles to inject them into html
+    var scriptCache = [];
+    var styleCache = [];
+
     gulp.task('styles', function () {
-        var styles = es.merge(
+        styleCache = [];
+        return es.merge(
             gulp.src(config.css.src),
             gulp.src(config.less.src)
                 .pipe(gulpless({ paths: config.less.paths }))
         ).pipe(gulpconcat(config.css.concat))
-         .pipe(gulp.dest(config.css.dest));
-
-        if (config.env === 'development') {
-            styles.pipe(livereload(server))
-        }
-        return styles;
+         .pipe(gulp.dest(config.css.dest))
+         .pipe((config.env === 'development') ? livereload(server) : gulputil.noop())
+         .pipe(gulputil.buffer(function(err, files){
+              for (var f in files) {
+                  styleCache.push(files[f].path);
+              }
+          }));
     });
 
     gulp.task('scripts', function () {
-        var scripts = gulp.src(config.js.src)
-                   .pipe(gulp.dest(config.js.dest));
-
-        if (config.env === 'development') {
-            scripts.pipe(livereload(server))
-        }
-        return scripts;
+        scriptCache = [];
+        return gulp.src(config.js.src)
+                   .pipe((config.env === 'production') ? gulpuglify() :  gulputil.noop())
+                   .pipe((config.env === 'production') ? gulpconcat(config.js.concat) : gulputil.noop())
+                   .pipe(gulp.dest(config.js.dest))
+                   .pipe((config.env === 'development') ? livereload(server) : gulputil.noop())
+                   .pipe(gulputil.buffer(function(err, files){
+                        for (var f in files) {
+                            scriptCache.push(files[f].path);
+                        }
+                    }));
     });
 
     gulp.task('html', function () {
@@ -42,7 +54,18 @@ module.exports = function (config) {
         return html;
     });
 
-    gulp.task('watch', function () {
+    gulp.task('index.ejs', ['scripts'], function (src) {
+        var indexSrc = __dirname + '/templates/index.ejs',
+            indexDest = __dirname + '/build/templates/';
+
+        assetScr = styleCache.concat(scriptCache);
+
+        return gulp.src(assetScr, {read: false})
+            .pipe(gulpinject(indexSrc, { ignorePath: __dirname + '/build/client/', addRootSlash: false }))
+            .pipe(gulp.dest(indexDest));
+    });
+
+    gulp.task('watch', ['styles', 'scripts', 'html'], function () {
         gulp.watch(config.css.src, ['styles']);
         gulp.watch(config.less.src, ['styles']);
         gulp.watch(config.js.src, ['scripts']);
@@ -53,9 +76,10 @@ module.exports = function (config) {
         });
     });
 
-    gulp.task('production', ['styles', 'scripts']);
 
-    gulp.task('development', ['styles', 'scripts', 'html', 'watch']);
+    gulp.task('production', ['styles', 'scripts', 'html', 'index.ejs']);
+
+    gulp.task('development', ['styles', 'scripts', 'html', 'index.ejs', 'watch']);
 
     return gulp;
 }
