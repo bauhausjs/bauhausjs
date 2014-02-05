@@ -21,6 +21,7 @@ describe('backend module', function () {
             },
             middleware: {
                 loadRoles: function (req, res, next) {},
+                hasPermission:  function () { return function (req, res, next) { next() } },
                 isAuthenticated: function () { return function (req, res, next) { next() } }
             },
             permissions: {},
