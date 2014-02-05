@@ -6,7 +6,10 @@ module.exports = function setup(options, imports, register) {
 
     var plugin = { 
         app: {},
-        documents: {}
+        documents: {},
+        addType: function (name, config) {
+            this.documents[name] = config;
+        }
     };
 
     backend.get('/api/Documents', function (req, res, next) {
