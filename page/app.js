@@ -20,7 +20,10 @@ module.exports = function setup(options, imports, register) {
             js: [__dirname + '/client/javascript/**/*.js'],
             html: [__dirname + '/client/javascript/**/*.html']
         },
-        api: null
+        api: null,
+        addType: function (name, config) {
+            this.type[name] = config;
+        }
     };
 
     var page = registerModel(mongoose);
