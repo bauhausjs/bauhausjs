@@ -1,7 +1,7 @@
 var express    = require('express');
 
 module.exports = function setup(options, imports, register) {
-    var backend = imports.backend.app,
+    var api = imports.api.app,
         frontend = imports.frontend.app;
 
     var plugin = { 
@@ -12,8 +12,8 @@ module.exports = function setup(options, imports, register) {
         }
     };
 
-    backend.get('/api/Documents', function (req, res, next) {
-        res.json(module.documents);
+    api.get('/Documents', function (req, res, next) {
+        res.json(plugin.documents);
     });
 
     register(null, {

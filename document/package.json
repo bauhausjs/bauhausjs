@@ -9,7 +9,7 @@
       "document"
     ],
     "consumes": [
-      "backend",
+      "api",
       "frontend"
     ]
   }

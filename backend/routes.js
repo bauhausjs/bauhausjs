@@ -2,8 +2,9 @@ var flash = require('connect-flash');
 
 module.exports = function (app, security) {
     var isAuthenticated = security.middleware.isAuthenticated({redirect:'/backend/login'});
+    var hasPermission   = security.middleware.hasPermission;
 
-    app.get('/', isAuthenticated, function (req, res) {
+    app.get('/', [isAuthenticated, hasPermission(['backend:login'], {redirect:'/backend/login'})], function (req, res) {
         res.render(__dirname + '/build/templates/index.ejs', { env: process.env.NODE_ENV, username: req.user.username });
     });
 
