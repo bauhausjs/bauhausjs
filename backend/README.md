@@ -18,6 +18,8 @@ When the app is run in `development` env (default) a live reload server is start
 
 ## Config
 
+* **route** `String`: Route of backend, default: `/backend`
+
 ## API
 
 ### backend.app
@@ -26,9 +28,11 @@ Type: `Object` Express App
 
 ### backend.build.addSrc(type, src)
 
+Add asset to backend build
+
 Params:
 
-* `String type`: Asset type, valid inputs `js`,`css`,`less`,`html` or `copy`
-* `String or <Array>.String src`: Absolute path to asset(s) in Gulp format, e.g. `__dirname + "/js/**/*.js"`
+* **type** `String`: Asset type, valid inputs `js`,`css`,`less`,`html`
+* **src** `String or <Array>.String`: Absolute path to asset(s) in Gulp format, e.g. `__dirname + "/js/**/*.js"`
 
 
