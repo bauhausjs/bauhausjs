@@ -11,8 +11,9 @@ var gulp = require('gulp'),
 
 module.exports = function (config) {
     // cache name of output scripts and styles to inject them into html
-    var scriptCache = [];
-    var styleCache = [];
+    var scriptCache = [],
+        styleCache = [],
+        watcherStarted = false;
 
     gulp.task('styles', function () {
         styleCache = [];
@@ -22,7 +23,7 @@ module.exports = function (config) {
                 .pipe(gulpless({ paths: config.less.paths }))
         ).pipe(gulpconcat(config.css.concat))
          .pipe(gulp.dest(config.css.dest))
-         .pipe((config.env === 'development') ? livereload(server) : gulputil.noop())
+         .pipe((config.env === 'development' && watcherStarted) ? livereload(server) : gulputil.noop())
          .pipe(gulputil.buffer(function(err, files){
               for (var f in files) {
                   styleCache.push(files[f].path);
@@ -36,7 +37,7 @@ module.exports = function (config) {
                    //.pipe((config.env === 'production') ? gulpuglify() :  gulputil.noop())
                    .pipe((config.env === 'production') ? gulpconcat(config.js.concat) : gulputil.noop())
                    .pipe(gulp.dest(config.js.dest))
-                   .pipe((config.env === 'development') ? livereload(server) : gulputil.noop())
+                   .pipe((config.env === 'development' && watcherStarted) ? livereload(server) : gulputil.noop())
                    .pipe(gulputil.buffer(function(err, files){
                         for (var f in files) {
                             scriptCache.push(files[f].path);
@@ -45,13 +46,9 @@ module.exports = function (config) {
     });
 
     gulp.task('html', function () {
-        var html = gulp.src(config.html.src)
-                   .pipe(gulp.dest(config.html.dest));
-
-        if (config.env === 'development') {
-            html.pipe(livereload(server))
-        }
-        return html;
+        return gulp.src(config.html.src)
+                   .pipe(gulp.dest(config.html.dest))
+                   .pipe((config.env === 'development' && watcherStarted) ? livereload(server) : gulputil.noop());
     });
 
     gulp.task('index.ejs', ['scripts'], function (src) {
@@ -66,6 +63,7 @@ module.exports = function (config) {
     });
 
     gulp.task('watch', ['styles', 'scripts', 'html'], function () {
+        watcherStarted = true;
         gulp.watch(config.css.src, ['styles']);
         gulp.watch(config.less.src, ['styles']);
         gulp.watch(config.js.src, ['scripts']);
