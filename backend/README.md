@@ -2,7 +2,7 @@
 
 This module provides an backend client for BauhausJS, which can be accessed at the server at path `/backend`.
 
-# Backend Client architecture
+## Backend Client architecture
 
 The backend client is a single page app driven by **AngularJS**, which requests data from REST services. 
 
@@ -14,4 +14,21 @@ Frontend dependencies are currently installed by **Bower** to `backend/client/co
 
 The build is performed by **Gulp** and is defined in `build.js`. The build cannot be triggered on the command line by using a `gulpfile.js`, but is is started by `app.js` on runtime. This allows other modules to dynamically register JavaScript, CSS, HTML and other assets at the backend module which are included in the backend build.
 
-When the app is run in `development` env (default) a live reload server is started, which recompiles backend assets, if you are developing modules for the backend. Use the Chrome Live Reload Plugin until  the livereload URL is dynamically incjected into the `index.ejs`.
+When the app is run in `development` env (default) a live reload server is started, which recompiles backend assets, if you are developing modules for the backend. Use the Chrome Live Reload Plugin until  the livereload URL is dynamically incjected into the `index.ejs.
+
+## Config
+
+## API
+
+### backend.app
+
+Type: `Object` Express App
+
+### backend.build.addSrc(type, src)
+
+Params:
+
+* `String type`: Asset type, valid inputs `js`,`css`,`less`,`html` or `copy`
+* `String or <Array>.String src`: Absolute path to asset(s) in Gulp format, e.g. `__dirname + "/js/**/*.js"`
+
+
