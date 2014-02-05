@@ -16,6 +16,9 @@ module.exports = function setup(options, imports, register) {
         api: null,
         middleware: {},
         permissions: {},
+        addPermission: function (pluginName, permissions) {
+            this.permissions[pluginName] = permissions;
+        },
         sessionSecret: (options.sessionSecret) ? options.sessionSecret : 'nov9t4ho3ivuth384nct9n'
     };
 
