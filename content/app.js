@@ -10,7 +10,10 @@ module.exports = function setup(options, imports, register) {
         models: {},
         middleware: {},
         types: {},
-        api: null
+        api: null,
+        addType: function (name, config) {
+            this.types[name] = config;
+        }
     };
 
     var content = registerModel(mongoose);

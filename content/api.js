@@ -10,7 +10,6 @@ module.exports = function (mongoose, plugin) {
 
 
     api.get('/ContentTypes', function (req, res, next) {
-        console.log(plugin.types)
         res.json(plugin.types);
     });
 
