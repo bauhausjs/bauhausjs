@@ -1,3 +1,5 @@
+var debug = require('debug')('bauhaus:security')
+
 module.exports = function (plugin) {
 
     var middleware =  {};
@@ -44,7 +46,64 @@ module.exports = function (plugin) {
     };
 
     /**
-     * Middleware which checks if user is authorized
+     * Generates middleware, which checks if user has the requested permissions.
+     *
+     *  - If no permission is passed, all users have access. 
+     *  - If multiple permissions are passed, user needs all permissions to pass
+     * 
+     * @param  {String || Array.<String>} permissions Permissions in format ['PLUGIN:PERMISSION'], e.g. ['post:create']
+     * @param  {Object} options.redirect Redirect url for unathorized requests, default: '/'
+     * @return {Function} Express middleware
+     */
+    middleware.hasPermission = function (permissions, options) {
+        // check if permission is array or string, else set to empty array
+        permissions = (typeof permissions === 'string' || Array.isArray(permissions)) ? permissions : [];
+        // if permission is string, convert to array
+        permissions = (typeof permissions === 'string') ? [permissions] : permissions;
+        // set redirect option
+        options     = (options && typeof options.redirect === 'string') ? options : {redirect: '/'};
+
+        return function hasPermission (req, res, next) {
+            var hasPermission = false;
+
+            if (req.session.user && req.session.user.permissions) {
+                // check for all configured permissions
+                for (var p in permissions) {
+                    var perm = permissions[p];
+                    if (req.session.user.permissions.indexOf(perm) != -1) {
+                        hasPermission = true;
+                    } else {
+                        // if user has no permission for one requested permission check is canceled 
+                        debug('User lacks permission', perm);
+                        hasPermission = false;
+                        break;
+                    }
+                }
+            }
+
+            if (hasPermission === false) {
+                // user has no permission
+                debug('User lacked required permissions. NO ACCESS');
+                if (req.get('Content-Type') === 'application/json') {
+                    // send error 403 to json requests
+                    res.status('403');
+                    res.write('Not authorized');
+                    res.end();
+                } else {
+                    // redirect other requests
+                   res.redirect(options.redirect);
+
+                }
+            } else {
+                // user has permission, let request pass
+                debug('User has needed permissions', permissions);
+                next();
+            }
+        }
+    }
+
+    /**
+     * Generates middleware which checks if user is authorized
      *  - authorized: next()
      *  - unauthorized and json request: 403
      *  - unauthorized and no json request: 
