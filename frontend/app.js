@@ -8,6 +8,10 @@ module.exports = function setup(options, imports, register) {
         security = imports.security,
         mongoose = imports.mongoose;
 
+    var plugin = {
+        app: app
+    }
+
     // currently middleware is added statically
     app.use(express.cookieParser());
     app.use(express.json());
@@ -34,6 +38,6 @@ module.exports = function setup(options, imports, register) {
     server.use(app);
 
     register(null, {
-        frontend: { app: app },
+        frontend: plugin,
     });
 };

@@ -6,22 +6,23 @@ module.exports = function setup(options, imports, register) {
     var api = imports.api.app,
         mongoose = imports.mongoose.mongoose;
 
-    var module = { 
+    var plugin = { 
         models: {},
         middleware: {},
-        types: {}
+        types: {},
+        api: null
     };
 
     var content = registerModel(mongoose);
-    content.api = registerApi(mongoose, content, module.types);    
-    module.models[ content.config.name.toLowerCase() ] = content;
+    plugin.api = registerApi(mongoose, plugin);    
+    plugin.models[ content.config.name.toLowerCase() ] = content;
 
-    module.middleware = registerMiddleware(content.model);
+    plugin.middleware = registerMiddleware(mongoose);
 
     // register REST api at backend
-    api.use(content.api);
+    api.use(plugin.api);
 
     register(null, {
-        content: module
+        content: plugin
     });
 };

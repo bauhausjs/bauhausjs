@@ -2,7 +2,7 @@ var debug = require('debug')('bauhaus:content')
     ejs = require('ejs'),
     View = require('express/lib/view');
 
-module.exports = function (Content) {
+module.exports = function (mongoose) {
 
     var middleware = {};
 
@@ -16,6 +16,7 @@ module.exports = function (Content) {
             if (!req.bauhaus || !req.bauhaus.content) return next();
 
             req.bauhaus.content.types = contentTypes;
+            debug('Loaded Content Types', Object.keys(contentTypes));
             next();
         };
         return loadContentTypes;
@@ -27,7 +28,7 @@ module.exports = function (Content) {
     middleware.loadContent = function loadContent (req, res, next) {
         if (!req.bauhaus || !req.bauhaus.page) return next();
 
-        Content.find({'_page': req.bauhaus.page._id}, 'content meta _type', function (err, contents) {
+        mongoose.models.Content.find({'_page': req.bauhaus.page._id}, 'content meta _type', function (err, contents) {
             if (err || contents.length === 0) return next();
             debug("Loaded " + contents.length + " content blocks");
             req.bauhaus.content = {
@@ -55,14 +56,15 @@ module.exports = function (Content) {
                 var typeName = item._type;
                 if (typeName in contentTypes) {
                     var contentType = contentTypes[ typeName ];
-                    
+
                     res.render(contentType.template, item.content, function (err, html) {
                         if (err) html = "";
                         req.bauhaus.content.rendered.push(html);
                     });
                 }
             });
-            debug("Rendered content");
+
+            debug("Rendered " + req.bauhaus.content.rendered.length + " content elements");
 
             next();
         };

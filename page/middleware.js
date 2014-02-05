@@ -1,6 +1,6 @@
 var debug = require('debug')('bauhaus:page');
 
-module.exports = function (Page) {
+module.exports = function (mongoose) {
     var middleware =  {};
 
     /**
@@ -10,8 +10,9 @@ module.exports = function (Page) {
         if (!req.bauhaus) req.bauhaus = {};
 
         var route = req.url;
-        Page.findOne({ 'route': route  }, "title label _type _model", function (err, page) {
+        mongoose.models.Page.findOne({ 'route': route  }, "title label _type _model", function (err, page) {
             if (err || page === null) return next(new Error("PageNotFound"));
+
             req.bauhaus.page = page;
             debug('Loaded "' +  page.title + '" (' + page._id + ') for route ' + route);
             next();
@@ -30,6 +31,7 @@ module.exports = function (Page) {
 
             var type = req.bauhaus.page._type;
             req.bauhaus.pageType = pageTypes[type];
+            debug('Loaded page type "' + type + '"');
             next();
         };
     };
@@ -38,7 +40,7 @@ module.exports = function (Page) {
         req.bauhaus.navigation = {};
         var query = { parentId: null };
 
-        Page.findOne(query, function (err, doc) {
+        mongoose.models.Page.findOne(query, function (err, doc) {
             doc.getTree({
                 condition: { public: true },
                 fields: { route: 1, title: 1, label: 1 }
@@ -49,6 +51,7 @@ module.exports = function (Page) {
                 for (var parentId in tree) {
                     req.bauhaus.navigation.main = tree[ parentId ].children;
                 }
+                debug('Loaded navigation');
                 next();
             });
         });
@@ -73,6 +76,8 @@ module.exports = function (Page) {
             var key = slotNameMap[ slot ];
             if (req.bauhaus.slots[ key ] === undefined) req.bauhaus.slots[ key ] = "";
             req.bauhaus.slots[ key ] += req.bauhaus.content.rendered[index];
+
+            debug('Rendered slot "' + key + '"');
         });
         next();
     };
@@ -84,7 +89,7 @@ module.exports = function (Page) {
     middleware.renderPage = function renderPage (req, res, next) {
         var template = req.bauhaus.pageType.template;
         var data = req.bauhaus;
-        debug('Render and send page', req.bauhaus);
+        debug('Render and send page');
         res.render(template, data);
     };
 

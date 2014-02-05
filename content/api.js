@@ -1,6 +1,6 @@
 var baucis = require('baucis');
 
-module.exports = function (mongoose, Content, contentTypes) {
+module.exports = function (mongoose, plugin) {
     baucis.rest({
         singular:'Content', 
         select:'_type content meta _page', swagger: true
@@ -10,7 +10,8 @@ module.exports = function (mongoose, Content, contentTypes) {
 
 
     api.get('/ContentTypes', function (req, res, next) {
-        res.json(contentTypes);
+        console.log(plugin.types)
+        res.json(plugin.types);
     });
 
     return api;

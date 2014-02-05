@@ -19,28 +19,28 @@ module.exports = function setup(options, imports, register) {
         client: {
             js: [__dirname + '/client/javascript/**/*.js'],
             html: [__dirname + '/client/javascript/**/*.html']
-        }
+        },
+        api: null
     };
 
     var page = registerModel(mongoose);
-    page.api = registerApi(mongoose, page, api, plugin);
+    plugin.api = registerApi(mongoose, plugin);
 
     plugin.models[ page.config.name.toLowerCase() ] = page;
 
-    middleware = registerMiddleware(page);
-    plugin.middleware = middleware;
+    plugin.middleware = registerMiddleware(mongoose);
     // register REST api at backend
-    api.use(page.api);
+    api.use(plugin.api);
 
     var renderStack = [
-        middleware.loadPage,
-        middleware.loadPageType(plugin.types),
-        middleware.loadNavigation,
+        plugin.middleware.loadPage,
+        plugin.middleware.loadPageType(plugin.types),
+        plugin.middleware.loadNavigation,
         content.middleware.loadContent,
         content.middleware.renderContent(content.types),
-        middleware.renderSlots,
-        middleware.renderPage,
-        middleware.errorHandler
+        plugin.middleware.renderSlots,
+        plugin.middleware.renderPage,
+        plugin.middleware.errorHandler
     ];
 
     // REGISTER client assets

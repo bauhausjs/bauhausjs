@@ -4,7 +4,7 @@ module.exports = function setup(options, imports, register) {
     var backend = imports.backend.app,
         frontend = imports.frontend.app;
 
-    var module = { 
+    var plugin = { 
         app: {},
         documents: {}
     };
@@ -14,6 +14,6 @@ module.exports = function setup(options, imports, register) {
     });
 
     register(null, {
-        document: module
+        document: plugin
     });
 };

@@ -2,7 +2,7 @@ var assert = require('assert')
     mongoConf = require('./mongoConf'),
     mongoose = require('mongoose'),
     Page = require('../model')(mongoose).model,
-    middleware = require('../middleware')(Page);
+    middleware = require('../middleware')(mongoose);
 
 describe('PageMiddleware', function () {
 
@@ -21,10 +21,10 @@ describe('PageMiddleware', function () {
                 var next = function () {
                     assert(req.bauhaus, "Defined bauhaus obj in req");
                     assert(req.bauhaus.page, "Defined page object");
-                    assert(req.bauhaus.page instanceof Page, "Page object has correct type");
+                    assert(req.bauhaus.page instanceof mongoose.models.Page, "Page object has correct type");
                     done();
                 }
-                
+
                 middleware.loadPage(req, res, next);
             });
         })
