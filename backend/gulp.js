@@ -33,7 +33,7 @@ module.exports = function (config) {
     gulp.task('scripts', function () {
         scriptCache = [];
         return gulp.src(config.js.src)
-                   .pipe((config.env === 'production') ? gulpuglify() :  gulputil.noop())
+                   //.pipe((config.env === 'production') ? gulpuglify() :  gulputil.noop())
                    .pipe((config.env === 'production') ? gulpconcat(config.js.concat) : gulputil.noop())
                    .pipe(gulp.dest(config.js.dest))
                    .pipe((config.env === 'development') ? livereload(server) : gulputil.noop())

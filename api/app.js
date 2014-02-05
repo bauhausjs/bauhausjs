@@ -6,7 +6,7 @@ module.exports = function setup(options, imports, register) {
         security = imports.security;
 
     // MODULE
-    var api = {
+    var plugin = {
         app: app
     }
 
@@ -21,6 +21,6 @@ module.exports = function setup(options, imports, register) {
     app.use(security.api);
 
     register(null, {
-        api: api,
+        api: plugin,
     });
 };
