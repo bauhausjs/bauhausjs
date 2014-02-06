@@ -3,6 +3,7 @@ var gulp = require('gulp'),
     gulpconcat = require('gulp-concat'),
     gulpinject = require('gulp-inject'),
     gulpuglify = require('gulp-uglify'),
+    gulpreplace = require('gulp-replace')
     gulputil = require('gulp-util'),
     es = require('event-stream'),
     lr = require('tiny-lr'),
@@ -57,8 +58,11 @@ module.exports = function (config) {
 
         assetScr = styleCache.concat(scriptCache);
 
+        var angularModules = '["' + config.angular.modules.join('","') + '"]';
+
         return gulp.src(assetScr, {read: false})
             .pipe(gulpinject(indexSrc, { ignorePath: __dirname + '/build/client/', addRootSlash: false }))
+            .pipe(gulpreplace(/(angular\.module\(\'bauhaus\'\, )(\[\])(\))/, '$1' + angularModules + '$3'))
             .pipe(gulp.dest(indexDest));
     });
 

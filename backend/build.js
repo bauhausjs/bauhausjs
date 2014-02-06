@@ -4,6 +4,9 @@ function Build (options) {
     this.gulp = null;
     this.options = {
         env: options.env || process.env.NODE_ENV,
+        angular: {
+            modules: (options.angular && options.angular.modules) ? options.angular.modules : []
+        }, 
         html: {
             src:  (options.html && options.html.src)  ? options.html.src : [],
             dest: (options.html && options.html.dest) ? options.html.dest : __dirname + '/build'
@@ -32,6 +35,14 @@ Build.prototype.addSrc = function (type, src) {
         for (var s in sources) {
             this.options[type].src.push(sources[s])
         }
+    }
+};
+
+Build.prototype.addModule = function (modules) {
+    modules = (typeof modules === 'string') ? [modules] : modules;
+
+    for (var m in modules) {
+        this.options.angular.modules.push(modules[m]);
     }
 };
 
