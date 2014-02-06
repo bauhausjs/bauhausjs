@@ -1,6 +1,6 @@
 # Bauhaus security
 
-The security module allows to manage user, roles and permissions. 
+The security plugin allows to manage user, roles and permissions. 
 
 It also provides middleware for authentification and authorization. Authentification is using [Passport](http://passportjs.org/) middleware. Sessions are persisted in MongoDB. 
 
@@ -21,7 +21,7 @@ Session middleware, login and logout functionality is configured for each applic
 
 All permissions you add can be configured in the backend for each role. 
 
-### middleware.loadRoles
+### security.middleware.loadRoles
 
 Type: `Function`, Express middleware
 
@@ -34,9 +34,9 @@ console.log(req.session.user);
     "roles": ["Painter"],
     "permissions": ["painting:draw", "painting:clear"]
 }
-```
+``
 
-### middleware.isAuthenticated({redirect: redirectUrl})
+### security.middleware.isAuthenticated({redirect: redirectUrl})
 
 Type: `Function`
 
@@ -46,7 +46,7 @@ Type: `Function`
 
 Express middleware checks if user is authenticated. If user is authenticated `next()` is called. Otherwise, for JSON requests error `403` is returned, other requests are redirected.
 
-### middleware.hasPermission(permissions)
+### security.middleware.hasPermission(permissions)
 
 Type: `Function`
 

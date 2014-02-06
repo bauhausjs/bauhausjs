@@ -5,7 +5,7 @@ This plugin provides a central server, were all other apps (`backend`, `frontend
 ## Options
 
 * **port** `Number`: Port to listen to, default: `1919`
-* **welcome** `Boolean`: Show Bauhaus welcome on command line, default: true
+* **welcome** `Boolean`: Show Bauhaus welcome on command line, default: `true`
 
 ## API
 

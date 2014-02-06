@@ -41,7 +41,7 @@ GET    /backend/api/PageTypes     Return object (name: config) of defined PageTy
 
 Pages are identified via their `route`. If this route is requested at the frontend and the page is public the page is rendered according to the page type, which is defined in `_type`.
 
-The model uses the mongoose plugin [mongoose-materialized](https://github.com/janez89/mongoose-materialized). This allows to structure pages hierarchically. You can use this e.g. to render navigations. Check out th
+The model uses the mongoose plugin [mongoose-materialized](https://github.com/janez89/mongoose-materialized). This allows to structure pages hierarchically (checkout [plugin](https://github.com/janez89/mongoose-materialized) for details). You can use this e.g. to render navigations. 
 
 ```javascript
 page = new mongoose.Schema({

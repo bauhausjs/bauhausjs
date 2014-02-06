@@ -15,6 +15,11 @@ module.exports = function setup(options, imports, register) {
         models: {},
         api: null,
         middleware: {},
+        client: {
+            js: [__dirname + '/client/**/*.js'],
+            html: [__dirname + '/client/**/*.html'],
+            modules: ['bauhaus.user', 'bauhaus.role']
+        },
         permissions: {},
         addPermission: function (pluginName, permissions) {
             this.permissions[pluginName] = permissions;

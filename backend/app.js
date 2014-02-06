@@ -20,15 +20,33 @@ module.exports = function setup(options, imports, register) {
 
     // MODULE
     // Init exposed backend object
-    var backend = {
+    var plugin = {
         app: app,
-        build: null
+        build: null,
+        client: {
+            modules: ['ngResource', 'ngRoute', 'slugifier', 'bauhaus.general', 'bauhaus.dashboard'],
+            html: [ __dirname + '/client/javascript/**/*.html' ],
+            js: [
+                __dirname + '/client/components/angular/angular.js',
+                __dirname + '/client/components/angular-resource/angular-resource.js',
+                __dirname + '/client/components/angular-route/angular-route.js',
+                __dirname + '/client/components/angular-slugify/angular-slugify.js',
+                __dirname + '/client/javascript/**/*.js'
+            ],
+            css: [ __dirname + '/client/public/*.css' ],
+            less: [ __dirname + '/client/css/all.less' ]
+        }
     };
+
+
 
     // BUILD
     // Destination and option config of custom builder
     var buildOptions = {
         env: env,
+        angular: {
+            modules: []
+        },
         html: {
             dest: __dirname +  '/build/client/javascript'
         },
@@ -45,24 +63,27 @@ module.exports = function setup(options, imports, register) {
     };
 
     // Init builder and add assets
-    backend.build = new Build(buildOptions);
+    plugin.build = new Build(buildOptions);
 
-    backend.build.addSrc('html', __dirname + '/public/javascript/**/*.html');
-    backend.build.addSrc('js',   __dirname + '/client/components/angular/angular.js');
-    backend.build.addSrc('js',   __dirname + '/client/components/angular-resource/angular-resource.js');
-    backend.build.addSrc('js',   __dirname + '/client/components/angular-route/angular-route.js');
-    backend.build.addSrc('js',   __dirname + '/client/components/angular-slugify/angular-slugify.js');
-    backend.build.addSrc('js',   __dirname + '/public/javascript/**/*.js');
-    backend.build.addSrc('css',  __dirname + '/public/css/styles.css');
-    backend.build.addSrc('less', __dirname + '/client/css/all.less');
+    plugin.build.addSrc('html', plugin.client.html);
+    plugin.build.addSrc('js',   plugin.client.js);
+    plugin.build.addSrc('css',  plugin.client.css);
+    plugin.build.addSrc('less', plugin.client.less);
+    plugin.build.addModule(plugin.client.modules);
+
+
+    // REGISTER security assets (since security cannot depend on backend b/c circular dependencies)
+    plugin.build.addSrc('js', security.client.js);
+    plugin.build.addSrc('html', security.client.html);
+    plugin.build.addModule(security.client.modules);
 
     // Run build after all modules have been registrated
     event.on('modules.loaded', function () {
-        backend.build.initGulp();
+        plugin.build.initGulp();
         if (env === 'development') {
-            backend.build.run(['development']);
+            plugin.build.run(['development']);
         } else {
-            backend.build.run(['production']);
+            plugin.build.run(['production']);
         }
     });
 
@@ -89,13 +110,12 @@ module.exports = function setup(options, imports, register) {
 
     // add client as static folder
     app.use(express.static(__dirname + '/build/client'));
-    // remove by including compiled from build/ later
-    app.use(express.static(__dirname + '/client'));
 
-
-    var passportStrategyConf = { successRedirect: route + '/',
-                                failureRedirect: route + '/login',
-                                failureFlash: true };
+    var passportStrategyConf = { 
+        successRedirect: route + '/',
+        failureRedirect: route + '/login',
+        failureFlash: true 
+    };
     app.post('/login', security.passport.authenticate('local', passportStrategyConf) );
 
 
@@ -107,6 +127,6 @@ module.exports = function setup(options, imports, register) {
     security.permissions.backend = ['login'];
 
     register(null, {
-        backend: backend,
+        backend: plugin,
     });
 };

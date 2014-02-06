@@ -10,7 +10,8 @@
     ],
     "consumes": [
       "api",
-      "frontend"
+      "frontend",
+      "backend"
     ]
   }
 }

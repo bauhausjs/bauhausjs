@@ -36,7 +36,12 @@ describe('backend module', function () {
                         get: function () {}
                     }
                 }
-            }  
+            },
+            client: {
+                js: [],
+                html: [],
+                modules: []
+            } 
         };
 
         var eventMock = { emitter: new EventEmitter };
