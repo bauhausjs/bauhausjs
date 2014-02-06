@@ -4,7 +4,9 @@ module.exports = function (app, security) {
     var isAuthenticated = security.middleware.isAuthenticated({redirect:'/backend/login'});
     var hasPermission   = security.middleware.hasPermission;
 
-    app.get('/', [isAuthenticated, hasPermission(['backend:login'], {redirect:'/backend/login'})], function (req, res) {
+    // update install before requesting permissions
+    // hasPermission(['backend:login'], {redirect:'/backend/login'})
+    app.get('/', [isAuthenticated], function (req, res) {
         res.render(__dirname + '/build/templates/index.ejs', { env: process.env.NODE_ENV, username: req.user.username });
     });
 
