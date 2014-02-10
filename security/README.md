@@ -57,7 +57,7 @@ console.log(req.session.user);
     "roles": ["Painter"],
     "permissions": ["painting:draw", "painting:clear"]
 }
-```
+``
 
 ### security.middleware.isAuthenticated({redirect: redirectUrl})
 
@@ -90,9 +90,11 @@ Configured passport instance, which provides middleware to add authorization mid
 The JSON REST service is currently generated with baucis and provides the following methods:
 
 ```
-GET    /backend/api/CurrentUser    Return name, roles and permissions of current user
+GET    /backend/api/CurrentUser       Return name, roles and permissions of current user
 
-GET    /backend/api/permissions    Return all registered permissions (`security.permissions`)
+GET    /backend/api/CustomUserFields  List of form fields, which are added by project to user form
+
+GET    /backend/api/Permissions       Return all registered permissions (`security.permissions`)
 
 GET    /backend/api/Users        
 POST   /backend/api/Users
