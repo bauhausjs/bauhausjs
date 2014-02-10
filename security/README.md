@@ -111,15 +111,21 @@ DELETE /backend/api/Roles/:id
 
 ## Model: User
 
+The user model uses a mongoose plugin provided by [passport-local-mongoose](https://github.com/saintedlama/passport-local-mongoose), which extends the user model by `username`, as well as `hash` and `salt` to encrypt the password. It also extends the model by additional methods, e.g. `User.setPassword()`.
+
+```javascript
 var user = new mongoose.Schema({
+    username: String,
     roles: [Schema.Types.ObjectId],     // Array of references to role
     public: {}                          // Object to define custom fields
 });
+```
 
 ## Model: Role
 
+```javascript
 var role = new mongoose.Schema({
     name: String,                       
     permissions: Schema.Types.Mixed     // Array of Strings of permissions (e.g. 'post:edit') this role has
 });
-
+```
