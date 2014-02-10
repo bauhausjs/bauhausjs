@@ -51,8 +51,12 @@ module.exports = function (mongoose, plugin) {
         }
     }); 
 
+    api.get('/CustomUserFields', function (req, res, next) {
+        res.json(plugin.customUserFields);
+    });
+
     api.get('/Permissions', function (req, res, next) {
-        res.send(plugin.permissions)
+        res.json(plugin.permissions)
     });
 
     return api;

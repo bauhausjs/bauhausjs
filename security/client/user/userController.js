@@ -22,12 +22,13 @@ angular.module('bauhaus.user.controllers').controller('UserCtrl', ['$scope', '$l
 
 }]);
 
-angular.module('bauhaus.user.controllers').controller('UserDetailCtrl', ['$scope', '$location', '$routeParams', 'User', 'SharedRoles', function ($scope, $location, $routeParams, User, SharedRoles) {
+angular.module('bauhaus.user.controllers').controller('UserDetailCtrl', ['$scope', '$location', '$routeParams', 'User', 'SharedRoles', 'SharedCustomUserFields', function ($scope, $location, $routeParams, User, SharedRoles, SharedCustomUserFields) {
     'use strict';
 
     $scope.user = null;
     $scope.userId = null;
     $scope.roles = SharedRoles.store;
+    $scope.customUserFields = SharedCustomUserFields.store;
 
     if ($routeParams.id && $routeParams.id != 'new') {
         $scope.userId = $routeParams.id;
@@ -43,23 +44,11 @@ angular.module('bauhaus.user.controllers').controller('UserDetailCtrl', ['$scope
                         $scope.user.roles.splice(r, 1);
                     }
                 }
-                console.log(result, $scope.roles);
             }
         });
     } else {
         $scope.user = {};
     } 
-
-    $scope.customFields = {
-        fields: [
-            { name: 'public.firstname', 
-              type: 'text',
-              label: 'First name' }, 
-            { name: 'public.lastname', 
-              type: 'text',
-              label: 'Last name' }
-        ]
-    };
 
     $scope.isNew = function () {
         return ($scope.user && $scope.user._id) ? false : true;

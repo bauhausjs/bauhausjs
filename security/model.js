@@ -25,10 +25,7 @@ module.exports = function (mongoose) {
     /* User */
     user.schema = new Schema({
         roles: [Schema.Types.ObjectId],
-        public: {
-            firstname: String,
-            lastname: String
-        }
+        public: {}
     }, { collection: 'bauhaus-users'} );
     user.schema.plugin(passportLocalMongoose);
     user.model = mongoose.model('User', user.schema);

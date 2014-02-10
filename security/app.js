@@ -24,6 +24,13 @@ module.exports = function setup(options, imports, register) {
         addPermission: function (pluginName, permissions) {
             this.permissions[pluginName] = permissions;
         },
+        customUserFields: [],
+        addCustomUserField: function (fields) {
+            fields = Array.isArray(fields) ? fields : [fields];
+            for (var f in fields) {
+                this.customUserFields.push(fields[f]);
+            }
+        },
         sessionSecret: (options.sessionSecret) ? options.sessionSecret : 'nov9t4ho3ivuth384nct9n'
     };
 
