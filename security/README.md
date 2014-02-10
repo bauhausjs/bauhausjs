@@ -57,7 +57,7 @@ console.log(req.session.user);
     "roles": ["Painter"],
     "permissions": ["painting:draw", "painting:clear"]
 }
-``
+```
 
 ### security.middleware.isAuthenticated({redirect: redirectUrl})
 
