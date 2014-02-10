@@ -21,6 +21,29 @@ Session middleware, login and logout functionality is configured for each applic
 
 All permissions you add can be configured in the backend for each role. 
 
+### security.addCustomUserField(field)
+
+* **field** `Array.<Objects> || Object`: Configuration for one or multiple fields
+
+Add custom user fields to user object. Make sure that `name`, which equals the field path
+in the user objects starts with `public.`, because `User.public` is an object which can 
+be extended.
+
+Example:
+```javascript
+security.addCustomUserField([
+    { name: 'public.email', 
+      type: 'text',
+      label: 'E-Mail' }, 
+    { name: 'public.firstname', 
+      type: 'text',
+      label: 'First name' }, 
+    { name: 'public.lastname', 
+      type: 'text',
+      label: 'Last name' }
+]);
+```
+
 ### security.middleware.loadRoles
 
 Type: `Function`, Express middleware
