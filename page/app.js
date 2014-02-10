@@ -19,11 +19,12 @@ module.exports = function setup(options, imports, register) {
         client: {
             js: [__dirname + '/client/**/*.js'],
             html: [__dirname + '/client/**/*.html'],
+            less: [__dirname + '/client/**/*.less'],
             modules: ['bauhaus.page']
         },
         api: null,
         addType: function (name, config) {
-            this.type[name] = config;
+            this.types[name] = config;
         }
     };
 
@@ -50,6 +51,7 @@ module.exports = function setup(options, imports, register) {
     // REGISTER client assets
     backend.build.addSrc('js', plugin.client.js);
     backend.build.addSrc('html', plugin.client.html);
+    backend.build.addSrc('less', plugin.client.less);
     backend.build.addModule(plugin.client.modules);
 
     // register render stack

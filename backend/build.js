@@ -11,6 +11,10 @@ function Build (options) {
             src:  (options.html && options.html.src)  ? options.html.src : [],
             dest: (options.html && options.html.dest) ? options.html.dest : __dirname + '/build'
         },
+        copy: {
+            src:  (options.copy && options.copy.src)  ? options.copy.src : [],
+            dest: (options.copy && options.copy.dest) ? options.copy.dest : __dirname + '/build'
+        },
         js: {
             src:  (options.js && options.js.src)  ? options.js.src : [],
             dest: (options.js && options.js.dest) ? options.js.dest : __dirname + '/build/js',

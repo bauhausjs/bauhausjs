@@ -33,8 +33,18 @@ module.exports = function setup(options, imports, register) {
                 __dirname + '/client/components/angular-slugify/angular-slugify.js',
                 __dirname + '/client/javascript/**/*.js'
             ],
-            css: [ __dirname + '/client/public/*.css' ],
-            less: [ __dirname + '/client/css/all.less' ]
+            css: [ 
+                __dirname + '/client/public/*.css',
+                __dirname + '/client/components/font-awesome/css/font-awesome.css',
+            ],
+            less: [ __dirname + '/client/css/all.less' ],
+            copy: [ 
+                __dirname + '/client/components/font-awesome/**/*.eot',
+                __dirname + '/client/components/font-awesome/**/*.svg',
+                __dirname + '/client/components/font-awesome/**/*.ttf',
+                __dirname + '/client/components/font-awesome/**/*.woff',
+                __dirname + '/client/components/font-awesome/**/*.otf',
+            ]
         }
     };
 
@@ -49,6 +59,9 @@ module.exports = function setup(options, imports, register) {
         },
         html: {
             dest: __dirname +  '/build/client/javascript'
+        },
+        copy: {
+            dest: __dirname +  '/build/client'
         },
         js: {
             dest: __dirname +  '/build/client/javascript'
@@ -66,6 +79,7 @@ module.exports = function setup(options, imports, register) {
     plugin.build = new Build(buildOptions);
 
     plugin.build.addSrc('html', plugin.client.html);
+    plugin.build.addSrc('copy', plugin.client.copy);
     plugin.build.addSrc('js',   plugin.client.js);
     plugin.build.addSrc('css',  plugin.client.css);
     plugin.build.addSrc('less', plugin.client.less);

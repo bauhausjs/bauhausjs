@@ -3,7 +3,7 @@ var gulp = require('gulp'),
     gulpconcat = require('gulp-concat'),
     gulpinject = require('gulp-inject'),
     gulpuglify = require('gulp-uglify'),
-    gulpreplace = require('gulp-replace')
+    gulpreplace = require('gulp-replace'),
     gulputil = require('gulp-util'),
     es = require('event-stream'),
     lr = require('tiny-lr'),
@@ -52,11 +52,17 @@ module.exports = function (config) {
                    .pipe((config.env === 'development' && watcherStarted) ? livereload(server) : gulputil.noop());
     });
 
+    gulp.task('copy', function () {
+        return gulp.src(config.copy.src)
+                   .pipe(gulp.dest(config.copy.dest))
+                   .pipe((config.env === 'development' && watcherStarted) ? livereload(server) : gulputil.noop());
+    });
+
     gulp.task('index.ejs', ['scripts'], function (src) {
         var indexSrc = __dirname + '/templates/index.ejs',
             indexDest = __dirname + '/build/templates/';
 
-        assetScr = styleCache.concat(scriptCache);
+        var assetScr = styleCache.concat(scriptCache);
 
         var angularModules = '["' + config.angular.modules.join('","') + '"]';
 
@@ -72,6 +78,7 @@ module.exports = function (config) {
         gulp.watch(config.less.src, ['styles']);
         gulp.watch(config.js.src, ['scripts']);
         gulp.watch(config.html.src, ['html']);
+        gulp.watch(config.copy.src, ['copy']);
 
         server.listen(35729, function(err) {
             if (err) return console.error(err);
@@ -79,9 +86,9 @@ module.exports = function (config) {
     });
 
 
-    gulp.task('production', ['styles', 'scripts', 'html', 'index.ejs']);
+    gulp.task('production', ['styles', 'scripts', 'html', 'copy', 'index.ejs']);
 
-    gulp.task('development', ['styles', 'scripts', 'html', 'index.ejs', 'watch']);
+    gulp.task('development', ['styles', 'scripts', 'html', 'copy', 'index.ejs', 'watch']);
 
     return gulp;
 }
