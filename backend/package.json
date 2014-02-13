@@ -29,7 +29,8 @@
     "gulp-util": "~2.2.14",
     "gulp-inject": "~0.2.2",
     "gulp-uglify": "~0.2.0",
-    "gulp-replace": "~0.2.0"
+    "gulp-replace": "~0.2.0",
+    "gulp-kss": "~0.0.2"
   },
   "devDependencies": {}
 }

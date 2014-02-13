@@ -4,6 +4,7 @@ var gulp = require('gulp'),
     gulpinject = require('gulp-inject'),
     gulpuglify = require('gulp-uglify'),
     gulpreplace = require('gulp-replace'),
+    gulpkss = require('../../gulp-kss'),
     gulputil = require('gulp-util'),
     es = require('event-stream'),
     lr = require('tiny-lr'),
@@ -72,6 +73,27 @@ module.exports = function (config) {
             .pipe(gulp.dest(indexDest));
     });
 
+    gulp.task('styleguide', function () {
+        config.styleguide = {
+            src: [__dirname + '/client/css/*.less']
+        }
+
+        gulp.src(config.styleguide.src)
+            .pipe(gulpkss({
+                overview: __dirname + '/client/css/styleguide.md'
+            }))
+            .pipe(gulp.dest(__dirname + '/build/client/styleguide/'));
+
+        // Concat and compile all your styles for correct rendering of the styleguide.
+        es.merge(
+            gulp.src(config.css.src),
+            gulp.src(config.less.src)
+                .pipe(gulpless({ paths: config.less.paths }))
+        ).pipe(gulpless())
+            .pipe(gulpconcat('public/style.css'))
+            .pipe(gulp.dest(__dirname + '/build/client/styleguide/'));   
+    });
+
     gulp.task('watch', ['styles', 'scripts', 'html'], function () {
         watcherStarted = true;
         gulp.watch(config.css.src, ['styles']);
@@ -86,9 +108,9 @@ module.exports = function (config) {
     });
 
 
-    gulp.task('production', ['styles', 'scripts', 'html', 'copy', 'index.ejs']);
+    gulp.task('production', ['styles', 'scripts', 'html', 'copy', 'index.ejs', 'styleguide']);
 
-    gulp.task('development', ['styles', 'scripts', 'html', 'copy', 'index.ejs', 'watch']);
+    gulp.task('development', ['styles', 'scripts', 'html', 'copy', 'index.ejs', 'styleguide', 'watch']);
 
     return gulp;
 }
