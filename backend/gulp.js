@@ -30,7 +30,7 @@ module.exports = function (config) {
               for (var f in files) {
                   styleCache.push(files[f].path);
               }
-          }));
+          }))
     });
 
     gulp.task('scripts', function () {
@@ -59,7 +59,7 @@ module.exports = function (config) {
                    .pipe((config.env === 'development' && watcherStarted) ? livereload(server) : gulputil.noop());
     });
 
-    gulp.task('index.ejs', ['scripts'], function (src) {
+    gulp.task('index.ejs', ['scripts', 'styles'], function (src) {
         var indexSrc = __dirname + '/templates/index.ejs',
             indexDest = __dirname + '/build/templates/';
 
