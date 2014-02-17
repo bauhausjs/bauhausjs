@@ -1,0 +1,76 @@
+/*
+List View
+
+Styleguide 5
+*/
+
+/*
+
+Generic List View
+
+View for a list of documents
+
+Markup:
+<div class="bauhaus-list-view">
+    <div class="title">Posts</div>
+    <div class="description"></div>
+    <div class="actions"></div>
+
+    <ul class="bauhaus-list">
+        <div class="bauhaus-list-item">
+        </div>
+    </ul>
+</div>
+
+Styleguide 5.1
+*/
+
+.bauhaus-list-view {
+
+    margin: 20px;
+
+    .title {
+        margin: 0 0 20px 0;
+    }
+
+    .description {}
+
+    .actions {
+        margin: 0 0 20px 0;
+    }
+}
+
+
+/*
+
+Bauhaus List
+
+Styles the actual list in the list view. Can be used independently of `.bauhaus-list-view`
+
+<ul class="bauhaus-list">
+    <div class="bauhaus-list-item">
+        <a href="#">Item 1</a>
+    </div>
+</ul>
+*/
+
+.bauhaus-list {
+        list-style-type: none;
+        margin: 20px 0 0 0;
+        padding: 0;
+
+        .bauhaus-list-item {
+            line-height: 36px;
+            border-bottom: 1px solid #eee;
+            padding: 0 10px;
+
+            a {
+                text-decoration: none;
+                display: block;
+            }
+
+            &:hover {
+                background: #ddd;
+            } 
+        }
+    }
