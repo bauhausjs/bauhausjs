@@ -43,7 +43,8 @@
     "passport-local-mongoose": "~0.2.5",
     "connect-flash": "~0.1.1",
     "bower": "~1.2.8",
-    "connect-mongo": "~0.4.0"
+    "connect-mongo": "~0.4.0",
+    "async": "~0.2.10"
   },
   "devDependencies": {
     "mocha": "~1.14.0",

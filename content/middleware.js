@@ -1,8 +1,10 @@
 var debug = require('debug')('bauhaus:content')
     ejs = require('ejs'),
+    async = require('async'),
     View = require('express/lib/view');
 
 module.exports = function (mongoose) {
+    var populateDocument = require('./helper').populateDocument(mongoose);
 
     var middleware = {};
 
@@ -30,11 +32,28 @@ module.exports = function (mongoose) {
 
         mongoose.models.Content.find({'_page': req.bauhaus.page._id}, 'content meta _type', function (err, contents) {
             if (err || contents.length === 0) return next();
+
             debug("Loaded " + contents.length + " content blocks");
-            req.bauhaus.content = {
-                data: contents
-            };
-            next();
+
+            var populateParallel = [];
+            for (var c in contents) {
+                // Add callback in Closure
+                (function (content) {
+                    populateParallel.push(function (callback) {
+                        content.populateFields('content', callback);
+                    });
+                })(contents[c]);
+            }
+            // Perform parallel population on all documents (documents are checked for references,
+            // if there are any, there are populated)
+            async.parallel(populateParallel, function (err, result) {
+                if (err) return next();
+
+                req.bauhaus.content = {
+                    data: result
+                };
+                next();
+            });
         });
     };
 
