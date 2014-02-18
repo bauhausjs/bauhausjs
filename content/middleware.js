@@ -4,8 +4,6 @@ var debug = require('debug')('bauhaus:content')
     View = require('express/lib/view');
 
 module.exports = function (mongoose) {
-    var populateDocument = require('./helper').populateDocument(mongoose);
-
     var middleware = {};
 
     /**

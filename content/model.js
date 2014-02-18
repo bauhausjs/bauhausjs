@@ -1,7 +1,5 @@
 
 module.exports = function (mongoose) {
-    var populateDocument = require('./helper').populateDocument(mongoose);
-
     /** @module content/model */
     var content = {};
 

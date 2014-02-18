@@ -2,8 +2,6 @@ var baucis = require('baucis'),
     async = require('async');
 
 module.exports = function (mongoose, plugin) {
-    var populateDocument = require('./helper').populateDocument(mongoose);
-
     var controller = baucis.rest({
         singular:'Content', 
         select:'_type content meta _page', swagger: true
