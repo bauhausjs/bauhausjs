@@ -35,7 +35,7 @@ module.exports = function (mongoose) {
      * @param  {String}   rootPath Model path, which subfields should be checked, only one level allowed, default: "" 
      * @param  {Function} callback Callback with format function(err, result) which returns populated object
      */
-    content.schema.methods.populateFields = function populateDocument (rootPath, callback) {
+    content.schema.methods.populateFields = function populateFields (rootPath, callback) {
         document = this;
 
         // Object which is used to check all fields for relations
