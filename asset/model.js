@@ -14,7 +14,9 @@ module.exports = function (mongoose) {
     asset.schema = new Schema({
         name: String,
         data: Buffer,
-        metadata: Object
+        metadata: Object,
+	transforms: Object,
+    	parentId: Schema.Types.ObjectId	    
     });
 
 

@@ -7,6 +7,7 @@ var gulp = require('gulp'),
     gulputil = require('gulp-util'),
     es = require('event-stream'),
     lr = require('tiny-lr'),
+    path = require('path'),
     livereload = require('gulp-livereload'),
     server = lr();
 
@@ -65,13 +66,16 @@ module.exports = function (config) {
         var assetScr = styleCache.concat(scriptCache);
 
         var angularModules = '["' + config.angular.modules.join('","') + '"]';
-
+	var ignorePaths = [];
+	ignorePaths.push( path.join(__dirname, '/build/client/'));
+	ignorePaths.push( ignorePaths[0].split(path.sep).join('/') );
+	console.log("path", ignorePaths);
         return gulp.src(assetScr, {read: false})
-            .pipe(gulpinject(indexSrc, { ignorePath: __dirname + '/build/client/', addRootSlash: false }))
+            .pipe(gulpinject(indexSrc, { ignorePath: ignorePaths, addRootSlash: false }))
             .pipe(gulpreplace(/(angular\.module\(\'bauhaus\'\, )(\[\])(\))/, '$1' + angularModules + '$3'))
             .pipe(gulp.dest(indexDest));
     });
-
+	
     gulp.task('watch', ['styles', 'scripts', 'html'], function () {
         watcherStarted = true;
         gulp.watch(config.css.src, ['styles']);
