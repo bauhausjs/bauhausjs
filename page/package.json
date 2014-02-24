@@ -3,18 +3,5 @@
   "version": "0.1.0",
   "description": "Module which provides rendering and mangement for pages",
   "main": "app.js",
-  "private": true,
-  "plugin": {
-    "provides": [
-      "page"
-    ],
-    "consumes": [
-      "frontend",
-      "backend",
-      "api",
-      "content",
-      "security",
-      "mongoose"
-    ]
-  }
+  "private": true
 }
