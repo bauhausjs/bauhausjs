@@ -1,9 +1,9 @@
 {
   "name": "bauhausjs",
-  "version": "0.0.11",
+  "version": "0.1.0alpha",
   "description": "A modular CMS for Node.js",
   "scripts": {
-    "test": "env NODE_ENV=test mocha server/test/ frontend/test/ backend/test/ event/test/ mongoose/test/ page/test/ content/test/",
+    "test": "env NODE_ENV=test mocha page/test/ content/test/",
     "postinstall": "npm --prefix ./backend install ./backend"
   },
   "repository": {
@@ -31,23 +31,34 @@
     "url": "https://github.com/bauhausjs/bauhausjs/issues"
   },
   "dependencies": {
-    "express": "~3.4.5",
-    "architect": "~0.1.10",
-    "mongoose": "~3.8.1",
-    "mongoose-materialized": "~0.1.5",
-    "baucis": "~0.15.1",
-    "debug": "~0.7.4",
-    "ejs": "~0.8.5",
-    "passport": "~0.1.17",
-    "passport-local": "~0.1.6",
-    "passport-local-mongoose": "~0.2.5",
-    "connect-flash": "~0.1.1",
     "bower": "~1.2.8",
-    "connect-mongo": "~0.4.0",
     "async": "~0.2.10"
   },
   "devDependencies": {
-    "mocha": "~1.14.0",
-    "should": "~2.1.0"
+    "mocha": "~1.17.1",
+    "should": "~3.1.2", 
+
+    "express": "3.4.x",
+    "mongoose": "3.8.x",
+    "baucis": "0.15.x",
+    "debug": "0.7.x",
+    "passport": "0.2.x",
+    "passport-local": "0.1.x",
+    "passport-local-mongoose": "0.2.x",
+    "connect-flash": "0.1.x",
+    "connect-mongo": "0.4.x",
+    "mongoose-materialized": "0.1.x"
+  },
+  "peerDependencies": {
+    "express": "3.4.x",
+    "mongoose": "3.8.x",
+    "baucis": "0.x",
+    "debug": "0.7.x",
+    "passport": "0.2.x",
+    "passport-local": "0.1.x",
+    "passport-local-mongoose": "0.2.x",
+    "connect-flash": "0.1.x",
+    "connect-mongo": "0.4.x",
+    "mongoose-materialized": "0.1.x"
   }
 }
