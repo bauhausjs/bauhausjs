@@ -34,13 +34,13 @@ bauhausConfig.contentTypes.Article =
 
 ## API
 
-### bauhausConfig.addPageType(name, config)
+### bauhausConfig.addContentType(name, config)
 
 * **name** `String`: Unique identifier for content type
 * **config** `Object`: Content type configuration object
 
 ```javascript
-bauhausConfig.addPageType('article',{
+bauhausConfig.addContentType('article',{
         title: 'Article',
         model: 'Content',
         template: __dirname + '/templates/article.ejs',
