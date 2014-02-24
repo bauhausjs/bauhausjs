@@ -7,27 +7,15 @@
   "scripts": {
     "postinstall": "bower install"
   },
-  "plugin": {
-    "provides": [
-      "backend"
-    ],
-    "consumes": [
-      "server",
-      "security",
-      "mongoose",
-      "event"
-    ]
-  },
+
   "dependencies": {
     "bower": "~1.2.8",
-    "gulp": "~3.5.0",
     "tiny-lr": "0.0.5",
     "gulp-less": "~1.2.1",
-    "gulp-livereload": "~0.3.1",
+    "gulp-livereload": "~1.1.1",
     "event-stream": "~3.1.0",
     "gulp-concat": "~2.1.7",
-    "gulp-util": "~2.2.14",
-    "gulp-inject": "~0.2.2",
+    "gulp-inject": "~0.4.0",
     "gulp-uglify": "~0.2.0",
     "gulp-replace": "~0.2.0",
     "gulp-kss": "~0.0.2"

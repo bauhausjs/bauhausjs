@@ -4,7 +4,7 @@ angular.module('bauhaus.general.directives').directive('bauhausNavigation', func
     return {
         restrict: 'EA',
         scope: {},
-        templateUrl: 'javascript/general/navigation.html',
+        templateUrl: 'js/general/navigation.html',
         link: function (scope, el, attr) {
             scope.documents = SharedDocuments.store;
         }

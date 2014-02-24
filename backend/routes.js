@@ -1,13 +1,14 @@
-var flash = require('connect-flash');
+var flash = require('connect-flash'),
+    securityMiddleware = require('../security/middleware');
 
-module.exports = function (app, security) {
-    var isAuthenticated = security.middleware.isAuthenticated({redirect:'/backend/login'});
-    var hasPermission   = security.middleware.hasPermission;
+module.exports = function (app, templateDir) {
+    var isAuthenticated = securityMiddleware.isAuthenticated({redirect:'/backend/login'});
+    var hasPermission   = securityMiddleware.hasPermission;
 
     // update install before requesting permissions
     // hasPermission(['backend:login'], {redirect:'/backend/login'})
     app.get('/', [isAuthenticated], function (req, res) {
-        res.render(__dirname + '/build/templates/index.ejs', { env: process.env.NODE_ENV, username: req.user.username });
+        res.render(templateDir + '/index.ejs', { env: process.env.NODE_ENV, username: req.user.username });
     });
 
     // Login Form

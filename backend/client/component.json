@@ -1,0 +1,20 @@
+{
+    "scripts": [
+        "components/angular/angular.js",
+        "components/angular-resource/angular-resource.js",
+        "components/angular-route/angular-route.js",
+        "components/angular-slugify/angular-slugify.js",
+        "js/dashboard/dashboard.js", 
+        "js/dashboard/dashboardController.js", 
+        "js/general/general.js",
+        "js/general/generalDirectives.js",
+        "js/general/generalServices.js"
+    ],
+    "templates": [
+        "js/dashboard/dashboardView.html",
+        "js/general/navigation.html"
+    ],
+    "styles": [
+        "css/all.less"
+    ]
+}
