@@ -11,10 +11,10 @@ Custom content types store their data `content` object of the orginal schema, e.
 ### Example
 
 ```javascript
-// within yourCustomModule/app.js
+// within yourCustomModule/index.js
 // import content service and add a custom content type Article
-var content = imports.content;
-content.types.Article = 
+
+bauhausConfig.contentTypes.Article = 
 {
     title: 'Article',
     model: 'Content',
@@ -34,13 +34,13 @@ content.types.Article =
 
 ## API
 
-### content.addType(name, config)
+### bauhausConfig.addPageType(name, config)
 
 * **name** `String`: Unique identifier for content type
 * **config** `Object`: Content type configuration object
 
 ```javascript
-content.addType('article',{
+bauhausConfig.addPageType('article',{
         title: 'Article',
         model: 'Content',
         template: __dirname + '/templates/article.ejs',

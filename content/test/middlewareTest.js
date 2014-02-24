@@ -1,7 +1,7 @@
 var mongoose = require('mongoose'),
     assert = require('assert'),
-    Content = require('../model')(mongoose).model,
-    middleware = require('../middleware')(mongoose);
+    Content = require('../model/content'),
+    middleware = require('../middleware');
 
 describe('Content Middleware', function () {
     describe('loadContentTypes', function () {

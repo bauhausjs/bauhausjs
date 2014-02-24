@@ -1,7 +1,8 @@
-var baucis = require('baucis'), 
-    async = require('async');
+var baucis = require('baucis'),
+    async = require('async'),
+    Content = require('./model/content');
 
-module.exports = function (mongoose, plugin) {
+module.exports = function (bauhausConfig) {
     var controller = baucis.rest({
         singular:'Content', 
         select:'_type content meta _page', swagger: true
@@ -33,13 +34,6 @@ module.exports = function (mongoose, plugin) {
             req.baucis.documents.populateFields('content', function (err, result) {
                 next(err);
             });
-            /*populateDocument('content', function (err, result) {
-                if (err) return next(err);
-
-                req.baucis.documents = result;
-                next();
-            }, req.baucis.documents);*/
-
         } else {
             return next();
         }
@@ -48,7 +42,7 @@ module.exports = function (mongoose, plugin) {
     var api = baucis();
 
     api.get('/ContentTypes', function (req, res, next) {
-        res.json(plugin.types);
+        res.json(bauhausConfig.contentTypes);
     });
 
     return api;
