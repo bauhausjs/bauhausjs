@@ -4,7 +4,7 @@ This module allows to manage and render pages in a hierarchical structure. You c
 
 ## API
 
-### page.addType(name, config)
+### bauhausConfig.addType(name, config)
 
 * **name** `String`: Unique identifier for page type
 * **config** `Object`: Configuration object for page type
@@ -12,7 +12,7 @@ This module allows to manage and render pages in a hierarchical structure. You c
 Register a page type, which can be selected as layout by user in the backend.
 
 ```javascript
-page.addType('content', {
+bauhausConfig.addPageType('content', {
     title: 'Content page tempate',
     model: 'Page',
     template: __dirname + '/templates/content.ejs',

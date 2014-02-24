@@ -1,0 +1,15 @@
+{
+    "scripts": [
+        "page/page.js",
+        "page/pageController.js",
+        "page/pageDirectives.js",
+        "page/pageServices.js"
+    ],
+    "styles": [
+        "page/page.less"
+    ],
+    "templates": [
+        "page/pageTree.html",
+        "page/pageView.html"
+    ]
+}

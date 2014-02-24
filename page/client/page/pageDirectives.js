@@ -32,7 +32,7 @@ angular.module('bauhaus.page.directives').directive('bauhausForm', function ($co
 
 angular.module('bauhaus.page.directives').directive('bauhausPageTree', function (SharedPageTree, Page, $location) {
     return {
-        templateUrl: 'javascript/page/pageTree.html',
+        templateUrl: 'page/pageTree.html',
         scope: {},
         link: function (scope, el, attr) {
             scope.tree = SharedPageTree.tree;

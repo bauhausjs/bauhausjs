@@ -1,6 +1,7 @@
-var baucis = require('baucis');
+var baucis = require('baucis'),
+    Page = require('./model/page');
 
-module.exports = function (mongoose, plugin) {
+module.exports = function (bauhausConfig) {
 
     var pageController = baucis.rest({
         singular:'Page', 
@@ -18,7 +19,7 @@ module.exports = function (mongoose, plugin) {
             query['parentId'] = null;
         }
 
-        mongoose.models.Page.findOne(query, function (err, doc) {
+        Page.findOne(query, function (err, doc) {
             doc.getTree(function (err, tree) {
                 response.json({tree: tree});
             });
@@ -27,12 +28,11 @@ module.exports = function (mongoose, plugin) {
 
     pageController.get('/getTree/:id?', getTree);
 
-
     // Create page REST middleware
     var api = baucis({swagger:true});    
     // Add page Types to API
     api.get('/PageTypes', function (req, res) {
-        res.json(plugin.types);
+        res.json(bauhausConfig.pageTypes);
     });
 
     return api;
