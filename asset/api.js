@@ -184,20 +184,32 @@ function main (mongoose, asset) {
 		 *	TODO: Implement filters
 		 */
 		if (options && options.transform)  {
-			var aspectRatio    = assetDocument.metadata.aspectRatio.value,
-				width          = parseInt (options.transform.width,10) || assetDocument.metadata.width,  //Use the original values, since the transformation uses the lower value, aspect ratio gets corrected
-				height         = parseInt (options.transform.height,10) || assetDocument.metadata.height,
-				scale_mode     = options.transform.scale_mode==='fit'?'':'!', //gm accepts an third parameter "options" which forces a resize when set to '!'
-				cropCoords     = options.transform.cropCoords,
-				transformData  = {},  // contains the data, applied to their respectice transform function from gm
-				transformOrder = options.transform.length?options.transform:["resize","crop"], //Weakly match length to filter all falsy values, if no transform order was specified, use the default one.
+			var aspectRatio       = assetDocument.metadata.aspectRatio.value,
+				width             = parseInt (options.transform.width,10) || assetDocument.metadata.width,  //Use the original values, since the transformation uses the lower value, aspect ratio gets corrected
+				height            = parseInt (options.transform.height,10) || assetDocument.metadata.height,
+				scale_mode        = options.transform.scale_mode==='fit'?'':'!', //gm accepts an third parameter "options" which forces a resize when set to '!'
+				transformData     = {},  // contains the data, applied to their respectice transform function from gm
+				transformOrderDef = ["resize","crop"], //The default transformorder
+				transformOrder    = options.transform.transform, //Weakly match length to filter all falsy values, if no transform order was specified, use the default one.
+				cropCoords        = options.transform.cropCoords,
 				cleanedCoords  = [], // [width,height,x,y]
+				cropSize,
 				parsedCoords, //JSON parsed cropCoords
 				gmInstance,
 				tmpCond, //used to temporarily assign test conditions
 				query,
 				max;
 
+			//Parse the transformorder
+			if (transformOrder) {
+				try {
+					transformOrder = JSON.parse (transformOrder); //Should be assigned to its own variable
+				} catch (e) {
+					transformOrder = transformOrderDef;
+				}
+			} else {
+				transformOrder = transformOrderDef;
+			}
 
 			/*
 			 *  preserve the right values for width and height, to match the aspect ratio if scale mode is fit
@@ -216,7 +228,7 @@ function main (mongoose, asset) {
 
 
 			//If the aspect ratio matches the original, scale_mode:fill should be corrected, to make sure the cached assets are the same
-			if (width / height === aspectRatio) {
+			if ((width / height).toPrecision (5) === aspectRatio.toPrecision (5)) {
 				scale_mode = '';
 			}
 
@@ -230,10 +242,16 @@ function main (mongoose, asset) {
 						return a + (Array.isArray (b)?b.reduce (sum,0):b);
 					},0);
 
+					if (transformOrder.indexOf ("crop") > transformOrder.indexOf ("resize")) {
+						cropSize = [width,height];   //If the cropping should happen after the resizing, we should use the resized images width and height for reference
+					} else {
+						cropSize = [assetDocument.metadata.width,assetDocument.metadata.height]; //otherwise we use the original image size as reference for the cropping
+					}
+
 					//TODO: Handle negative new width and rheight values
 					if (tmpCond > 0) {
-						cleanedCoords [0] = assetDocument.metadata.width - parsedCoords [1][0];	//new width
-						cleanedCoords [1] = assetDocument.metadata.height - parsedCoords [1][1];	//new height
+						cleanedCoords [0] = cropSize [0] - parsedCoords [1][0];	//new width
+						cleanedCoords [1] = cropSize [1] - parsedCoords [1][1];	//new height
 						cleanedCoords [2] = parsedCoords [0][0];	//x
 						cleanedCoords [3] = parsedCoords [0][1];	//y
 					}
@@ -243,7 +261,6 @@ function main (mongoose, asset) {
 					//don't crop the image if false values have been passed
 				}
 			}
-
 
 			//If the recaalculated width and height either match the original size or are larger, use the original image.
 			if (width >= assetDocument.metadata.width && height >= assetDocument.metadata.height && cleanedCoords.length === 0) {
@@ -258,9 +275,8 @@ function main (mongoose, asset) {
 				'transforms.height':height,
 			 	'transforms.scale_mode':scale_mode,
 			 	'transforms.cropCoords': cleanedCoords,
-			 	'transform.transformOrder': transformOrder
+			 	'transforms.transformOrder': transformOrder
 			 };	//The query to find the cached version, if existent
-
 
 			
 			asset.model.findOne (query,'parentId transforms data', function (err, cachedAssetDocument) {
@@ -272,7 +288,6 @@ function main (mongoose, asset) {
 					transformData.crop = cleanedCoords;
 
 					gmInstance = gm (data);
-
 
 					/*	Iterate over the transformations that shopuld be performed, in their (optionally) defined order.
 					 *	check if we have a defined dataset that can be applied to the transformation
@@ -297,7 +312,7 @@ function main (mongoose, asset) {
 							width: width,
 							height: height,
 							cropCoords: cleanedCoords,
-							transformaOrder: transformOrder,
+							transformOrder: transformOrder,
 							scale_mode: scale_mode
 						};
 
