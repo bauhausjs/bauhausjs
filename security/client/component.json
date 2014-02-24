@@ -1,0 +1,19 @@
+{
+    "scripts": [
+        "role/role.js",
+        "role/roleController.js",
+        "role/roleDirectives.js",
+        "role/roleServices.js",
+        "user/user.js",
+        "user/userController.js",
+        "user/userDirectives.js",
+        "user/userServices.js"
+    ],
+    "styles": [],
+    "templates": [
+        "role/roleDetailView.html",
+        "role/roleView.html",
+        "user/userDetailView.html",
+        "user/userView.html"
+    ]
+}

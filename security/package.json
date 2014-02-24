@@ -3,13 +3,5 @@
   "version": "0.0.0",
   "description": "Provides middleware and helpers for authentification and authorization",
   "main": "app.js",
-  "private": true,
-  "plugin": {
-    "provides": [
-      "security"
-    ],
-    "consumes": [
-      "mongoose"
-    ]
-  }
+  "private": true
 }
