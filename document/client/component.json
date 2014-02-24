@@ -1,0 +1,13 @@
+{
+    "scripts": [
+        "document/document.js",
+        "document/documentController.js",
+        "document/documentDirectives.js",
+        "document/documentServices.js"
+    ],
+    "styles": [],
+    "templates": [
+        "document/documentDetailView.js",
+        "document/documentListView.html"
+    ]
+}
