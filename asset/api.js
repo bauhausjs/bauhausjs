@@ -1,4 +1,10 @@
-var fs      = require ('fs'),
+/*
+ *	TODO: Clean up the code, remove conditions that use coercion such as !property
+ *	TODO: Make the returned http statuses and responses consistent.
+ */
+
+
+var	fs      = require ('fs'),
 	gm      = require ('gm').subClass({ imageMagick: true }),
 	baucis  = require('baucis'),
 	express = require('express');
@@ -7,17 +13,17 @@ var fs      = require ('fs'),
 	 *	Utility functions
 	 */
 
-	var utilities = { //TODO: Move to an own module
-		/*
-		 *  Greatest common divisor function
-		 */
-		gcd: function gcd(nominator, denominator) {
-			'use strict';
-			return ((nominator > 0) ? gcd(denominator % nominator, nominator) : denominator);
-		}
-	};
+var utilities = { //TODO: Move to an own module
+	/*
+	 *  Greatest common divisor function
+	 */
+	gcd: function gcd(nominator, denominator) {
+		'use strict';
+		return ((nominator > 0) ? gcd(denominator % nominator, nominator) : denominator);
+	}
+};
 
-	module.exports = main;
+module.exports = main;
 
 function main (mongoose, asset) {
 	'use strict';
@@ -37,7 +43,7 @@ function main (mongoose, asset) {
 	 *	Route to updload data to an asset
 	 */
 	app.post('/' + asset.config.name + 's/:id', function (req, res) {
-		var fileData,		//Holds various information about the uploaded file
+		var	fileData,		//Holds various information about the uploaded file
 			assetBuffer,	//The image data as buffer
 			routeParams = req.route.params,	//The parameters of the route (:id)
 			body        = req.body || {},
@@ -71,7 +77,7 @@ function main (mongoose, asset) {
 				assetDocument.metadata.size = fileData.size; //The size in bytes
 
 				gm(assetBuffer).size(function (err, size) { //Computes the size of the uploaded image
-					var gcd,
+					var	gcd,
 						height = size.height,
 						width  = size.width;
 
@@ -101,7 +107,7 @@ function main (mongoose, asset) {
 	 *
 	 */
 	app.get ('/' + asset.config.name + 's/:id/view', function (req, res) {
-		var routeParams = req.route.params,
+		var	routeParams = req.route.params,
 			id          = routeParams.id,
 			query       = req.query; //contains the urls query parameters
 
@@ -117,7 +123,9 @@ function main (mongoose, asset) {
 				options.transform = {
 					width : query.width,
 					height: query.height,
-					scale_mode: query.scale_mode?query.scale_mode:'fit'	//gm options for resizing, "!" forces a resize, ignoring the original aspect ratio
+					cropCoords: query.cropCoords,	//cropping coords left - top :  right - bottom  e.g: [[20,20],[30,30]] cuts 20px from the left and top, and 30 px from right and bottom
+					scale_mode: query.scale_mode?query.scale_mode:'fit',	//gm options for resizing, "!" forces a resize, ignoring the original aspect ratio
+					transform: query.transform	//optional transformation order ['resize','crop']
 				};
 			}
 			sendAsset (res, assetDocument, options);
@@ -126,8 +134,8 @@ function main (mongoose, asset) {
 	});
 
 	app.delete ('/' + asset.config.name + 's/:id', function (req){
-		var routeParams = req.route.params,
-			id     = routeParams.id;
+		var	routeParams = req.route.params,
+			id          = routeParams.id;
 		removeCachedSubAssets (id,req);	//If the request gets passed, its next function gets called
 	});
 
@@ -171,45 +179,116 @@ function main (mongoose, asset) {
 
 
 		/*
-		 *  Performs transformations on an image
-		 *
+		 *	Performs transformations on an image
+		 *	TODO: Think about a more generic way to perform other transformations.
+		 *	TODO: Implement filters
 		 */
 		if (options && options.transform)  {
-			var aspectRatio = assetDocument.metadata.aspectRatio.value,
-				width       = parseInt (options.transform.width),
-				height      = parseInt (options.transform.height),
-				scale_mode  = options.transform.scale_mode==='fit'?'':'!', //gm accepts an third parameter "options" which forces a resize when set to '!'
+			var aspectRatio    = assetDocument.metadata.aspectRatio.value,
+				width          = parseInt (options.transform.width,10) || assetDocument.metadata.width,  //Use the original values, since the transformation uses the lower value, aspect ratio gets corrected
+				height         = parseInt (options.transform.height,10) || assetDocument.metadata.height,
+				scale_mode     = options.transform.scale_mode==='fit'?'':'!', //gm accepts an third parameter "options" which forces a resize when set to '!'
+				cropCoords     = options.transform.cropCoords,
+				transformData  = {},  // contains the data, applied to their respectice transform function from gm
+				transformOrder = options.transform.length?options.transform:["resize","crop"], //Weakly match length to filter all falsy values, if no transform order was specified, use the default one.
+				cleanedCoords  = [], // [width,height,x,y]
+				parsedCoords, //JSON parsed cropCoords
+				gmInstance,
+				tmpCond, //used to temporarily assign test conditions
 				query,
 				max;
 
-			if (!width && !height)	{
-				res.writeHead (400);
-				res.end ();
-			}
 
 			/*
 			 *  preserve the right values for width and height, to match the aspect ratio if scale mode is fit
 			 *	We need to normalize the data to e.g. get the same cached version for w: 50 h: 7889 and w:50 h: 123
-			 *  If The Scale Mode is not "fit" and one of the attributes are missing, we need to calcucalate them. So they don't stay at 0
-			 *  Note: width !== width === NaN !== NaN
 			 */
 
-			if (!scale_mode || !width || !height) { //'' == false.
+			if (scale_mode !== '!') { //'' == false.
 				max = Math.max (width,height);
-				if (width !== width || width === max) {
+				if (width === max) { 
 					width  = Math.round (height * aspectRatio);	//Round it if the aspect ratio * height is not an int
-				} else if (height !== height || height === max) {
+				} else if (height === max) {
 					height = Math.round (width / aspectRatio);
 				}
 			}
 
-			query = {parentId: id,'transforms.width':width,'transforms.height':height};	//The query to find the cached version, if existent
 
+
+			//If the aspect ratio matches the original, scale_mode:fill should be corrected, to make sure the cached assets are the same
+			if (width / height === aspectRatio) {
+				scale_mode = '';
+			}
+
+			// reformat the cropcoords vlaue to be able to directly apply it on the crop function of gm
+			if (typeof cropCoords !== 'undefined') {
+				try {
+					parsedCoords = JSON.parse (cropCoords);
+
+					//The sum of the cropcoords, only a value > 0 makes sense...
+					tmpCond = parsedCoords.reduce (function sum (a,b) {
+						return a + (Array.isArray (b)?b.reduce (sum,0):b);
+					},0);
+
+					//TODO: Handle negative new width and rheight values
+					if (tmpCond > 0) {
+						cleanedCoords [0] = assetDocument.metadata.width - parsedCoords [1][0];	//new width
+						cleanedCoords [1] = assetDocument.metadata.height - parsedCoords [1][1];	//new height
+						cleanedCoords [2] = parsedCoords [0][0];	//x
+						cleanedCoords [3] = parsedCoords [0][1];	//y
+					}
+
+					tmpCond = null;
+				} catch (e) {
+					//don't crop the image if false values have been passed
+				}
+			}
+
+
+			//If the recaalculated width and height either match the original size or are larger, use the original image.
+			if (width >= assetDocument.metadata.width && height >= assetDocument.metadata.height && cleanedCoords.length === 0) {
+				res.writeHead(200);
+				return  res.end(data);
+			}
+
+
+			query = {
+				parentId: id,
+				'transforms.width':width,
+				'transforms.height':height,
+			 	'transforms.scale_mode':scale_mode,
+			 	'transforms.cropCoords': cleanedCoords,
+			 	'transform.transformOrder': transformOrder
+			 };	//The query to find the cached version, if existent
+
+
+			
 			asset.model.findOne (query,'parentId transforms data', function (err, cachedAssetDocument) {
 				if (!cachedAssetDocument) {	//If no transformed asset exists with the given parameters
 					cachedAssetDocument = new asset.model ();	//we create a new one, and save it in the mongodb
 
-					gm (data).resize(width, height, scale_mode).toBuffer (function (err,buffer) {
+					//Define the data that should be passed to the different transformation methods
+					transformData.resize = [width, height, scale_mode];
+					transformData.crop = cleanedCoords;
+
+					gmInstance = gm (data);
+
+
+					/*	Iterate over the transformations that shopuld be performed, in their (optionally) defined order.
+					 *	check if we have a defined dataset that can be applied to the transformation
+					 *	and if the data exists
+					 */
+					for (var i = 0,transformation,currentData; i < transformOrder.length; i++) {
+						transformation = transformOrder [i];
+						currentData = transformData [transformation];
+						if (currentData && currentData.length > 0) {
+							gmInstance [transformation].apply (gmInstance, currentData);
+						}
+					}
+
+
+					//When the transformations were applied, save the resulting image and return its buffer
+					gmInstance.toBuffer (function (err,buffer) {
 						if (err) { throw err; }
 
 						cachedAssetDocument.data       = buffer;
@@ -217,18 +296,17 @@ function main (mongoose, asset) {
 						cachedAssetDocument.transforms = {
 							width: width,
 							height: height,
+							cropCoords: cleanedCoords,
+							transformaOrder: transformOrder,
 							scale_mode: scale_mode
 						};
 
 						cachedAssetDocument.save ( function (err) {
 							if (err) { throw err; }
-
-							console.log ('Created new Asset');
 							res.send (buffer);
 						});
 					});
 				} else {  //Otherwise send back the cached version
-					console.log ('Used cached version');
 					res.send (cachedAssetDocument.data);
 				}
 			});
