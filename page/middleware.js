@@ -1,6 +1,7 @@
 var debug = require('debug')('bauhaus:page'),
     Page = require('./model/page'),
-    contentMiddleware = require('../content/middleware');
+    contentMiddleware = require('../content/middleware'),
+    securityMiddleware = require('../security/middleware');
 
 var middleware = module.exports = {};
 
@@ -84,6 +85,7 @@ middleware.renderSlots = function renderSlots (req, res, next) {
     next();
 };
 
+
 /**
  * Middleware which renders page. It uses the template as defined in req.pageType.template. 
  * The template receives the req.bauhaus object.
@@ -113,6 +115,7 @@ middleware.renderStack = function (pageTypes, contentTypes) {
         contentMiddleware.loadContent,
         contentMiddleware.renderContent(contentTypes),
         middleware.renderSlots,
+        securityMiddleware.addUserToRender,
         middleware.renderPage,
         middleware.errorHandler
     ];
