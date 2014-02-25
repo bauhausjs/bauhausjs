@@ -29,7 +29,7 @@ module.exports = function (bauhausConfig) {
                 req.baucis.documents = result;
                 next();
             });
-        } else if (typeof req.baucis.documents === 'object') {
+        } else if (typeof req.baucis.documents === 'object' && req.baucis.documents.populateFields) {
             // If result contains object, populate it 
             req.baucis.documents.populateFields('content', function (err, result) {
                 next(err);
