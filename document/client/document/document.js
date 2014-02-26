@@ -3,10 +3,10 @@ angular.module('bauhaus.document', ['bauhaus.document.controllers', 'bauhaus.doc
     'use strict';
 
     $routeProvider.when('/document/:type', {
-        templateUrl: 'javascript/document/documentListView.html',
+        templateUrl: 'document/documentListView.html',
         controller: 'DocumentListCtrl'
     }).when('/document/:type/:id', {
-        templateUrl: 'javascript/document/documentDetailView.html',
+        templateUrl: 'document/documentDetailView.html',
         controller: 'DocumentDetailCtrl'
     });
 }]);

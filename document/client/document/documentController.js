@@ -25,7 +25,7 @@ angular.module('bauhaus.document.controllers').controller('DocumentListCtrl', ['
 
 }]);
 
-angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', ['$scope', '$location', '$routeParams', 'DocumentService', function ($scope, $location, $routeParams, DocumentService) {
+angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', ['$scope', '$location', '$routeParams', 'DocumentService', 'SharedDocuments', function ($scope, $location, $routeParams, DocumentService, SharedDocuments) {
     'use strict';
 
     $scope.document = null;
@@ -37,9 +37,13 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
 
     $scope.customFields = {};
 
-    $scope.service.info(function (result) {
-        $scope.customFields = result;
+    $scope.$watch('documentInfos.all.' + $scope.type, function (newVal) {
+        if (newVal && newVal.fields) {
+            $scope.customFields = newVal;
+        }
     });
+
+    $scope.documentInfos = SharedDocuments.store;
 
     if ($routeParams.id && $routeParams.id != 'new') {
         $scope.documentId = $routeParams.id;

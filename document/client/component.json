@@ -7,7 +7,7 @@
     ],
     "styles": [],
     "templates": [
-        "document/documentDetailView.js",
+        "document/documentDetailView.html",
         "document/documentListView.html"
     ]
 }
