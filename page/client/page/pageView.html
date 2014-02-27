@@ -53,7 +53,7 @@
 
         <div class="page-editor-container page-slots" ng-repeat="slot in currentPageType.slots" ng-show="tab === 'slot:' + slot.name">
             <div class="page-slot-content-add">
-                <select ng-options="name as type.title for (name, type) in contentTypes.all" ng-model="newContentType"></select>    
+                <select ng-options="name as type.title for (name, type) in contentTypes.all" ng-model="$parent.newContentType"></select>    
                 <div class="button clickable" ng-click="createContent()">Add Content</div>
             </div>
             <div class="page-slot" ng-init="slotIndex = $index">
