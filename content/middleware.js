@@ -1,7 +1,8 @@
 var debug = require('debug')('bauhaus:content'),
     async = require('async'),
     View = require('express/lib/view'),
-    Content = require('./model/content');
+    Content = require('./model/content'),
+    populateConfig = require('../document/helper').populateConfig;
 
 var middleware = module.exports = {};
 /**
@@ -23,34 +24,38 @@ middleware.loadContentTypes = function (contentTypes) {
 /**
  * Middleware which loads contents for loaded page to req.bauhaus.content.data
  */
-middleware.loadContent = function loadContent (req, res, next) {
-    if (!req.bauhaus || !req.bauhaus.page) return next();
+middleware.loadContent = function (contentTypes) {
+    return function loadContent (req, res, next) {
+        if (!req.bauhaus || !req.bauhaus.page) return next();
 
-    Content.find({'_page': req.bauhaus.page._id }, 'content meta _type', function (err, contents) {
-        if (err || contents.length === 0) return next();
+        Content.find({'_page': req.bauhaus.page._id }, 'content meta _type', function (err, contents) {
+            if (err || contents.length === 0) return next();
 
-        debug("Loaded " + contents.length + " content blocks");
+            debug("Loaded " + contents.length + " content blocks");
 
-        var populateParallel = [];
-        for (var c in contents) {
-            // Add callback in Closure
-            (function (content) {
-                populateParallel.push(function (callback) {
-                    content.populateFields('content', callback);
-                });
-            })(contents[c]);
-        }
-        // Perform parallel population on all documents (documents are checked for references,
-        // if there are any, there are populated)
-        async.parallel(populateParallel, function (err, result) {
-            if (err) return next();
+            var populateParallel = [];
+            for (var c in contents) {
+                var contentType = contentTypes[ contents[c]._type ];
+                var populationConfig = populateConfig(contentType, 'content.');
+                // Add callback in Closure
+                (function (content, config) {
+                    populateParallel.push(function (callback) {
+                        content.populate(config, callback);
+                    });
+                })(contents[c], populationConfig);
+            }
+            // Perform parallel population on all documents (documents are checked for references,
+            // if there are any, there are populated)
+            async.parallel(populateParallel, function (err, result) {
+                if (err) return next();
 
-            req.bauhaus.content = {
-                data: result
-            };
-            next();
+                req.bauhaus.content = {
+                    data: result
+                };
+                next();
+            });
         });
-    });
+    }
 };
 
 /**

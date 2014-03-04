@@ -5,6 +5,11 @@ var debug = require('debug')('bauhaus:page'),
 
 var middleware = module.exports = {};
 
+function PageNotFoundError (route) {
+    this.value = route;
+    this.message = "Page was not found"
+}
+
 /**
  * Middleware that loads page from database an add it to req.bauhaus.page
  */
@@ -14,7 +19,7 @@ middleware.loadPage = function loadPage (req, res, next) {
     var route = req.url;
 
     Page.findOne({ 'route': route  }, "title label _type _model", function (err, page) {
-        if (err || page === null) return next(new Error("PageNotFound"));
+        if (err || page === null) return next(new PageNotFoundError(route));
 
         req.bauhaus.page = page;
         debug('Loaded "' +  page.title + '" (' + page._id + ') for route ' + route);
@@ -112,7 +117,7 @@ middleware.renderStack = function (pageTypes, contentTypes) {
         middleware.loadPage,
         middleware.loadPageType(pageTypes),
         middleware.loadNavigation,
-        contentMiddleware.loadContent,
+        contentMiddleware.loadContent(contentTypes),
         contentMiddleware.renderContent(contentTypes),
         middleware.renderSlots,
         securityMiddleware.addUserToRender,
