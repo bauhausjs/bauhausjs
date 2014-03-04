@@ -232,6 +232,35 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
      ** CONTENT *********
      ********************/
 
+     /* Replaces all objects with a field _id by a string of the id */
+    function unpopulate (object) {
+        var obj = angular.copy(object);
+        for (var f in obj) {
+            if (obj.hasOwnProperty(f)) {
+                var field = obj[f];
+                // replace field with object by id
+                if (typeof field === 'object' && field._id) {
+                    obj[f] = field._id;
+                }
+                // replace field with array of objects by array of ids
+                if (Array.isArray(field) && 
+                    field.length > 0 && 
+                    typeof field[0] === 'object' &&
+                    field[0]._id) {
+
+                    var ids = [];
+                    for (var o in field) {
+                        if (field[o]._id) {
+                            ids.push(field[o]._id);
+                        }
+                    }
+                    obj[f] = ids;
+                }
+            }
+        }
+        return obj;
+    }
+
     /* Sends all updated content elements to server */
     $scope.updateContents = function () {
         // iterate over all content elements, which were updated
@@ -240,7 +269,8 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
         var contentUpdated = 0;
         for (var id in $scope.contentChanges) {
             var position = $scope.contentChanges[ id ];
-            var content = $scope.slots[position[0]][position[1]];
+            var content = angular.copy($scope.slots[position[0]][position[1]]);
+            content.content = unpopulate(content.content);
 
             Content.put(content, function (result) {
                 // remove content from list of content blocks which should be updated
