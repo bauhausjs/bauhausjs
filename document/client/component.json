@@ -5,7 +5,9 @@
         "document/documentDirectives.js",
         "document/documentServices.js"
     ],
-    "styles": [],
+    "styles": [
+        "document/document.less"
+    ],
     "templates": [
         "document/documentDetailView.html",
         "document/documentListView.html"
