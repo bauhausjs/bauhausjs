@@ -59,10 +59,10 @@ middleware.loadContent = function (contentTypes) {
 };
 
 /**
- * Returns middleware function, which renders content from Array.<Object> 
- * req.bauhaus.content.data according to the passed content types to 
+ * Returns middleware function, which renders content from Array.<Object>
+ * req.bauhaus.content.data according to the passed content types to
  * Array.<String> req.bauhaus.content.rendered.
- * 
+ *
  * @param  {Array} contentTypes Pass service content.types
  * @return {Function}           Middleware
  */
@@ -71,21 +71,43 @@ middleware.renderContent = function (contentTypes) {
         if (!req.bauhaus || !req.bauhaus.content) return next();
 
         req.bauhaus.content.rendered = [];
-        req.bauhaus.content.data.forEach(function (item, index) {
-            // check if content type exists
-            var typeName = item._type;
+
+        var renderParallel = [];
+        for (var c in req.bauhaus.content.data) {
+            var data = req.bauhaus.content.data[c];
+            var typeName = data._type;
             if (typeName in contentTypes) {
-                var contentType = contentTypes[ typeName ];
-
-                res.render(contentType.template, item.content, function (err, html) {
-                    if (err) html = "";
-                    req.bauhaus.content.rendered.push(html);
-                });
+                var contentType = contentTypes[typeName];
+                if (typeof contentType.render === 'function') {
+                    (function (data, render) {
+                        renderParallel.push(function (callback) {
+                            contentType.render(req, res, data, contentType.template, function (err, html) {
+                                if (err) debug("Error when calling custom render method of content " + data._id + " of type " + typeName, err);
+                                callback(err, html);
+                            });
+                        });
+                    })(data, contentType);
+                } else {
+                    // Add callback in closure
+                    (function (data, template) {
+                        renderParallel.push(function (callback) {
+                            res.render(template, data, function (err, html) {
+                                if (err) debug("Error rendering content", data, err);
+                                callback(err, html);
+                            });
+                        });
+                    })(data.content, contentType.template);
+                }
             }
+        }
+
+        async.parallel(renderParallel, function (err, result) {
+            if (err) return next();
+
+            req.bauhaus.content.rendered = result;
+
+            debug("Rendered " + result.length + " content elements");
+            next();
         });
-
-        debug("Rendered " + req.bauhaus.content.rendered.length + " content elements");
-
-        next();
     };
 };
