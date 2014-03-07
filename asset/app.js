@@ -23,8 +23,10 @@ module.exports = function (bauhausConfig) {
         Asset.findOne ({_id : id},'name metadata data',function (err,assetDocument) {
             var options;
 
-            if (err) { throw err; }
-            if (!assetDocument) { return; }
+            if (err) { return next(err); }  // Mongo error
+            if (!assetDocument) { return next(); } // No asset found
+            if (assetDocument && !assetDocument.data) { return next(); } // Asset has no content
+            if (assetDocument && assetDocument.metadata && !assetDocument.metadata['content-type']) { return next(); } // Asset has no metadata
 
             options = {};
 
@@ -186,7 +188,7 @@ module.exports = function (bauhausConfig) {
 
                     //When the transformations were applied, save the resulting image and return its buffer
                     gmInstance.toBuffer (function (err,buffer) {
-                        if (err) { throw err; }
+                        if (err) { next(err); }
 
                         cachedAssetDocument.data       = buffer;
                         cachedAssetDocument.parentId   = id;
@@ -199,7 +201,7 @@ module.exports = function (bauhausConfig) {
                         };
 
                         cachedAssetDocument.save ( function (err) {
-                            if (err) { throw err; }
+                            if (err) { next(err); }
                             res.send (buffer);
                         });
                     });
