@@ -1,0 +1,6 @@
+{
+  "name": "bauhaus-assets",
+  "dependencies": {
+    "ng-file-upload": "~1.2.8"
+  }
+}

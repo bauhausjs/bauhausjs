@@ -1,0 +1,14 @@
+{
+    "scripts": [
+        "asset/asset.js",
+        "asset/assetDirectives.js",
+        "asset/assetServices.js",
+        "components/ng-file-upload/angular-file-upload-shim.js",
+        "components/ng-file-upload/angular-file-upload.js"
+    ],
+    "styles": [
+        "asset/asset.less"
+    ],
+    "templates": [
+    ]
+}
