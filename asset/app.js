@@ -11,6 +11,15 @@ module.exports = function (bauhausConfig) {
 
     var app = express();
 
+    app.param('id', function (req, res, next, id) {
+        console.log('id', id);
+        if (typeof id === 'string' && id.length === 24) {
+            next();
+        } else {
+            next(new Error('Invalid Asset id'));
+        }
+    });
+
     /*
      *	Route to view the assets
      *
