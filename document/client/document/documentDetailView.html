@@ -4,8 +4,8 @@
             <span ng-switch-when="true">
                 Create new {{ type }}
             </span>
-            <span ng-switch-default>   
-                Edit {{ type }} "{{ document.title }}"
+            <span ng-switch-default>
+                Edit {{ type }} "{{ document.title }}{{ document.name }}"
             </span>
         </span>
     </h2>
@@ -16,7 +16,7 @@
 
     <ul class="crud-form">
         <div class="form">
-            <div bauhaus-document-form ng-model="document" config="modelConfig"></div>  
+            <div bauhaus-document-form ng-model="document" config="modelConfig"></div>
         </div>
     </div>
 </div>

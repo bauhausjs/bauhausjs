@@ -1,6 +1,6 @@
 angular.module('bauhaus.document.controllers', ['bauhaus.document.services']);
 
-angular.module('bauhaus.document.controllers').controller('DocumentListCtrl', ['$scope', '$location', '$routeParams', 'DocumentService',  function ($scope, $location, $routeParams, DocumentService) {
+angular.module('bauhaus.document.controllers').controller('DocumentListCtrl', ['$scope', '$location', '$routeParams', '$templateCache', 'DocumentService', 'SharedDocuments',  function ($scope, $location, $routeParams, $templateCache, DocumentService, SharedDocuments) {
     'use strict';
 
     $scope.type = $routeParams.type;
@@ -8,16 +8,34 @@ angular.module('bauhaus.document.controllers').controller('DocumentListCtrl', ['
 
     $scope.service = DocumentService($scope.type);
 
-    $scope.service.query({}, function (result) {
-        var documents = [];
-        for (var d in result) {
-            if (result[d]._id) {
-                documents.push(result[d]);
-            }
+
+    $scope.$watch('documentInfos.all.' + $scope.type, function (newVal) {
+        if (newVal && newVal.fields) {
+            $scope.modelConfig = newVal;
         }
 
-        $scope.documents = documents;
+        var query = $scope.modelConfig.query ? angular.copy($scope.modelConfig.query) : {};
+
+        if ($scope.modelConfig.templates && $scope.modelConfig.templates.listItem) {
+            $templateCache.put('documentListViewItem.html', $scope.modelConfig.templates.listItem);
+        }
+
+        $scope.service.query(query, function (result) {
+            var documents = [];
+            for (var d in result) {
+                if (result[d]._id) {
+                    documents.push(result[d]);
+                }
+            }
+
+            $scope.documents = documents;
+        });
     });
+    // reference shared documentInfo service to init loading
+    $scope.documentInfos = SharedDocuments.store;
+
+
+
 
     $scope.createDocument = function () {
         $location.path('document/' + $scope.type + '/new')
@@ -74,8 +92,8 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
                     obj[f] = field._id;
                 }
                 // replace field with array of objects by array of ids
-                if (Array.isArray(field) && 
-                    field.length > 0 && 
+                if (Array.isArray(field) &&
+                    field.length > 0 &&
                     typeof field[0] === 'object' &&
                     field[0]._id) {
 
@@ -121,5 +139,5 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
         }
     }
 
-    
+
 }]);

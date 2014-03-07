@@ -2,9 +2,13 @@
     <h2 class="title">{{ type }}</h2>
     <button class="button" ng-click="createDocument()">Create {{ type }}</button>
 
+    <script type="text/ng-template" id="documentListViewItem.html">
+        <a href="#/document/{{ type }}/{{document._id}}"><i class="fa fa-file"></i> {{ document.title }}</a>
+    </script>
+
     <ul class="bauhaus-list">
         <li class="bauhaus-list-item" ng-repeat="document in documents">
-            <a href="#/document/{{ type }}/{{document._id}}"><i class="fa fa-file"></i> {{document.title }}</a>
+            <ng-include src="'documentListViewItem.html'">
         </li>
     </div>
 </div>

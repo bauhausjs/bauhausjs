@@ -3,7 +3,7 @@ angular.module('bauhaus.document.directives', []);
 angular.module('bauhaus.document.directives').directive('bauhausDocumentForm', function ($compile) {
     return {
         scope: {
-            content: '=ngModel',
+            doc: '=ngModel',
             config: '=config'
         },
         link: function (scope, el, attr) {
@@ -14,7 +14,7 @@ angular.module('bauhaus.document.directives').directive('bauhausDocumentForm', f
                     for (var f in scope.config.fields) {
                         var field = scope.config.fields[f];
                         html += '<bauhaus-' + field.type +
-                                ' ng-model="content.' + field.name  +
+                                ' ng-model="doc.' + field.name  +
                                 '" field-config="config.fields[' + f + ']" ></bauhaus-' + field.type + '>';
                     }
                     html += '</div>';
