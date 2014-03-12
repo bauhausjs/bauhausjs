@@ -2,7 +2,8 @@ var debug = require('debug')('bauhaus:content'),
     async = require('async'),
     View = require('express/lib/view'),
     Content = require('./model/content'),
-    populateConfig = require('../document/helper').populateConfig;
+    populateConfig = require('../document/helper').populateConfig,
+    ejsFilters = require('./ejsFilters');
 
 var middleware = module.exports = {};
 /**
