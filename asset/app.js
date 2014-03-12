@@ -12,11 +12,11 @@ module.exports = function (bauhausConfig) {
     var app = express();
 
     app.param('id', function (req, res, next, id) {
-
+        console.log('id', id);
         if (typeof id === 'string' && id.length === 24) {
-            return next();
+            next();
         } else {
-            return next(new Error('Invalid Asset id'));
+            next(new Error('Invalid Asset id'));
         }
     });
 
@@ -24,7 +24,7 @@ module.exports = function (bauhausConfig) {
      *	Route to view the assets
      *
      */
-    app.get('/:id', function (req, res, next) {
+    app.get('/:id', function (req, res) {
         var routeParams = req.route.params,
             id          = routeParams.id,
             query       = req.query; //contains the urls query parameters
@@ -197,7 +197,7 @@ module.exports = function (bauhausConfig) {
 
                     //When the transformations were applied, save the resulting image and return its buffer
                     gmInstance.toBuffer (function (err,buffer) {
-                        if (err) { return next(err); }
+                        if (err) { next(err); }
 
                         cachedAssetDocument.data       = buffer;
                         cachedAssetDocument.parentId   = id;
@@ -210,17 +210,17 @@ module.exports = function (bauhausConfig) {
                         };
 
                         cachedAssetDocument.save ( function (err) {
-                            if (err) { return next(err); }
-                            return res.send (buffer);
+                            if (err) { next(err); }
+                            res.send (buffer);
                         });
                     });
                 } else {  //Otherwise send back the cached version
-                    return res.send (cachedAssetDocument.data);
+                    res.send (cachedAssetDocument.data);
                 }
             });
         } else {
             res.writeHead(200);
-            return res.end(data);
+            return  res.end(data);
         }
     }
 
