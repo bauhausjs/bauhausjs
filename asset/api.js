@@ -50,7 +50,10 @@ function main (bauhausConfig) {
               label: 'Name'},
             { name: 'data',
               type: 'asset-data',
-              label: 'Asset'}
+              label: 'File'},
+            { name: 'metadata',
+              type: 'asset-meta-data',
+              label: 'MetaData'}
         ]
     });
 
@@ -67,7 +70,7 @@ function main (bauhausConfig) {
 			body        = req.body || {},
 			id          = routeParams.id;
 
-		Asset.findOne ({_id : id},'_id',function (err,assetDocument) {   //Find the asset by its id in the monngodb
+		Asset.findOne ({_id : id},'_id name',function (err,assetDocument) {   //Find the asset by its id in the monngodb
 			if (err) { return next(err); }
 			if (!assetDocument) { return next(); }
 
@@ -87,6 +90,9 @@ function main (bauhausConfig) {
 				assetBuffer        = fs.readFileSync (fileData.path); //the path member contains the temporary path to the image.
 				assetDocument.data = assetBuffer;  //assign the image data as a buffer to the assets database entry
 
+                if (!assetDocument.name && req.files.data.originalFilename) {
+                    assetDocument.name = req.files.data.originalFilename; // set filename if empty
+                }
 
 				for ( var header in fileData.headers ) {  //The header field contains information such as the content type. Copy them to the metadata field.
 					assetDocument.metadata [header] = fileData.headers [header];
@@ -144,7 +150,8 @@ function main (bauhausConfig) {
 			if (err) { return next(err); }
             var response = {
                 _id: asset.id,
-                metadata: asset.metadata
+                metadata: asset.metadata,
+                name: asset.name
             };
 			return res.json(200, response);	//and send the response
 		});
