@@ -78,14 +78,22 @@ middleware.renderSlots = function renderSlots (req, res, next) {
         slotNameMap[index] = element.name; 
     });
 
+    // Order content by slot and position
+    var renderedSlots = {};
     if (!req.bauhaus.content) return next();
     req.bauhaus.content.data.forEach(function (content, index) {
         var slot = content.meta.slot ? content.meta.slot : 0;
-        var key = slotNameMap[ slot ];
-        if (req.bauhaus.slots[ key ] === undefined) req.bauhaus.slots[ key ] = "";
-        req.bauhaus.slots[ key ] += req.bauhaus.content.rendered[index];
+        var position = content.meta.position ? content.meta.position : 0;
 
-        debug('Rendered slot "' + key + '"');
+        if (renderedSlots[ slot ] === undefined) renderedSlots[ slot ] = [];
+        renderedSlots[ slot ][ position ] = req.bauhaus.content.rendered[index];
+    });
+
+    // Join each slot to single string
+    slotNameMap.forEach(function (name, index) {
+        req.bauhaus.slots[ name ] = renderedSlots[ index ].join("\n");
+
+        debug('Rendered slot "' + name + '"');
     });
     next();
 };
