@@ -11,10 +11,12 @@ middleware.loadUser = function loadUser (req, res, next) {
             if (err) next();
 
             var roles = [];
+            var roleIds = [];
             var permissions = [];
             for (var d in docs) {
                 var role = docs[d];
                 roles.push(role.name);
+                roleIds.push(role._id);
                 if (role.permissions) {
                     for (var permission in role.permissions) {
                         if (permissions.indexOf(permission) !== 0) {
@@ -28,6 +30,7 @@ middleware.loadUser = function loadUser (req, res, next) {
                 id: req.user._id,
                 username: req.user.username,
                 roles: roles,
+                roleIds: roleIds,
                 permissions: permissions
             }
             // add user info to session
