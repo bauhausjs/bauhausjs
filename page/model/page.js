@@ -1,5 +1,6 @@
 var mongoose = require('mongoose'),
-    materializedPlugin = require('mongoose-materialized');
+    materializedPlugin = require('mongoose-materialized'),
+    Role = require('../../security/model/role');
 
 var Schema = mongoose.Schema;
 
@@ -8,7 +9,9 @@ var pageSchema = new Schema({
     label: String,
     _type: String,
     route: String,
-    public: Boolean
+    public: Boolean,
+    isSecure: Boolean,
+    roles: [{ type: Schema.Types.ObjectId, ref: 'Role' }]
 }, {
     discriminatorKey : '_model'
 });

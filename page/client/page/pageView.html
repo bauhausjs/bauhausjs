@@ -33,6 +33,28 @@
                     </div>
                 </div>
             </div>
+
+            <div class="page-editor-header-secure">
+                <div ng-switch on="page.isSecure">
+                    <div ng-switch-when="true">
+
+                        <div class="secure clickable" ng-click="page.isSecure = false">
+                            <i class="fa fa-lock"></i> Secured
+                        </div>
+
+                        <!--div bauhaus-roles ng-model="page.roles" field-config="{label: 'Roles'}"></div-->
+                        <div bauhaus-relation ng-model="page.roles" field-config="{label: 'Required roles', options: {model: 'Role', useAsLabel: 'name'}}"></div>
+
+                    </div>
+                    <div ng-switch-default>
+
+                        <div class="unsecure" ng-click="page.isSecure = true">
+                            <i class="fa fa-unlock"></i> 
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="page-editor-tabs">

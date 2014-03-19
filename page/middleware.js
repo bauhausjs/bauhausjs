@@ -18,13 +18,49 @@ middleware.loadPage = function loadPage (req, res, next) {
 
     var route = req.url;
 
-    Page.findOne({ 'route': route  }, "title label _type _model", function (err, page) {
+    Page.findOne({ 'route': route  }, "title label isSecure roles _type _model", function (err, page) {
         if (err || page === null) return next(new PageNotFoundError(route));
 
         req.bauhaus.page = page;
         debug('Loaded "' +  page.title + '" (' + page._id + ') for route ' + route);
         next();
     });
+};
+
+middleware.checkAccess = function (req, res, next) {
+    if (!req.bauhaus || !req.bauhaus.page) return next();
+
+    if (req.bauhaus.page.isSecure !== true) {
+        // page is not secured, let request pass
+        return next();
+    } 
+
+    if (!req.session.user) {
+        debug("request page is secured, but no user is authorized");
+        res.status(401)
+        return next("Unauthorized");
+    }
+
+    if (req.bauhaus.page.roles && Object.keys(req.bauhaus.page.roles).length > 0) {
+        debug("Page accessible only with any of the roles", req.bauhaus.page.roles);
+
+        if (!req.session.user.roleIds || Object.keys(req.session.user.roleIds).length === 0) {
+            res.status(403);
+            return next("Forbidden");
+        }
+        var userRoles = req.session.user.roleIds;
+        for (var r in req.bauhaus.page.roles) {
+            var pageRoleId = req.bauhaus.page.roles[r].toString();
+            if (userRoles.indexOf(pageRoleId) !== -1) {
+                debug("User has role, let pass", pageRoleId);
+                return next();
+            }
+        }
+
+        debug("User did not match any of the roles, reject");
+        res.status(403);
+        return next("Forbidden");
+    }
 };
 
 /**
@@ -123,6 +159,7 @@ middleware.errorHandler = function errorHandler (err, req, res, next) {
 middleware.renderStack = function (pageTypes, contentTypes) {
     return [
         middleware.loadPage,
+        middleware.checkAccess,
         middleware.loadPageType(pageTypes),
         middleware.loadNavigation,
         contentMiddleware.loadContent(contentTypes),
