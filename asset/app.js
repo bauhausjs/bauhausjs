@@ -11,8 +11,7 @@ module.exports = function (bauhausConfig) {
 
     var app = express();
 
-    app.param('id', function (req, res, next, id) {
-        console.log('id', id);
+    app.param('id', function (req, res, next, id) {;
         if (typeof id === 'string' && id.length === 24) {
             next();
         } else {
@@ -24,7 +23,7 @@ module.exports = function (bauhausConfig) {
      *	Route to view the assets
      *
      */
-    app.get('/:id', function (req, res) {
+    app.get('/:id', function (req, res, next) {
         var routeParams = req.route.params,
             id          = routeParams.id,
             query       = req.query; //contains the urls query parameters
