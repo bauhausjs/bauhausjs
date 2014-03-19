@@ -1,4 +1,4 @@
-<div class="crud user-crud">
+<div class="bauhaus-editor-view user">
     <h2 class="crud-title">
         <span ng-switch on="isNew()">
             <span ng-switch-when="true">
@@ -14,7 +14,7 @@
         <button class="button" ng-click="updateUser()">Save</button> <button class="button" ng-click="deleteUser()">Delete</button>
     </div>
 
-    <ul class="crud-form">
+    <div class="crud-form">
         <div class="form">
             <div class="form-field">
                 <div bauhaus-text ng-model="user.username" field-config="{label: 'Username'}"></div>
