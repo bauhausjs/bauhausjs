@@ -122,6 +122,7 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
             $scope.service.create({}, function (result) {
                 $scope.document._id = result._id;
                 $scope.documentId =   result._id;
+                doc._id = result._id;
 
                 $scope.service.put(doc, function (result) {
                     // document saved

@@ -1,4 +1,4 @@
-<div class="crud">
+<div class="bauhaus-editor-view">
     <h2 class="crud-title">
         <span ng-switch on="isNew()">
             <span ng-switch-when="true">
@@ -14,7 +14,7 @@
         <button class="button" ng-click="updateDocument()">Save</button> <button class="button" ng-click="deleteDocument()">Delete</button>
     </div>
 
-    <ul class="crud-form">
+    <div class="crud-form">
         <div class="form">
             <div bauhaus-document-form ng-model="document" config="modelConfig"></div>
         </div>

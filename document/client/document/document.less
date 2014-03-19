@@ -1,6 +1,14 @@
+.suggestions-wrapper {
+    display: inline-block;
+    position: relative;
+}
+
 .suggestions {
-    width: 300px;
+    min-width: 200px;
     background: #ffffff;
+    position: absolute;
+    top: 30px;
+    z-index: 1000;
 
     .suggestions-item {
         line-height: 200%;
@@ -13,3 +21,5 @@
         }
     }
 }
+
+

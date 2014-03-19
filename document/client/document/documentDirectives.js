@@ -39,17 +39,20 @@ angular.module('bauhaus.document.directives').directive('bauhausRelation', funct
         template: '<div class="page-content-field" ng-blur="showSelect = false">' +
                   '     <label class="page-content-field-label">{{config.label}}</label>' +
                   '     <div class="tag-list">' +
-                  '         <div ng-switch on="multiple">' +
-                  '            <div ng-switch-when="false">' +
+                  '         <span ng-switch on="multiple">' +
+                  '            <span ng-switch-when="false">' +
                   '                <div class="tag" ng-show="value">{{value[useAsLabel]}}<div class="tag-delete" ng-click="removeDoc()"><span class="fa fa-times"></span></div></div>' +
-                  '            </div>' +
-                  '            <div ng-switch-default>'  +
+                  '            </span>' +
+                  '            <span ng-switch-default>'  +
                   '               <div class="tag" ng-repeat="doc in value">{{doc[useAsLabel]}}<div class="tag-delete" ng-click="removeDoc(doc)"><span class="fa fa-times"></span></div></div>' +
-                  '            </div>' +
-                  '     </div>' +
-                  '     <input class="page-content-field-input input-big" type="text" ng-model="search" placeholder="+ Add {{model}}" ng-focus="showSelect = true" ng-blur="blur($event)"/>' +
-                  '     <div class="suggestions" ng-show="showSelect" ng-init="showSelect = false">' +
-                  '         <div class="suggestions-item clickable" ng-repeat="doc in documents | filter:search" ng-click="addDoc(doc)">{{doc[useAsLabel]}}</div>' +
+                  '            </span>' +
+                  '         </span>' +
+                  '         <div class="suggestions-wrapper">' + 
+                  '             <input class="page-content-field-input input-big" type="text" ng-model="search" placeholder="+ Add {{model}}" ng-focus="showSelect = true" ng-blur="blur($event)"/>' +
+                  '             <div class="suggestions" ng-show="showSelect" ng-init="showSelect = false">' +
+                  '             <div class="suggestions-item clickable" ng-repeat="doc in documents | filter:search" ng-click="addDoc(doc)">{{doc[useAsLabel]}}</div>' +
+                  '             </div>' +
+                  '         </div>' + 
                   '     </div>' +
                   '</div>',
         scope: {
@@ -78,7 +81,7 @@ angular.module('bauhaus.document.directives').directive('bauhausRelation', funct
             };
 
             scope.service = DocumentService(scope.config.options.model + 's');
-            scope.service.query({select: 'title'}, function (documents) {
+            scope.service.query({select: scope.useAsLabel}, function (documents) {
                 scope.documents = [];
                 for (var d in documents) {
                     if (documents[d]._id) {
