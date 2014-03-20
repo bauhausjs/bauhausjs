@@ -47,7 +47,8 @@
     "passport-local-mongoose": "0.2.x",
     "connect-flash": "0.1.x",
     "connect-mongo": "0.4.x",
-    "mongoose-materialized": "0.1.x"
+    "mongoose-materialized": "0.1.x",
+    "ejs": "0.8.x"
   },
   "peerDependencies": {
     "express": "3.4.x",
