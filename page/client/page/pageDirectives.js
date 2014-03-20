@@ -91,13 +91,27 @@ angular.module('bauhaus.page.directives').directive('bauhausPassword', function 
     };
 });
 
-angular.module('bauhaus.page.directives').directive('bauhausHtml', function () {
+angular.module('bauhaus.page.directives').directive('bauhausTextarea', function () {
     return {
         restrict: 'AEC',
-        template: '<br />{{config.label}} <textarea ng-model="value"></textarea>',
         template: '<div class="page-content-field">' + 
                   '     <label class="page-content-field-label">{{config.label}}</label>' +
                   '     <textarea class="page-content-field-textarea" ng-model="value"></textarea>' + 
+                  '</div>',
+
+        scope: {
+            value: '=ngModel',
+            config: '=fieldConfig'
+        }
+    };
+});
+
+angular.module('bauhaus.page.directives').directive('bauhausHtml', function () {
+    return {
+        restrict: 'AEC',
+        template: '<div class="page-content-field">' + 
+                  '     <label class="page-content-field-label">{{config.label}}</label>' +
+                  '     <div text-angular ta-toolbar="[ [\'h1\',\'h2\',\'h3\'], [\'bold\',\'italics\',\'ul\',\'ol\',\'redo\',\'undo\'], [\'html\'] ]" ng-model="value"></div>' + 
                   '</div>',
 
         scope: {
