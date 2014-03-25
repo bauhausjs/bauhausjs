@@ -160,6 +160,7 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
                     pageInTree.title = $scope.page.title;
                     pageInTree.route = $scope.page.route;
                     pageInTree.public = $scope.page.public;
+                    pageInTree.isSecure = $scope.page.isSecure;
                 }
                 // set route to valid
                 $scope.pageEditor.route.$setValidity('routeExists', true);
