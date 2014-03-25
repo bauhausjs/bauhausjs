@@ -31,10 +31,14 @@ module.exports = function (bauhausConfig) {
         Asset.findOne ({_id : id},'name metadata data',function (err,assetDocument) {
             var options;
 
-            if (err) { return next(err); }  // Mongo error
+            if (err) { return next(err.message); }  // Mongo error
             if (!assetDocument) { return next(); } // No asset found
-            if (assetDocument && !assetDocument.data) { return next(); } // Asset has no content
-            if (assetDocument && assetDocument.metadata && !assetDocument.metadata['content-type']) { return next(); } // Asset has no metadata
+            if (assetDocument && !assetDocument.data) { return next('No content'); } // Asset has no content
+            if (assetDocument && assetDocument.metadata && !assetDocument.metadata['content-type']) { return next('Missing Metadata'); } // Asset has no metadata
+
+            // temporary fix to avoid errors on non-images
+            var isImage = /^image\//;
+            if (assetDocument.metadata['content-type'].match(isImage) === null) { return next('Not an image'); } // Asset has no metadata
 
             options = {};
 
