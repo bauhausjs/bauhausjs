@@ -109,7 +109,7 @@ angular.module('bauhaus.document.directives').directive('bauhausRelation', funct
                         scope.value.splice(index, 1);
                     }
                 } else {
-                    scope.value.document = null;
+                    scope.value = null;
                 }
             };
 
@@ -123,3 +123,22 @@ angular.module('bauhaus.document.directives').directive('bauhausRelation', funct
         }
     };
 });
+
+angular.module('bauhaus.document.directives').directive('bauhausEnum', function (DocumentService, $timeout) {
+    return {
+        restrict: 'AEC',
+        template: '<div class="page-content-field">' +
+                  '     <label class="page-content-field-label">{{config.label}}</label>' +
+                  '     <select ng-model="value" ng-options="name as label for (name, label) in options">' + 
+                  '</div>',
+        scope: {
+            value: '=ngModel',
+            config: '=fieldConfig'
+        },
+        link: function (scope, el, attr) {
+            // Load labels of related documents
+            scope.options = scope.config.options.enums || {};
+        }
+    };
+});
+
