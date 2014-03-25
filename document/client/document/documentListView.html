@@ -3,7 +3,7 @@
     <button class="button" ng-click="createDocument()">Create {{ type }}</button>
 
     <script type="text/ng-template" id="documentListViewItem.html">
-        <a href="#/document/{{ type }}/{{document._id}}"><i class="fa fa-file"></i> {{ document.title }}</a>
+        <a href="#/document/{{ type }}/{{document._id}}"><i class="fa" ng-class="icon"></i> {{ document[ useAsLabel ] }}</a>
     </script>
 
     <ul class="bauhaus-list">

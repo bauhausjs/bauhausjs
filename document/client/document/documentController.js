@@ -5,6 +5,8 @@ angular.module('bauhaus.document.controllers').controller('DocumentListCtrl', ['
 
     $scope.type = $routeParams.type;
     $scope.documents = [];
+    $scope.useAsLabel = 'title';
+    $scope.icon = 'fa-file';
 
     $scope.service = DocumentService($scope.type);
 
@@ -16,6 +18,12 @@ angular.module('bauhaus.document.controllers').controller('DocumentListCtrl', ['
 
         var query = $scope.modelConfig.query ? angular.copy($scope.modelConfig.query) : {};
 
+        if ($scope.modelConfig.useAsLabel) {
+            $scope.useAsLabel = $scope.modelConfig.useAsLabel;
+        }
+        if ($scope.modelConfig.icon) {
+            $scope.icon = 'fa-' + $scope.modelConfig.icon;
+        }
         if ($scope.modelConfig.templates && $scope.modelConfig.templates.listItem) {
             $templateCache.put('documentListViewItem.html', $scope.modelConfig.templates.listItem);
         }
