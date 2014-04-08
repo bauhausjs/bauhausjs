@@ -111,7 +111,7 @@ angular.module('bauhaus.page.directives').directive('bauhausHtml', function () {
         restrict: 'AEC',
         template: '<div class="page-content-field">' + 
                   '     <label class="page-content-field-label">{{config.label}}</label>' +
-                  '     <div text-angular ta-toolbar="[ [\'h1\',\'h2\',\'h3\'], [\'bold\',\'italics\',\'ul\',\'ol\',\'redo\',\'undo\'], [\'html\'] ]" ng-model="value"></div>' + 
+                  '     <div text-angular ta-toolbar="[ [\'p\',\'h1\',\'h2\',\'h3\'], [\'bold\',\'italics\',\'ul\',\'ol\',\'redo\',\'undo\'], [\'html\'] ]" ng-model="value"></div>' + 
                   '</div>',
 
         scope: {
