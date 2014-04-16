@@ -40,7 +40,7 @@
 
     "express": "3.4.x",
     "mongoose": "3.8.x",
-    "baucis": "0.15.x",
+    "baucis": "0.18.x",
     "debug": "0.7.x",
     "passport": "0.2.x",
     "passport-local": "0.1.x",
@@ -53,7 +53,7 @@
   "peerDependencies": {
     "express": "3.4.x",
     "mongoose": "3.8.x",
-    "baucis": "0.x",
+    "baucis": "0.18.x",
     "debug": "0.7.x",
     "passport": "0.2.x",
     "passport-local": "0.1.x",
