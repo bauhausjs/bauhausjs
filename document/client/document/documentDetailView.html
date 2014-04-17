@@ -11,7 +11,7 @@
     </h2>
 
     <div class="crud-actions">
-        <button class="button" ng-click="updateDocument()">Save</button> <button class="button" ng-click="deleteDocument()">Delete</button>
+        <button class="button" ng-click="updateDocument()">Save</button> <button class="button" ng-click="deleteDocument()" ng-show="!isNew()">Delete</button>
     </div>
 
     <div class="crud-form">
