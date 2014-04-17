@@ -77,6 +77,20 @@ angular.module('bauhaus.page.directives').directive('bauhausText', function () {
     };
 });
 
+angular.module('bauhaus.page.directives').directive('bauhausCheckbox', function () {
+    return {
+        restrict: 'AEC',
+        template: '<div class="page-content-field">' + 
+                  '     <label class="page-content-field-label">{{config.label}}</label>' +
+                  '     <input class="page-content-field-checkbox" type="checkbox" ng-model="value" />' + 
+                  '</div>',
+        scope: {
+            value: '=ngModel',
+            config: '=fieldConfig'
+        }
+    };
+});
+
 angular.module('bauhaus.page.directives').directive('bauhausPassword', function () {
     return {
         restrict: 'AEC',
