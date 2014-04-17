@@ -15,7 +15,7 @@ module.exports = function (bauhausConfig) {
     });
 
     /* Middleware which is add for put method (=update user) to store password after user was stored */
-    userController.documents('put', function (req, res, next) {
+    userController.query('put', function (req, res, next) {
         if (req.body && req.body.password && req.body.password.length > 0) {
             User.findOne({_id: req.params.id }, function (err, user) {
                 if (user._id) {
