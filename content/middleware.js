@@ -81,7 +81,7 @@ middleware.renderContent = function (contentTypes) {
             if (typeName in contentTypes) {
                 var contentType = contentTypes[typeName];
                 if (typeof contentType.render === 'function') {
-                    (function (data, render) {
+                    (function (data, contentType) {
                         renderParallel.push(function (callback) {
                             contentType.render(req, res, data, contentType.template, function (err, html) {
                                 if (err) debug("Error when calling custom render method of content " + data._id + " of type " + typeName, err);
