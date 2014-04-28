@@ -123,7 +123,7 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
         // Save document if it already has an _id
         if ($scope.document._id) {
             $scope.service.put(doc, function (result) {
-
+                $scope.document = result;
             });
         } else {
             // create new, empty document
@@ -133,6 +133,7 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
                 doc._id = result._id;
 
                 $scope.service.put(doc, function (result) {
+                    $scope.document = result;
                     // document saved
                 });
             })
