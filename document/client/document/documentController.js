@@ -123,7 +123,13 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
         // Save document if it already has an _id
         if ($scope.document._id) {
             $scope.service.put(doc, function (result) {
-                $scope.document = result;
+                var query = $scope.modelConfig.query ? angular.copy($scope.modelConfig.query) : {};
+                query.id = $routeParams.id;
+                $scope.service.get(query, function (result) {
+                    if (result && result._id) {
+                        $scope.document = result;
+                    }
+                });
             });
         } else {
             // create new, empty document
@@ -133,8 +139,13 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
                 doc._id = result._id;
 
                 $scope.service.put(doc, function (result) {
-                    $scope.document = result;
-                    // document saved
+                    var query = $scope.modelConfig.query ? angular.copy($scope.modelConfig.query) : {};
+                    query.id = $routeParams.id;
+                    $scope.service.get(query, function (result) {
+                        if (result && result._id) {
+                            $scope.document = result;
+                        }
+                    });
                 });
             })
         }
