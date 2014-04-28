@@ -16,7 +16,7 @@ function PageNotFoundError (route) {
 middleware.loadPage = function loadPage (req, res, next) {
     if (!req.bauhaus) req.bauhaus = {};
 
-    var route = req.url;
+    var route = req.path;
 
     Page.findOne({ 'route': route  }, "title label isSecure roles _type _model", function (err, page) {
         if (err || page === null) return next(new PageNotFoundError(route));
@@ -41,10 +41,10 @@ middleware.checkAccess = function (req, res, next) {
         return next("Unauthorized");
     }
 
-    if (req.bauhaus.page.roles && Object.keys(req.bauhaus.page.roles).length > 0) {
+    if (req.bauhaus.page.roles && req.bauhaus.page.roles.length > 0) {
         debug("Page accessible only with any of the roles", req.bauhaus.page.roles);
 
-        if (!req.session.user.roleIds || Object.keys(req.session.user.roleIds).length === 0) {
+        if (!req.session.user.roleIds || req.session.user.roleIds.length === 0) {
             res.status(403);
             return next("Forbidden");
         }
@@ -60,6 +60,9 @@ middleware.checkAccess = function (req, res, next) {
         debug("User did not match any of the roles, reject");
         res.status(403);
         return next("Forbidden");
+    } else {
+        // no roles defined and user authorized -> let pass
+        return next();
     }
 };
 
