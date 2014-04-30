@@ -56,6 +56,13 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
 
     $scope.document = null;
     $scope.documentId = null;
+    $scope.documentChanged = false;
+
+    $scope.$watch('document', function (newVal, oldVal) {
+        if (newVal !== null && typeof newVal._id !== 'undefined' && oldVal !== null && typeof oldVal._id !== 'undefined') {
+            $scope.documentChanged = true;
+        }
+    }, true)
 
     $scope.type = $routeParams.type;
 
@@ -69,14 +76,8 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
         }
 
         if ($routeParams.id && $routeParams.id != 'new') {
-            var query = $scope.modelConfig.query ? angular.copy($scope.modelConfig.query) : {};
-            query.id = $routeParams.id;
             // load document data for passed id
-            $scope.service.get(query, function (result) {
-                if (result && result._id) {
-                    $scope.document = result;
-                }
-            });
+            $scope.reloadDocument();
         } else {
             $scope.document = {};
         }
@@ -118,18 +119,24 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
         return obj;
     }
 
+
+    $scope.reloadDocument = function () {
+        var query = $scope.modelConfig.query ? angular.copy($scope.modelConfig.query) : {};
+        query.id = $routeParams.id;
+        $scope.service.get(query, function (result) {
+            if (result && result._id) {
+                $scope.document = result;
+                $scope.documentChanged = false;
+            }
+        }); 
+    };
+
     $scope.updateDocument = function () {
         var doc = unpopulate($scope.document);
         // Save document if it already has an _id
         if ($scope.document._id) {
             $scope.service.put(doc, function (result) {
-                var query = $scope.modelConfig.query ? angular.copy($scope.modelConfig.query) : {};
-                query.id = $routeParams.id;
-                $scope.service.get(query, function (result) {
-                    if (result && result._id) {
-                        $scope.document = result;
-                    }
-                });
+                $scope.reloadDocument()
             });
         } else {
             // create new, empty document
@@ -139,13 +146,7 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
                 doc._id = result._id;
 
                 $scope.service.put(doc, function (result) {
-                    var query = $scope.modelConfig.query ? angular.copy($scope.modelConfig.query) : {};
-                    query.id = $routeParams.id;
-                    $scope.service.get(query, function (result) {
-                        if (result && result._id) {
-                            $scope.document = result;
-                        }
-                    });
+                    $scope.reloadDocument();
                 });
             })
         }
