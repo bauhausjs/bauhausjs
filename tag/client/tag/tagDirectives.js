@@ -1,7 +1,7 @@
 angular.module('bauhaus.tag.directives', []);
 
 
-angular.module('bauhaus.document.directives').directive('bauhausTags', function (DocumentService, $timeout) {
+angular.module('bauhaus.tag.directives').directive('bauhausTags', function (DocumentService, $timeout) {
     return {
         restrict: 'AEC',
         template: '<div class="page-content-field" ng-blur="showSelect = false">' +
