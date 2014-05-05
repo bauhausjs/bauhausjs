@@ -1,12 +1,22 @@
-var mongoose = require('mongoose'),
-    passportLocalMongoose = require('passport-local-mongoose');
+var mongoose = require('mongoose');
+var passportLocalMongoose = require('passport-local-mongoose');
+var sha1 = require('sha1');
 
 var Schema = mongoose.Schema;
 
 var userSchema = new Schema({
+    email: String,
+    resetPasswordToken: String,
     roles: [Schema.Types.ObjectId],
     public: {}
 }, {collection: 'bauhaus-users'});
+
+
+userSchema.methods.setResetPasswordToken = function () {
+    var time = Date.now().toString();
+    var token = sha1( time + this.email + this.username );
+    this.resetPasswordToken = token;
+};
 
 userSchema.plugin(passportLocalMongoose);
 
