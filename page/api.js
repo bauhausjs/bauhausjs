@@ -5,7 +5,7 @@ module.exports = function (bauhausConfig) {
 
     var pageController = baucis.rest({
         singular:'Page', 
-        select:'_type name route title label parentId path public isSecure roles'
+        select:'_type _w name route title label parentId path public isSecure roles'
     });
 
     var getTree = function (request, response, next) {
@@ -20,7 +20,7 @@ module.exports = function (bauhausConfig) {
         }
 
         Page.findOne(query, function (err, doc) {
-            doc.getTree(function (err, tree) {
+            doc.getTree({ _sort: { _w: 1 } }, { _sort: { _w: 1 } }, function (err, tree) {
                 response.json({tree: tree});
             });
         });

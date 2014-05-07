@@ -16,7 +16,7 @@ describe('PageMiddleware', function () {
             });
             // create new page in DB
             page.save(function () { 
-                var req = { path: path };
+                var req = { url: path };
                 var res = {};
                 var next = function () {
                     assert(req.bauhaus, "Defined bauhaus obj in req");

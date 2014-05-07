@@ -1,5 +1,15 @@
 angular.module('bauhaus.page.directives', []);
 
+angular.module('bauhaus.page.directives').filter('toArray', function(){
+    return function(obj) {
+        var result = [];
+        angular.forEach(obj, function(val, key) {
+            result.push(val);
+        });
+        return result;
+    };
+});
+
 angular.module('bauhaus.page.directives').directive('preventDefault', function() {
     return function(scope, element, attrs) {
         angular.element(element).on('click', function (event) {

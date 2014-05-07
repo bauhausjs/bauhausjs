@@ -87,39 +87,47 @@ middleware.loadNavigation = function (req, res, next) {
     req.bauhaus.navigation = {};
     var query = { parentId: null };
 
+    // Method recursively iterates over items and adds `isActive` and
+    // `hasActiveChild` fields
     function parseNavItem (item) {
-        console.log(item.route, req.path);
         if (item.route === req.path) {
             item.isActive = true;
         }
 
+        // replace object by array structure
+        var childArray = [];
         for (var child in item.children) {
-            item.children[ child ] = parseNavItem( item.children[ child ] );
-            if (item.children[ child ].isActive || item.children[ child ].hasActiveChildren) {
+            var subItem = parseNavItem( item.children[ child ] );
+            if (subItem.isActive || subItem.hasActiveChildren) {
                 item.hasActiveChildren = true;
             }
+            childArray.push(subItem);
         }
+        // sort by _w
+        childArray.sort(function (a, b) { return a._w - b._w });
+        item.children = childArray;
         return item;
     }
 
     Page.findOne(query, function (err, doc) {
         doc.getTree({
             condition: { public: true },
-            fields: { route: 1, title: 1, label: 1 }
+            fields: { route: 1, title: 1, label: 1, _w: 1 }
         }, { 
             fields: { route: 1, title: 1, label: 1, path: 1, id: 1, parentId: 1, _w: 1 },
             condition: { public: true }
         }, function (err, tree) {
-            req.bauhaus.navigation.main = {};
+            req.bauhaus.navigation.main = [];
             for (var id in tree) {
                 if (tree[ id ].parentId === null) {
                     for (var child in tree[ id ].children) {
-                        req.bauhaus.navigation.main[ child ] = parseNavItem( tree[ id ].children[ child ] );
+                        req.bauhaus.navigation.main.push( parseNavItem( tree[ id ].children[ child ] ) );
                     }
 
                 }  
             }
-
+            // sort by _w
+            req.bauhaus.navigation.main.sort(function (a, b) { return a._w - b._w });
             debug('Loaded navigation');
             next();
         });

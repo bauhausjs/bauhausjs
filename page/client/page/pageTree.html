@@ -12,7 +12,7 @@
         <div class="page-tree-item-add clickable" ng-click="newPage(data)" prevent-default><i class="fa fa-plus"></i></div>
     </div>
     <ul ng-show="data.open" class="page-tree">
-        <li class="page-tree-item" ng-repeat="data in data.children" ng-include="'tree-item'"></li>
+        <li class="page-tree-item" ng-repeat="data in data.children | toArray | orderBy:'_w'" ng-include="'tree-item'"></li>
     </ul>
 </script>
 

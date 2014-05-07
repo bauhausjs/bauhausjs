@@ -14,7 +14,8 @@
                 <div class="page-editor-header-show-label clickable" ng-click="showPageLabel = true" ng-show="!showPageLabel">Add seperate  label for navigation</div>
             </div>
             <div class="page-editor-header-label" ng-show="showPageLabel">
-                <i class="fa fa-sitemap"></i> Label <input type="text" class="label" ng-model="page.label" />
+                <i class="fa fa-sitemap"></i> Label <input type="text" class="label" ng-model="page.label" /><br />
+                <i class="fa fa-sort"></i> Order Id <input type="text" class="label" ng-model="page._w" />
             </div>
             <div class="page-editor-header-route">
                 <i class="fa fa-globe"></i> Route <input type="text" class="route" name="route" ng-model="page.route" />
