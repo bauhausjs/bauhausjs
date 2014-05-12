@@ -8,7 +8,7 @@ var userSchema = new Schema({
     email: String,
     resetPasswordToken: String,
     roles: [Schema.Types.ObjectId],
-    public: {}
+    fields: {}
 }, {collection: 'bauhaus-users'});
 
 

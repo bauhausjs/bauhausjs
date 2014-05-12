@@ -136,6 +136,10 @@ middleware.isAuthenticated = function (options) {
         } else {
             if (options && options.redirect) {
                 res.redirect(options.redirect);
+            } else {
+                res.status('403');
+                res.write('Not authorized');
+                res.end();
             }
         }
     }  

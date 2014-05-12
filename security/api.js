@@ -11,7 +11,7 @@ module.exports = function (bauhausConfig) {
 
     var userController = baucis.rest({
         singular:'User', 
-        select:'username roles public', swagger: true
+        select:'username roles fields', swagger: true
     });
 
     /* Middleware which is add for put method (=update user) to store password after user was stored */
