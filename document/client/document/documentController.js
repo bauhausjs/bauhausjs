@@ -57,6 +57,7 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
     $scope.document = null;
     $scope.documentId = null;
     $scope.documentChanged = false;
+    $scope.useAsLabel = 'title';
 
     $scope.$watch('document', function (newVal, oldVal) {
         if (newVal !== null && typeof newVal._id !== 'undefined' && oldVal !== null && typeof oldVal._id !== 'undefined') {
@@ -73,6 +74,10 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
     $scope.$watch('documentInfos.all.' + $scope.type, function (newVal) {
         if (newVal && newVal.fields) {
             $scope.modelConfig = newVal;
+        }
+
+        if ($scope.modelConfig.useAsLabel) {
+            $scope.useAsLabel = $scope.modelConfig.useAsLabel;
         }
 
         if ($routeParams.id && $routeParams.id != 'new') {

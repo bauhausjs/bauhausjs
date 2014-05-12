@@ -1,6 +1,6 @@
 <div class="bauhaus-list-view">
-    <h2 class="title">{{ type }}</h2>
-    <button class="button" ng-click="createDocument()">Create {{ type }}</button>
+    <h2 class="title">{{ modelConfig.name }}</h2>
+    <button class="button" ng-click="createDocument()">Create {{ modelConfig.name }}</button>
 
     <script type="text/ng-template" id="documentListViewItem.html">
         <a href="#/document/{{ type }}/{{document._id}}"><i class="fa" ng-class="icon"></i> {{ document[ useAsLabel ] }}</a>

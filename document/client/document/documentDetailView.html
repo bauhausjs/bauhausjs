@@ -2,10 +2,10 @@
     <h2 class="crud-title">
         <span ng-switch on="isNew()">
             <span ng-switch-when="true">
-                Create new {{ type }}
+                Create new {{ modelConfig.name }}
             </span>
             <span ng-switch-default>
-                Edit {{ type }} "{{ document.title }}{{ document.name }}"
+                Edit {{ modelConfig.name }} "{{ document[ useAsLabel ] }}"
             </span>
         </span>
     </h2>
