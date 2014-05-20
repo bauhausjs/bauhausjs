@@ -8,8 +8,56 @@ angular.module('bauhaus.document.directives').directive('bauhausDocumentForm', f
         },
         link: function (scope, el, attr) {
 
+            function renderField (field, id) {
+
+                var html = '<bauhaus-' + field.type;
+                html += ' ng-model="doc.' + field.name  + '" field-config="config.fields[' + id + ']" show-errors="showErrors"';
+                if (typeof field.show === 'string') {
+                    console.log(id, field)
+                    html += ' ng-show="' + field.show + '"';
+                }
+                html += '></bauhaus-' + field.type + '>'; 
+                return html;
+            }
+
             function recompileForm () {
-                if (scope.config.fields) {
+                if (scope.config && scope.config.fields) {
+                    var html ='<div ng-form name="form">';
+
+                    if (scope.config.fieldsets) {
+                        // render with fieldsets
+                        for (var fs in scope.config.fieldsets) {
+                            var fieldset = scope.config.fieldsets[fs];
+                            if (fieldset.id)
+                            html += '<fieldset';
+                            if (typeof fieldset.show === 'string') {
+                                html += ' ng-show="' + fieldset.show + '"';
+                            }
+                            html += '><legend>' + fieldset.legend + '</legend>';
+
+                            for (var f in scope.config.fields) {
+                                if (scope.config.fields[f].fieldset === fieldset.id) {
+                                    html += renderField( scope.config.fields[f], f )
+                                }
+                            } 
+
+                            html += '</fieldset>';
+                        }
+
+                    } else {
+                        // render without fieldset
+                        for (var f in scope.config.fields) {
+                            html += renderField( scope.config.fields[f], f )
+                        }   
+                    }
+                    
+                    html += '</div>';
+                   
+                    el.replaceWith($compile(html)(scope));
+                }
+
+
+                /*if (scope.config.fields) {
                     var html ='<div>';
                     for (var f in scope.config.fields) {
                         var field = scope.config.fields[f];
@@ -19,7 +67,7 @@ angular.module('bauhaus.document.directives').directive('bauhausDocumentForm', f
                     }
                     html += '</div>';
                     el.replaceWith($compile(html)(scope));
-                }
+                }*/
             }
 
             recompileForm();
@@ -138,6 +186,43 @@ angular.module('bauhaus.document.directives').directive('bauhausEnum', function 
         link: function (scope, el, attr) {
             // Load labels of related documents
             scope.options = scope.config.options.enums || {};
+        }
+    };
+});
+
+
+angular.module('bauhaus.document.directives').directive('bauhausObject', function (DocumentService, $timeout) {
+    return {
+        restrict: 'AEC',
+        template: '<div class="page-content-field">' +
+                  '     <label class="page-content-field-label">{{config.label}}</label>' +
+                  '     <div ng-repeat="field in value">' + 
+                  '         <input type="text" ng-model="field.key" />' +
+                  '         <input type="text" ng-model="field.value" />' +
+                  '         <button><i class="fa fa-minus" ng-click="remove($index)"></i></button>' + 
+                  '     </div>' + 
+                  '     <button ng-click="add()"><i class="fa fa-plus"></i> Add</button>' + 
+                  '</div>',
+        scope: {
+            value: '=ngModel',
+            config: '=fieldConfig'
+        },
+        link: function (scope, el, attr) {
+
+            scope.add = function () {
+                // set value as array if it is not an array
+                if (Array.isArray(scope.value) !== true) {
+                    scope.value = [];
+                }
+
+                scope.value.push({'key': 'K', 'value': 'V'});
+            };
+
+            scope.remove = function (index) {
+                if (Array.isArray(scope.value)) {
+                    scope.value.splice(index, 1);
+                }
+            };
         }
     };
 });
