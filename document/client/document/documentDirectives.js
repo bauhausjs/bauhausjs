@@ -215,7 +215,7 @@ angular.module('bauhaus.document.directives').directive('bauhausObject', functio
                     scope.value = [];
                 }
 
-                scope.value.push({'key': 'K', 'value': 'V'});
+                scope.value.push({'key': '', 'value': ''});
             };
 
             scope.remove = function (index) {
