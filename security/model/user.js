@@ -26,6 +26,13 @@ userSchema.methods.setConfirmMailToken = function () {
     this.confirmMailToken = token;
 };
 
+userSchema.methods.toJSON = function() {
+    var user = this.toObject();
+    delete user.salt;
+    delete user.hash;
+    return user;
+};
+
 userSchema.plugin(passportLocalMongoose);
 
 var user = module.exports = mongoose.model('User', userSchema); 
