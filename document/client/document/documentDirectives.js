@@ -96,7 +96,7 @@ angular.module('bauhaus.document.directives').directive('bauhausRelation', funct
                   '            </span>' +
                   '         </span>' +
                   '         <div class="suggestions-wrapper">' + 
-                  '             <input class="page-content-field-input input-big" type="text" ng-model="search" placeholder="+ Add {{model}}" ng-focus="showSelect = true" ng-blur="blur($event)"/>' +
+                  '             <input class="page-content-field-input input-big" type="text" ng-model="search" placeholder="{{placeholder}}" ng-focus="showSelect = true" ng-blur="blur($event)"/>' +
                   '             <div class="suggestions" ng-show="showSelect" ng-init="showSelect = false">' +
                   '             <div class="suggestions-item clickable" ng-repeat="doc in documents | filter:search" ng-click="addDoc(doc)">{{doc[useAsLabel]}}</div>' +
                   '             </div>' +
@@ -110,7 +110,8 @@ angular.module('bauhaus.document.directives').directive('bauhausRelation', funct
         link: function (scope, el, attr) {
             // Load labels of related documents
             scope.useAsLabel = scope.config.options.useAsLabel || 'title';
-            scope.multiple = (scope.config.options.multiple !== undefined && typeof scope.config.options.multiple === 'boolean') ? scope.config.options.multiple : true;
+            scope.multiple   = (scope.config.options.multiple !== undefined && typeof scope.config.options.multiple === 'boolean') ? scope.config.options.multiple : true;
+            scope.limit      = scope.config.options.limit || 10;
 
             try {
                 scope.model = scope.config.options.model;
@@ -122,6 +123,10 @@ angular.module('bauhaus.document.directives').directive('bauhausRelation', funct
                 throw new MissingModelName;
             }
 
+
+            scope.placeholder = scope.config.options.placeholder || "+ Add " + scope.model;
+            scope.search    = '';
+
             scope.blur = function (event) {
                 $timeout(function (){
                     scope.showSelect = false;
@@ -129,14 +134,20 @@ angular.module('bauhaus.document.directives').directive('bauhausRelation', funct
             };
 
             scope.service = DocumentService(scope.config.options.model + 's');
-            scope.service.query({select: scope.useAsLabel}, function (documents) {
-                scope.documents = [];
-                for (var d in documents) {
-                    if (documents[d]._id) {
-                        scope.documents.push(documents[d]);
+
+            scope.$watch('search', function (newVal, oldVal) {
+
+                var conditions = '{"' + scope.useAsLabel + '":{"$regex":"' + scope.search + '"}}';
+                scope.service.query({select: scope.useAsLabel, limit: scope.limit, conditions: conditions }, function (documents) {
+                    scope.documents = [];
+                    for (var d in documents) {
+                        if (documents[d]._id) {
+                            scope.documents.push(documents[d]);
+                        }
                     }
-                }
+                });
             });
+
 
             scope.addDoc = function (doc) {
                 scope.initRelation();
@@ -146,6 +157,7 @@ angular.module('bauhaus.document.directives').directive('bauhausRelation', funct
                     } else {
                         scope.value = doc;
                     }
+                    scope.search = '';
                 }
                 scope.showSelect = false;
             };
