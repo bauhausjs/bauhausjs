@@ -1,0 +1,1 @@
+angular.module('bauhaus.user', ['bauhaus.user.services']);

@@ -2,7 +2,9 @@
     "scripts": [
         "role/role.js",
         "role/roleDirectives.js",
-        "role/roleServices.js"
+        "role/roleServices.js",
+        "user/user.js",
+        "user/userServices.js"
     ],
     "styles": [],
     "templates": []

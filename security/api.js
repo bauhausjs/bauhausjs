@@ -39,7 +39,7 @@ module.exports = function (bauhausConfig) {
     api.get('/CurrentUser', function (req, res, next) {
         if (req.session.user) {
             var user = {
-                _id: req.session.user._id,
+                id: req.session.user.id,
                 username: req.session.user.username,
                 roles: req.session.user.roles,
                 permissions: req.session.user.permissions
