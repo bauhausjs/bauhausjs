@@ -29,6 +29,7 @@ middleware.loadUser = function loadUser (req, res, next) {
             var user = {
                 id: req.user._id,
                 username: req.user.username,
+                fields: req.user.fields,
                 roles: roles,
                 roleIds: roleIds,
                 permissions: permissions
