@@ -48,8 +48,6 @@ middleware.loadContent = function (contentTypes) {
             // Perform parallel population on all documents (documents are checked for references,
             // if there are any, there are populated)
             async.parallel(populateParallel, function (err, result) {
-
-                console.log("Populated content", err, result);
                 if (err) return next();
 
                 req.bauhaus.content = {
