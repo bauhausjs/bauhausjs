@@ -102,7 +102,7 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
             if (obj.hasOwnProperty(f)) {
                 var field = obj[f];
                 // replace field with object by id
-                if (typeof field === 'object' && field._id) {
+                if (typeof field !== 'undefined' && field._id) {
                     obj[f] = field._id;
                 }
                 // replace field with array of objects by array of ids
