@@ -101,27 +101,68 @@ middleware.loadNavigation = function (req, res, next) {
             if (subItem.isActive || subItem.hasActiveChildren) {
                 item.hasActiveChildren = true;
             }
-            childArray.push(subItem);
+            // check if user can access item
+            if (userHasAccess(subItem)) {
+                childArray.push(subItem);
+            }
         }
         // sort by _w
         childArray.sort(function (a, b) { return a._w - b._w });
         item.children = childArray;
+
         return item;
+    }
+
+    // Returns true if user is allowed to see page
+    function userHasAccess (item) {
+        if (typeof item.isSecure !== 'boolean' || item.isSecure === false) {
+            // page has no security settings or false, let user pass
+            return true;
+        } else {
+            // page is secured, check if user has access
+            var pageRoles = item.roles;
+
+            if (Array.isArray(pageRoles) && pageRoles.length === 0) {
+                // page is secured, but requires no specific role
+                if (req.session.user) {
+                    // user is authenticated, let pass
+                    return true;
+                } else {
+                    // user is not authenticated, reject
+                    return false
+                }
+            }
+
+            var userRoles = req.session.user.roles;
+
+            // compare required roles and user roles
+            for (var r in pageRoles) {
+                var pageRoleId = pageRoles[r].toString();
+                if (userRoles.indexOf(pageRoleId) !== -1) {
+                    // user has role, let pass
+                    return true;
+                }
+            }
+        }
+        // all pass rules failed, reject user
+        return false;
     }
 
     Page.findOne(query, function (err, doc) {
         doc.getTree({
             condition: { public: true },
-            fields: { route: 1, title: 1, label: 1, _w: 1 }
+            fields: { route: 1, title: 1, label: 1, isSecure: 1, roles: 1, _w: 1 }
         }, { 
-            fields: { route: 1, title: 1, label: 1, path: 1, id: 1, parentId: 1, _w: 1 },
+            fields: { route: 1, title: 1, label: 1, path: 1, id: 1, parentId: 1, isSecure: 1, roles: 1, _w: 1 },
             condition: { public: true }
         }, function (err, tree) {
             req.bauhaus.navigation.main = [];
             for (var id in tree) {
                 if (tree[ id ].parentId === null) {
                     for (var child in tree[ id ].children) {
-                        req.bauhaus.navigation.main.push( parseNavItem( tree[ id ].children[ child ] ) );
+                        if (userHasAccess(tree[ id ].children[ child ])) {
+                            req.bauhaus.navigation.main.push( parseNavItem( tree[ id ].children[ child ] ) );
+                        }
                     }
 
                 }  
