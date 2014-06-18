@@ -239,3 +239,70 @@ angular.module('bauhaus.document.directives').directive('bauhausObject', functio
     };
 });
 
+angular.module('bauhaus.document.directives').directive('bauhausDate', function (DocumentService, $timeout) {
+    return {
+        restrict: 'AEC',
+        template: '<div class="page-content-field">' +
+                  '     <label class="page-content-field-label">{{config.label}}</label>' +
+                  '     <select ng-model="date.day" ng-options="n for n in range(1,31)"></select>' + 
+                  '     <select ng-model="date.month" ng-options="n for n in range(1,12)"></select>' + 
+                  '     <select ng-model="date.year" ng-options="n for n in range(1930,2020)"></select>' + 
+                  '</div>',
+        scope: {
+            value: '=ngModel',
+            config: '=fieldConfig'
+        },
+        link: function (scope, el, attr) {
+
+            scope.date = {
+                day: null,
+                month: null,
+                year: null
+            }
+
+            // picks day, month and year from date object for select form
+            scope.dateToSelect = function (date) {
+                scope.date.day = date.getDate();
+                scope.date.month = date.getMonth() + 1;
+                scope.date.year = date.getFullYear();
+            };
+
+            // creates date object from single select fields
+            scope.selectToDate = function (dateObj) {
+                // check if all required fields are numbers
+                if (typeof dateObj.day === 'number' && typeof dateObj.month === 'number' && typeof dateObj.year === 'number') {
+                    var leadingZeroMonth = dateObj.month < 10 ? '0' : '';
+                    var leadingZeroDay   = dateObj.day   < 10 ? '0' : '';
+                    var date =  dateObj.year + '-' + 
+                                leadingZeroMonth + dateObj.month + '-' + 
+                                leadingZeroDay + dateObj.day + 'T00:00:00.000Z';
+
+                    scope.value = new Date(date);
+                }
+            };
+
+            // watch model value and update select on first model update
+            scope.$watch('value', function (newVal, oldVal) {
+                // ignore all scope.value updates, if scope.date has a value already
+                if (typeof newVal === 'string' && scope.date.day === null) {
+                    scope.dateToSelect(new Date(newVal));   
+                }
+            });
+            
+            // update model on every select update (=update in UI)
+            scope.$watch('date', function (newVal) {
+                scope.selectToDate(newVal);
+            }, true);
+
+            // Load labels of related documents
+            scope.range = function (start, end) {
+                var list = [];
+                for (var i = start; i <= end; i++) {
+                    list.push(i);
+                }
+                return list;
+            }
+        }
+    };
+});
+
