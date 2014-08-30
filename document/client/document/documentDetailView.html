@@ -11,7 +11,9 @@
     </h2>
 
     <div class="crud-actions">
-        <button class="button" ng-click="updateDocument()">Save</button> <button class="button" ng-click="deleteDocument()" ng-show="!isNew()">Delete</button>
+        <button class="button" ng-class="{ primary: documentChanged === true }" ng-click="updateDocument()">Save</button> <button class="button" ng-click="deleteDocument()" ng-show="!isNew()">Delete</button>
+
+        <div class="persist-note" ng-show="documentChanged">Please "Save" to persist your changes.</div>
     </div>
 
     <div class="crud-form">
