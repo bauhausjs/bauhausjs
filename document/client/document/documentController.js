@@ -142,7 +142,7 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
 
     $scope.reloadDocument = function () {
         var query = $scope.modelConfig.query ? angular.copy($scope.modelConfig.query) : {};
-        query.id = $routeParams.id;
+        query.id = ($routeParams.id != 'new') ? $routeParams.id : $scope.documentId;
         $scope.service.get(query, function (result) {
             if (result && result._id) {
                 $scope.document = result;

@@ -4,6 +4,7 @@ module.exports = function (bauhausConfig) {
         name: 'Asset',
         model: 'Asset',
         collection: 'assets',
+        useAsLabel: 'name',
         icon: 'picture-o',
         query: {
             conditions: {parentId: null}
