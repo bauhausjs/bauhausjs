@@ -6,7 +6,7 @@
 </head>
     
 <body id="body">
-    <input type="file" class="cropImage" cropWidth="200" cropHeight="400" uploadUrl="upload.php" maxSize="false"><!-- 609 x 407 -->
+    <input type="file" class="cropImage" cropWidth="1600" cropHeight="800" uploadUrl="upload.php" maxSize="false" onimgset="console.log(e);" oncancel="console.error(e);"><!-- 609 x 407 -->
 </body>
 
 <script>var c = new cropImages();</script>    

@@ -47,13 +47,21 @@ var cropImages = function (params) {
         lx: 0,
         ly: 0
     };
+    this.onimgset = false;
+    this.oncancel = false;
+
+    this.callCache = {};
 
     this.stastoCache = {};
+    this.sta = false;
     this.stopOverScrolling = function (bool) {
         if (bool) {
-            this.stastoCache.height = document.body.style.height;
-            this.stastoCache.width = document.body.style.width;
-            this.stastoCache.overflow = document.body.style.overflow;
+            if (this.sta === false) {
+                this.sta = true;
+                this.stastoCache.height = document.body.style.height;
+                this.stastoCache.width = document.body.style.width;
+                this.stastoCache.overflow = document.body.style.overflow;
+            }
             document.body.style.height = "100%";
             document.body.style.width = "100%";
             document.body.style.overflow = "hidden";
@@ -61,6 +69,7 @@ var cropImages = function (params) {
             document.body.style.height = this.stastoCache.height;
             document.body.style.width = this.stastoCache.width;
             document.body.style.overflow = this.stastoCache.overflow;
+            this.sta = false;
         }
     };
 
@@ -70,30 +79,10 @@ var cropImages = function (params) {
             //var height = parseInt(list[i].getAttribute('cropHeight'));
             //var width = parseInt(list[i].getAttribute('cropWidth'));
             list[i].addEventListener("change", this.imgChange);
-            console.log(list[i]);
         }
     };
 
     this.imgChange = function (evt) {
-        console.log("test");
-        console.log(evt);
-        /*that.data = {
-            iw: 0,
-            ih: 0,
-            nw: 0,
-            nh: 0,
-            cw: 0,
-            ch: 0,
-            cl: 0,
-            cr: 0
-        };
-        that.dragging = false;
-        that.drag = {
-            x: 0,
-            y: 0,
-            lx: 0,
-            ly: 0
-        };//*/
         that.loadImageData(evt);
     };
 
@@ -117,11 +106,12 @@ var cropImages = function (params) {
                     } else {
                         max = false;
                     }
+                    that.onimgset = elem.getAttribute('onimgset');
+                    that.oncancel = elem.getAttribute('oncancel');
                     var oWidth = width;
                     var oHeight = height;
                     var winw = window.innerWidth;
                     var winh = window.innerHeight;
-                    var zoom = 1;
                     var scale = width / height;
                     if (height > winh - 30) {
                         height = winh - 30;
@@ -131,18 +121,19 @@ var cropImages = function (params) {
                         width = winw - 30;
                         height = width / scale;
                     }
-
-                    console.log(height + " " + width);
                     reader = new FileReader();
                     reader.onload = (function (tFile) {
                         return function (evt) {
-                            //var div = document.createElement('div');
-                            //div.innerHTML = '<img draggable="false" src="' + evt.target.result + '" />'; // style="width: 100%;"
-                            //document.getElementById('body').appendChild(div);
                             var dataURL = evt.target.result;
-                            //that.resizeAndReturn(dataURL);
+                            that.callCache.dataURL = dataURL;
+                            that.callCache.width = width;
+                            that.callCache.height = height;
+                            that.callCache.uploadURL = uploadURL;
+                            //that.callCache.div = div;
+                            that.callCache.oWidth = oWidth;
+                            that.callCache.oHeight = oHeight;
+                            that.callCache.max = max;
                             that.displayCropper(dataURL, width, height, uploadURL, div, oWidth, oHeight, max);
-                            //*/
                         };
                     }(file));
                     reader.readAsDataURL(file);
@@ -263,7 +254,7 @@ var cropImages = function (params) {
         menubar.style.position = "absolute";
         //menubar.style.left = "5px";
         menubar.style.right = "5px";
-        menubar.style.bottom = "14px";
+        menubar.style.top = "-32px";
         menubar.style.zIndex = that.zIndex + 2;
         menubar.style.fontFamily = "Arial";
         menubar.style.fontSize = "16px";
@@ -324,9 +315,9 @@ var cropImages = function (params) {
 
             var iw = img.width;
             var ih = img.height;
-            
-            if(iw<oWidth || ih<oHeight){
-                alert(that.textbadimg+oWidth+"x"+oHeight);
+
+            if (iw < oWidth || ih < oHeight) {
+                alert(that.textbadimg + oWidth + "x" + oHeight);
                 that.exit();
             }
 
@@ -419,7 +410,9 @@ var cropImages = function (params) {
             div.appendChild(iRight);
             div.appendChild(iBottom);
             div.appendChild(overlay);
-            div.appendChild(menubar);
+            //div.appendChild(menubar);
+            
+            iBottom.appendChild(menubar);
 
             that.stopOverScrolling(true);
         };
@@ -619,6 +612,16 @@ var cropImages = function (params) {
 
     this.cancel = function (evt) {
         that.exit();
+
+        if (that.oncancel) {
+            var e = {};
+            e.data = that.data;
+            try {
+                eval(that.oncancel);
+            } catch (e) {
+
+            }
+        }
     };
 
     this.exit = function (evt) {
@@ -662,9 +665,21 @@ var cropImages = function (params) {
             var div = document.createElement('div');
             div.innerHTML = '<img draggable="false" src="' + dataURL + '" />'; // style="width: 100%;"
             document.getElementById('body').appendChild(div);
-            that.exit();
 
-            //that.upload(dataURL, that.data.uploadURL);
+            if (that.onimgset) {
+                var e = {};
+                e.data = that.data;
+                e.dataURL = dataURL;
+                try {
+                    eval(that.onimgset);
+                } catch (e) {
+
+                }
+            }
+
+            //that.exit();
+
+            that.upload(dataURL, that.data.uploadURL);
         }
 
         //}
@@ -727,6 +742,41 @@ var cropImages = function (params) {
     this.removeElementById = function (id) {
         return (elem = document.getElementById(id)).parentNode.removeChild(elem);
     };
+
+    this.resizeTimer;
+    this.windowResize = function () {
+        if (that.sta) {
+            if (that.resizeTimer) {
+                clearTimeout(that.resizeTimer);
+            }
+            that.resizeTimer = setTimeout(that.updateResize, 250);
+            //that.updateResize();
+        }
+    };
+
+    this.updateResize = function () {
+        if (that.sta) {
+            that.exit();
+            var div = that.makeBlackDiv(that.waitbegin);
+            var width = that.data.ow;
+            var height = that.data.oh;
+            var winw = window.innerWidth;
+            var winh = window.innerHeight;
+            var scale = width / height;
+            if (height > winh - 30) {
+                height = winh - 30;
+                width = height * scale;
+            }
+            if (width > winw - 30) {
+                width = winw - 30;
+                height = width / scale;
+            }
+
+            that.displayCropper(that.callCache.dataURL, width, height, that.callCache.uploadURL, div, that.data.ow, that.data.oh, that.callCache.max);
+        }
+    }
+
+    window.addEventListener('resize', this.windowResize);
 
     this.addEventListeners();
 };
