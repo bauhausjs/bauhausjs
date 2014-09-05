@@ -17,6 +17,7 @@ var cropImages = function (params) {
     this.textminus = "Verkleinern";
     this.textgood = "Erfolgreich Hochgeladen!";
     this.textbad = "Hochladen fehlgeschlagen!";
+    this.textbadimg = "Dein Bild ist zu klein! Mindestaufloesung: ";
     //this.inputs = [];
 
     if (params) {
@@ -110,6 +111,27 @@ var cropImages = function (params) {
                     var height = parseInt(elem.getAttribute('cropHeight'));
                     var width = parseInt(elem.getAttribute('cropWidth'));
                     var uploadURL = elem.getAttribute('uploadUrl');
+                    var max = elem.getAttribute('maxSize');
+                    if (max && max != "false") {
+                        max = true;
+                    } else {
+                        max = false;
+                    }
+                    var oWidth = width;
+                    var oHeight = height;
+                    var winw = window.innerWidth;
+                    var winh = window.innerHeight;
+                    var zoom = 1;
+                    var scale = width / height;
+                    if (height > winh - 30) {
+                        height = winh - 30;
+                        width = height * scale;
+                    }
+                    if (width > winw - 30) {
+                        width = winw - 30;
+                        height = width / scale;
+                    }
+
                     console.log(height + " " + width);
                     reader = new FileReader();
                     reader.onload = (function (tFile) {
@@ -119,7 +141,7 @@ var cropImages = function (params) {
                             //document.getElementById('body').appendChild(div);
                             var dataURL = evt.target.result;
                             //that.resizeAndReturn(dataURL);
-                            that.displayCropper(dataURL, width, height, uploadURL, div);
+                            that.displayCropper(dataURL, width, height, uploadURL, div, oWidth, oHeight, max);
                             //*/
                         };
                     }(file));
@@ -164,7 +186,7 @@ var cropImages = function (params) {
         return div;
     };
 
-    this.displayCropper = function (dataURL, width, height, uploadURL, div) {
+    this.displayCropper = function (dataURL, width, height, uploadURL, div, oWidth, oHeight, max) {
 
         // BackgroundLeft
         var ileft = document.createElement('div');
@@ -302,6 +324,11 @@ var cropImages = function (params) {
 
             var iw = img.width;
             var ih = img.height;
+            
+            if(iw<oWidth || ih<oHeight){
+                alert(that.textbadimg+oWidth+"x"+oHeight);
+                that.exit();
+            }
 
             that.data = {
                 iw: iw,
@@ -312,7 +339,12 @@ var cropImages = function (params) {
                 ch: height,
                 ct: 0,
                 cl: 0,
+                kw: 0,
+                kh: 0,
+                ow: oWidth,
+                oh: oHeight,
                 uploadURL: uploadURL,
+                max: max,
                 change: false
             };
 
@@ -344,6 +376,8 @@ var cropImages = function (params) {
             that.data.nh = ih;
             that.data.ct = 0 - ((ih / 2) - (height / 2));
             that.data.cl = 0 - ((iw / 2) - (width / 2));
+            that.data.kw = that.data.iw / (that.data.nw / that.data.cw);
+            that.data.kh = that.data.ih / (that.data.nh / that.data.ch);
 
             //INNER ELEM
             var size = document.createElement('div');
@@ -393,8 +427,6 @@ var cropImages = function (params) {
     };
 
     this.scroll = function (evt) {
-        //console.log("scroll");
-        //console.log(evt);
         if (evt.wheelDeltaY) {
             var move = evt.wheelDeltaY;
         }
@@ -404,19 +436,9 @@ var cropImages = function (params) {
         if (move) {
             var add = 10;
             if (move > 0) {
-                /*if (that.data.nw + add > that.data.iw) {
-                    var newWidth = that.data.iw;
-                } else {
-                    var newWidth = that.data.nw + add;
-                }*/
                 var newWidth = that.data.nw + move;
             }
             if (move < 0) {
-                /*if (that.data.nw - add > that.data.cw) {
-                    var newWidth = that.data.iw;
-                } else {
-                    var newWidth = that.data.nw - add;
-                }*/
                 var newWidth = that.data.nw + move;
             }
 
@@ -455,10 +477,22 @@ var cropImages = function (params) {
         var oldh = that.data.nh;
         that.data.nw = newWidth;
         that.data.nh = that.data.ih / t;
+
         if (that.data.nw < that.data.minw || that.data.nh < that.data.minh) {
             that.data.nw = that.data.minw;
             that.data.nh = that.data.minh;
         }
+
+        that.data.kw = that.data.iw / (that.data.nw / that.data.cw);
+        that.data.kh = that.data.ih / (that.data.nh / that.data.ch);
+        console.log(that.data.kw);
+        if (that.data.kw < that.data.ow || that.data.kh < that.data.oh) {
+            that.data.nw = (that.data.cw * that.data.iw) / that.data.ow;
+            that.data.nh = (that.data.ch * that.data.ih) / that.data.oh;
+            that.data.kw = that.data.ow;
+            that.data.kh = that.data.oh;
+        }
+
         var t = oldw / that.data.nw;
         var elem = document.getElementById('bauhausCropImageHolder');
         if (evt) {
@@ -580,15 +614,19 @@ var cropImages = function (params) {
         var src = document.getElementById('bauhausCropImage').src;
         that.removeElementById('bauhausCropImageWrapper');
         var div = that.makeBlackDiv(that.waitupload);
-        that.resizeAndReturn(src, that.data.cw, that.data.ch, that.data.ct, that.data.cl, that.data.nw, that.data.nh);
+        that.resizeAndReturn(src, that.data.kw, that.data.kh, that.data.ct, that.data.cl, that.data.nw, that.data.nh, that.data.max);
     };
 
     this.cancel = function (evt) {
+        that.exit();
+    };
+
+    this.exit = function (evt) {
         that.stopOverScrolling(false);
         that.removeElementById('bauhausCropImageWrapper');
     };
 
-    this.resizeAndReturn = function (file, cw, ch, ct, cl, nw, nh) {
+    this.resizeAndReturn = function (file, kw, kh, ct, cl, nw, nh, max) {
         //var reader = new FileReader();
         //reader.onloadend = function () {
 
@@ -596,19 +634,37 @@ var cropImages = function (params) {
         tempImg.src = file;
         tempImg.onload = function () {
             var canvas = document.createElement('canvas');
-            canvas.width = cw;
-            canvas.height = ch;
+            if (max) {
+                console.log("WAR");
+                var t = that.data.kw / that.data.cw;
+                nw = nw * t;
+                nh = nh * t;
+                cl = cl * t;
+                ct = ct * t;
+
+                canvas.width = kw;
+                canvas.height = kh;
+            } else {
+                var t = that.data.ow / that.data.cw;
+                nw = nw * t;
+                nh = nh * t;
+                cl = cl * t;
+                ct = ct * t;
+
+                canvas.width = that.data.ow;
+                canvas.height = that.data.oh;
+            }
             var ctx = canvas.getContext("2d");
+
             ctx.drawImage(this, cl, ct, nw, nh);
             var dataURL = canvas.toDataURL("image/jpeg");
-            //var div = document.createElement('div');
-            //div.innerHTML = '<img draggable="false" src="' + dataURL + '" />'; // style="width: 100%;"
-            //that.elem.appendChild(div);
-            //document.getElementById('body').appendChild(div);
-            //console.log(that.data.uploadURL);
-            //var temp = JSON.parse(JSON.stringify(dataURL));
-            that.upload(dataURL, that.data.uploadURL);
-            //return dataURL;
+
+            var div = document.createElement('div');
+            div.innerHTML = '<img draggable="false" src="' + dataURL + '" />'; // style="width: 100%;"
+            document.getElementById('body').appendChild(div);
+            that.exit();
+
+            //that.upload(dataURL, that.data.uploadURL);
         }
 
         //}
@@ -636,7 +692,7 @@ var cropImages = function (params) {
 
     this.uploadERR = function () {
         alert(that.textbad);
-        that.removeElementById('bauhausCropImageWrapper');
+        that.exit();
         //var div = that.makeBlackDiv(that.textbad);
     };
 
@@ -644,7 +700,7 @@ var cropImages = function (params) {
         if (that.uploadReq.readyState == 4) {
             if (that.uploadReq.status === 200) {
                 alert(that.textgood);
-                that.removeElementById('bauhausCropImageWrapper');
+                that.exit();
                 //var div = that.makeBlackDiv(that.textgood);
             } else {
                 that.uploadERR();
