@@ -5,6 +5,7 @@
         "components/angular-route/angular-route.js",
         "components/angular-slugify/angular-slugify.js",
         "components/textAngular/src/textAngular-sanitize.js",
+        "components/textAngular/src/textAngularSetup.js",
         "components/textAngular/src/textAngular.js",
         "js/dashboard/dashboard.js", 
         "js/dashboard/dashboardController.js", 
