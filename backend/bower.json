@@ -1,14 +1,15 @@
 {
   "name": "backend",
   "dependencies": {
-    "angular": "~1.2.5",
-    "angular-resource": "~1.2.5",
+    "angular": "~1.3.23",
+    "angular-resource": "~1.2.23",
     "angular-route": "~1.2.5",
     "font-awesome": "~4.0.3",
     "angular-slugify": "~1.0.0",
-    "textAngular": "~1.2.0"
+    "textAngular": "~1.2.2",
+
   },
   "resolutions": {
-    "angular": "~1.2.5"
+    "angular": "~1.2.23"
   }
 }
