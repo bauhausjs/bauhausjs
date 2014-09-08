@@ -55,7 +55,7 @@ angular.module('bauhaus.document.controllers').controller('DocumentListCtrl', ['
 
 }]);
 
-angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', ['$scope', '$location', '$rootScope', '$routeParams', 'DocumentService', 'SharedDocuments', function ($scope, $location, $rootScope, $routeParams, DocumentService, SharedDocuments) {
+angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', ['$scope', '$location', '$rootScope', '$routeParams', '$timeout','DocumentService', 'SharedDocuments', function ($scope, $location, $rootScope, $routeParams, $timeout, DocumentService, SharedDocuments) {
     'use strict';
 
     $scope.document = null;
@@ -146,7 +146,9 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
         $scope.service.get(query, function (result) {
             if (result && result._id) {
                 $scope.document = result;
-                $scope.documentChanged = false;
+                $timeout(function () {    
+                    $scope.documentChanged = false;
+                }, 0);
             }
         }, function (error) {
             $scope.handleServiceError(error);
