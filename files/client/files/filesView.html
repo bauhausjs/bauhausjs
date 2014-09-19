@@ -1,0 +1,114 @@
+<div class="loginoverlay" style="display:{{shareshow}};">
+    <div class="sharefield">
+        <div class="sharefieldline">
+            <div class="icon3"></div>
+            <input ng-model="filedata.name" type="text" class="renameFile" title="rename" onclick="this.select();" ng-value="filedata.name" ng-change="changeName();">
+            <input type="text" class="linkFile" title="guestlink" onclick="this.select();" ng-value="getLink()" disabled>
+            <input class="alertbutton" id="closeStyle" type="button" value="CLOSE" ng-click="shareclose();">
+            <!--<input class="alertbutton" id="saveStyle" type="button" value="Save" onclick="data.set('shareshow', 'none');">-->
+        </div>
+        
+        <div class="cutline">
+            <ul class="shareconfigulhead">
+                <li id="shareconfighead">
+                    <font class="shareUserId" style="font-family: Open Sans, Arial;">USER ID</font>
+                    <font class="shareUserName">NAME</font>
+                    <font class="shareUserRights">RIGHTS</font>
+                    <font class="shareUserDelete">DELETE</font>
+                </li>
+            </ul>
+            <ul class="shareconfigul">
+                <li class="shareconfigulli" ng-repeat="data in sharedata">
+                    <font class="shareUserId">{{data.id}}</font>
+                    <font class="shareUserName">{{resolveName(data.id);}}</font>
+                    <font class="shareUserRights"><input ng-model="data.value" ng-change="shareUpdater();" class="rangeInput" type="range" min="0" max="2" ng-value="data.value" step="1"> {{rightinfo[data.value]}}</font>
+                    <font class="shareUserDelete"><input class="deleteInput" type="button" value="DELETE" ng-click="deleteshare($index);"></font>
+                </li>
+                <li class="shareconfigulli">
+                    <font class="shareUserId">
+                            <input list="addUserShare" class="addShareUser" maxlength="10" ng-model="addname" ng-value="addname" onclick="this.select();">
+                                <datalist id="addUserShare">
+                                  <option value="5GUESTUSER">
+                                </datalist>
+                        </font>
+                    <font class="shareUserName">{{resolveName(addname);}}</font>
+                    <font class="shareUserRights"><input ng-model="addvalue" class="rangeInput" type="range" min="0" max="2" ng-value="addvalue" step="1"> {{rightinfo[addvalue]}}</font>
+                    <font class="shareUserDelete"><input class="deleteInput" type="button" value="ADD" ng-click="pushsharedata();"></font>
+                </li>
+            </ul>
+            <br>
+        </div>
+    </div>
+</div>
+
+<div class="loginoverlay" style="display:{{loadshow}};">
+    <div class="loginwait">{{loadinginfo}}
+        <div class="loadicon"></div>
+        <div class="loadingslideIN" id="loadingslide"></div>
+    </div>
+</div>
+
+<div class="loginoverlay" style="display:{{alertshow}};">
+    <div class="loginwait">{{alertinfo}}
+        <br>
+        <br>
+        <input class="alertbutton" type="button" value="OK" ng-click="unalert();">
+    </div>
+</div>
+
+<div class="loginTop">
+    <div class="loginLogo"></div>
+</div>
+<div class="noteconBackground" id="noteconBackground" ng-mouseup="mouseup();" ng-mousemove="clog(); mousemove($event);">
+    <!--ng-mousedown="setinactive();"-->
+    <div class="fileListOverlay">
+        <div class="fileOperationsBar">
+            <ul class="dirShow" id="dirShow">
+                <li ng-repeat="(key, id) in superFolder" ng-click="openFileAngu(id);" class="{{key}}" ng-mouseover="mouseover(id);">{{dirObject[id].name || "..."}}</li>
+            </ul>
+            <ul class="dirButtons">
+                <li class="dirButtonsLi" style="z-index: 2;" onclick="uiControl.deleteButton();" title="delete selection" ng-mouseover="mouseover('4DELETED00');"><i class="fa fa-trash-o trashicon"></i>
+                </li>
+                <li class="dirButtonsLi" id="AddFile" title="add file/folder" ng-mouseover="mouseout();">
+                    <nobr>
+                        <i class="fa fa-plus addicon"></i>
+                        <div class="AddFileOverlay" onclick="addFile.toggleAddFile();"></div>
+                        <i class="fa fa-file-text addFileIcon" onclick="addFile.toggleAddFileChoice();" id="awsomefilechoice"></i>
+                        <!--<img src="img/doc/file.png" style="position: relative; margin-top: -3px; bottom: 0px; opacity: 0.6; margin-left: 9px;" id="AddFileChoice" onclick="addFile.toggleAddFileChoice();">-->
+                        <input type="text" class="AddFileInput" id="AddFileInput" onkeydown="addFile.checkEnter();">
+                    </nobr>
+                </li>
+                <li class="dirButtonsLi" style="z-index: 2;" onclick="L3.refreshDir();" title="refresh dir" ng-mouseover="mouseout();"><i class="fa fa-refresh refreshicon"></i>
+                </li>
+            </ul>
+        </div>
+        <ul class="fileListUl" id="fileListUl">
+            <li id="filelistHeadline" ng-click="setinactive($event);" ng-mouseover="mouseout();">
+                <div class="selectcounter">{{activenum}}</div>
+                <font style="position: relative; left: 48px;">TITLE</font>
+                <div class="ownerFile">OWNER</div>
+                <div class="lastChange">LAST MODIFIED</div>
+            </li>
+            <li ng-repeat="key in dirShow" class="{{getactive(key)}}" ng-mouseup="setactive($event, key);" ng-mousedown="mousedown(key, $event);" ng-mouseover="mouseover(key);" ng-dblclick="configFile(key);">
+                <!--<div class="ico{{key.substr(0,1);}}"></div>-->
+                <i class="{{getIconClass(key.substr(0,1))}} fileexplorericon"></i>
+                <font class="filenameDir" style="position: relative; left: 30px;" ng-click="openFileAngu(key);">{{dirObject[key].name}}
+                <font class="privateFile">{{sharedinfo(key)}}
+                </font>
+                </font>
+                <div class="ownerFile" style="top:10px;">{{resolveName(dirObject[key].owner);}}</div>
+                <div class="lastChange" style="top:10px;">{{dirObject[key].lastmodform}}</div>
+                <!--<img src="img/gear.png" class="gearIcon">
+            <img src="img/share.png" class="shareIcon"></li>-->
+        </ul>
+        <div class="fileListCut">
+
+        </div>
+    </div>
+    <input type="file" class="cropImage" cropWidth="800" cropHeight="400" uploadUrl="http://localhost:1919/backend/api/files/upload/5412a85a09d4ac944576b53d" maxSize="true" onimgset="console.log(e);" oncancel="console.error(e);" style="top:75px; position: absolute;">
+    <div class="filemoveShow" style="top: {{elmtop}}px; left: {{elmleft}}px; display: {{elmdisplay}};">
+        <ng-pluralize count="activenum" when="{'0': 'Nothing selected!',
+                           'one': 'Move 1 file to ',
+                           'other': 'Move {} files to '}">
+        </ng-pluralize>{{moveto}}</div>
+</div>

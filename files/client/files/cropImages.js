@@ -1,99 +1,3 @@
-/*!
- * Bowser - a browser detector
- * https://github.com/ded/bowser
- * MIT License | (c) Dustin Diaz 2014
- */
-! function (e, t) {
-    typeof module != "undefined" && module.exports ? module.exports.browser = t() : typeof define == "function" ? define(t) : this[e] = t()
-}("bowser", function () {
-    function t(t) {
-        function n(e) {
-            var n = t.match(e);
-            return n && n.length > 1 && n[1] || ""
-        }
-        var r = n(/(ipod|iphone|ipad)/i).toLowerCase(),
-            i = /like android/i.test(t),
-            s = !i && /android/i.test(t),
-            o = n(/version\/(\d+(\.\d+)?)/i),
-            u = /tablet/i.test(t),
-            a = !u && /[^-]mobi/i.test(t),
-            f;
-        /opera|opr/i.test(t) ? f = {
-            name: "Opera",
-            opera: e,
-            version: o || n(/(?:opera|opr)[\s\/](\d+(\.\d+)?)/i)
-        } : /windows phone/i.test(t) ? f = {
-            name: "Windows Phone",
-            windowsphone: e,
-            msie: e,
-            version: n(/iemobile\/(\d+(\.\d+)?)/i)
-        } : /msie|trident/i.test(t) ? f = {
-            name: "Internet Explorer",
-            msie: e,
-            version: n(/(?:msie |rv:)(\d+(\.\d+)?)/i)
-        } : /chrome|crios|crmo/i.test(t) ? f = {
-            name: "Chrome",
-            chrome: e,
-            version: n(/(?:chrome|crios|crmo)\/(\d+(\.\d+)?)/i)
-        } : r ? (f = {
-            name: r == "iphone" ? "iPhone" : r == "ipad" ? "iPad" : "iPod"
-        }, o && (f.version = o)) : /sailfish/i.test(t) ? f = {
-            name: "Sailfish",
-            sailfish: e,
-            version: n(/sailfish\s?browser\/(\d+(\.\d+)?)/i)
-        } : /seamonkey\//i.test(t) ? f = {
-            name: "SeaMonkey",
-            seamonkey: e,
-            version: n(/seamonkey\/(\d+(\.\d+)?)/i)
-        } : /firefox|iceweasel/i.test(t) ? (f = {
-            name: "Firefox",
-            firefox: e,
-            version: n(/(?:firefox|iceweasel)[ \/](\d+(\.\d+)?)/i)
-        }, /\((mobile|tablet);[^\)]*rv:[\d\.]+\)/i.test(t) && (f.firefoxos = e)) : /silk/i.test(t) ? f = {
-            name: "Amazon Silk",
-            silk: e,
-            version: n(/silk\/(\d+(\.\d+)?)/i)
-        } : s ? f = {
-            name: "Android",
-            version: o
-        } : /phantom/i.test(t) ? f = {
-            name: "PhantomJS",
-            phantom: e,
-            version: n(/phantomjs\/(\d+(\.\d+)?)/i)
-        } : /blackberry|\bbb\d+/i.test(t) || /rim\stablet/i.test(t) ? f = {
-            name: "BlackBerry",
-            blackberry: e,
-            version: o || n(/blackberry[\d]+\/(\d+(\.\d+)?)/i)
-        } : /(web|hpw)os/i.test(t) ? (f = {
-            name: "WebOS",
-            webos: e,
-            version: o || n(/w(?:eb)?osbrowser\/(\d+(\.\d+)?)/i)
-        }, /touchpad\//i.test(t) && (f.touchpad = e)) : /bada/i.test(t) ? f = {
-            name: "Bada",
-            bada: e,
-            version: n(/dolfin\/(\d+(\.\d+)?)/i)
-        } : /tizen/i.test(t) ? f = {
-            name: "Tizen",
-            tizen: e,
-            version: n(/(?:tizen\s?)?browser\/(\d+(\.\d+)?)/i) || o
-        } : /safari/i.test(t) ? f = {
-            name: "Safari",
-            safari: e,
-            version: o
-        } : f = {}, /(apple)?webkit/i.test(t) ? (f.name = f.name || "Webkit", f.webkit = e, !f.version && o && (f.version = o)) : !f.opera && /gecko\//i.test(t) && (f.name = f.name || "Gecko", f.gecko = e, f.version = f.version || n(/gecko\/(\d+(\.\d+)?)/i)), s || f.silk ? f.android = e : r && (f[r] = e, f.ios = e);
-        var l = "";
-        r ? (l = n(/os (\d+([_\s]\d+)*) like mac os x/i), l = l.replace(/[_\s]/g, ".")) : s ? l = n(/android[ \/-](\d+(\.\d+)*)/i) : f.windowsphone ? l = n(/windows phone (?:os)?\s?(\d+(\.\d+)*)/i) : f.webos ? l = n(/(?:web|hpw)os\/(\d+(\.\d+)*)/i) : f.blackberry ? l = n(/rim\stablet\sos\s(\d+(\.\d+)*)/i) : f.bada ? l = n(/bada\/(\d+(\.\d+)*)/i) : f.tizen && (l = n(/tizen[\/\s](\d+(\.\d+)*)/i)), l && (f.osversion = l);
-        var c = l.split(".")[0];
-        if (u || r == "ipad" || s && (c == 3 || c == 4 && !a) || f.silk) f.tablet = e;
-        else if (a || r == "iphone" || r == "ipod" || s || f.blackberry || f.webos || f.bada) f.mobile = e;
-        return f.msie && f.version >= 10 || f.chrome && f.version >= 20 || f.firefox && f.version >= 20 || f.safari && f.version >= 6 || f.opera && f.version >= 10 || f.ios && f.osversion && f.osversion.split(".")[0] >= 6 ? f.a = e : f.msie && f.version < 10 || f.chrome && f.version < 20 || f.firefox && f.version < 20 || f.safari && f.version < 6 || f.opera && f.version < 10 || f.ios && f.osversion && f.osversion.split(".")[0] < 6 ? f.c = e : f.x = e, f
-    }
-    var e = !0,
-        n = t(typeof navigator != "undefined" ? navigator.userAgent : "");
-    return n._detect = t, n
-})
-
-
 function getHTTPObject() {
     if (window.ActiveXObject) return new ActiveXObject("Microsoft.XMLHTTP");
     else if (window.XMLHttpRequest) return new XMLHttpRequest();
@@ -114,8 +18,6 @@ var cropImages = function (params) {
     this.textgood = "Erfolgreich Hochgeladen!";
     this.textbad = "Hochladen fehlgeschlagen!";
     this.textbadimg = "Dein Bild ist zu klein! Mindestaufloesung: ";
-    this.textMnoWork = "Dein Browser wird moeglicherweise nicht unterstuetzt! Du kannst es trotzdem ausprobieren!";
-    this.textNoWork = "Dein Browser wird nicht unterstuetzt! Bitte verwende Internet Explorer ab Version 10, Safari ab Version 6 oder Google Chrome ab Version 6.";
     //this.inputs = [];
 
     if (params) {
@@ -185,11 +87,7 @@ var cropImages = function (params) {
     };
 
     this.loadImageData = function (evt) {
-        var browser = that.checkBrowser();
-        if (browser > 0 && window.File && window.FileReader && window.FileList && window.Blob) {
-            if (browser < 2) {
-                alert(that.textMnoWork);
-            }
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
             var elem = evt.target;
             var files = elem.files;
             that.elem = elem;
@@ -246,7 +144,7 @@ var cropImages = function (params) {
                 console.error("lo");
             }
         } else {
-            alert(that.textNoWork);
+            alert('The File APIs are not fully supported in this browser.');
         }
     };
 
@@ -262,6 +160,7 @@ var cropImages = function (params) {
         div.style.bottom = "0px";
         div.style.overflow = "hidden";
         div.style.background = "rgba(0, 0, 0, 0.79)";
+        div.style.zIndex = that.zIndex;
 
         var indiv = document.createElement('div');
         indiv.style.position = "absolute";
@@ -275,7 +174,7 @@ var cropImages = function (params) {
 
         div.appendChild(indiv);
         console.warn("MAKEDIV");
-        document.getElementById('body').appendChild(div);
+        document.body.appendChild(div);
         return div;
     };
 
@@ -327,7 +226,7 @@ var cropImages = function (params) {
         iBottom.style.marginLeft = (0 - (width / 2)) + "px";
         iBottom.style.marginRight = (0 - (width / 2)) + "px";
         iBottom.style.background = "rgba(0, 0, 0, 0.79)";
-        iBottom.style.zIndex = that.zIndex + 3;
+        iBottom.style.zIndex = that.zIndex;
 
         var overlay = document.createElement('div');
         overlay.style.position = "absolute";
@@ -356,8 +255,8 @@ var cropImages = function (params) {
         menubar.style.position = "absolute";
         //menubar.style.left = "5px";
         menubar.style.right = "5px";
-        menubar.style.top = "-32px";
-        menubar.style.zIndex = that.zIndex + 4;
+        menubar.style.bottom = "14px";
+        menubar.style.zIndex = that.zIndex + 2;
         menubar.style.fontFamily = "Arial";
         menubar.style.fontSize = "16px";
         menubar.style.color = "#ffffff";
@@ -512,9 +411,7 @@ var cropImages = function (params) {
             div.appendChild(iRight);
             div.appendChild(iBottom);
             div.appendChild(overlay);
-            //div.appendChild(menubar);
-
-            iBottom.appendChild(menubar);
+            div.appendChild(menubar);
 
             that.stopOverScrolling(true);
         };
@@ -529,9 +426,7 @@ var cropImages = function (params) {
             var move = evt.deltaY;
         }
         if (move) {
-            if (bowser.firefox) {
-                move = move * 8;
-            }
+            var add = 10;
             if (move > 0) {
                 var newWidth = that.data.nw + move;
             }
@@ -582,7 +477,7 @@ var cropImages = function (params) {
 
         that.data.kw = that.data.iw / (that.data.nw / that.data.cw);
         that.data.kh = that.data.ih / (that.data.nh / that.data.ch);
-        console.log(that.data.kw);
+        //console.log(that.data.kw);
         if (that.data.kw < that.data.ow || that.data.kh < that.data.oh) {
             that.data.nw = (that.data.cw * that.data.iw) / that.data.ow;
             that.data.nh = (that.data.ch * that.data.ih) / that.data.oh;
@@ -668,7 +563,7 @@ var cropImages = function (params) {
         that.drag.x = evt.clientX;
         that.drag.y = evt.clientY;
         that.data.change = false;
-        console.log("DRAG");
+        //console.log("DRAG");
     };
 
     this.drop = function (evt) {
@@ -696,18 +591,18 @@ var cropImages = function (params) {
                 that.data.ct = that.drag.ly;
                 that.data.cl = that.drag.lx;
             }
-            console.log("DROP");
+            //console.log("DROP");
         }
     };
 
     this.mouseout = function (evt) {
-        console.log("MOUSEOUT");
+        //console.log("MOUSEOUT");
         that.drop();
     };
 
     this.submit = function (evt) {
         that.stopOverScrolling(false);
-        console.log("Please Wait!");
+        //console.log("Please Wait!");
         var src = document.getElementById('bauhausCropImage').src;
         that.removeElementById('bauhausCropImageWrapper');
         var div = that.makeBlackDiv(that.waitupload);
@@ -742,7 +637,7 @@ var cropImages = function (params) {
         tempImg.onload = function () {
             var canvas = document.createElement('canvas');
             if (max) {
-                console.log("WAR");
+                //console.log("WAR");
                 var t = that.data.kw / that.data.cw;
                 nw = nw * t;
                 nh = nh * t;
@@ -766,9 +661,9 @@ var cropImages = function (params) {
             ctx.drawImage(this, cl, ct, nw, nh);
             var dataURL = canvas.toDataURL("image/jpeg");
 
-            var div = document.createElement('div');
-            div.innerHTML = '<img draggable="false" src="' + dataURL + '" />'; // style="width: 100%;"
-            document.getElementById('body').appendChild(div);
+            //var div = document.createElement('div');
+            //div.innerHTML = '<img draggable="false" src="' + dataURL + '" />'; // style="width: 100%;"
+            //document.body.appendChild(div);
 
             if (that.onimgset) {
                 var e = {};
@@ -794,9 +689,9 @@ var cropImages = function (params) {
         var xhr = new XMLHttpRequest();
         var first = 0;
         xhr.onreadystatechange = function (ev) {
-            console.log(ev);
+            //console.log(ev);
             if (first == 0) {
-                console.log("ready");
+                //console.log("ready");
                 first++;
             }
         };
@@ -834,12 +729,13 @@ var cropImages = function (params) {
             try {
                 this.uploadReq.onerror = this.uploadERR;
             } catch (e) {
-                console.log("IE");
+                //console.log("IE");
             }
             //this.uploadReq.onprogress = that.processTest;
             this.uploadReq.open("POST", uploadURL, true);
             this.uploadReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            this.uploadReq.send("image=" + dataURL);
+            var dataN = encodeURIComponent(dataURL);
+            this.uploadReq.send("image=" + dataN);
         }
     };
 
@@ -878,52 +774,6 @@ var cropImages = function (params) {
 
             that.displayCropper(that.callCache.dataURL, width, height, that.callCache.uploadURL, div, that.data.ow, that.data.oh, that.callCache.max);
         }
-    }
-
-    this.checkBrowser = function () {
-        if (bowser.msie && bowser.version < 10) {
-            return 0;
-        }
-        if (bowser.chrome && bowser.version < 6) {
-            return 0;
-        }
-        if (bowser.firefox && bowser.version < 3.6) {
-            return 0;
-        }
-        if (bowser.safari && bowser.version < 6) {
-            return 0;
-        }
-        if (bowser.opera && bowser.version < 11.1) {
-            return 0;
-        }
-        if (bowser.ios && bowser.version < 6.1) {
-            return 0;
-        }
-        if (bowser.android && bowser.version < 4) {
-            return 0;
-        }
-        if (bowser.msie && bowser.version >= 10) {
-            return 2;
-        }
-        if (bowser.chrome && bowser.version >= 6) {
-            return 2;
-        }
-        if (bowser.firefox && bowser.version >= 3.6) {
-            return 2;
-        }
-        if (bowser.safari && bowser.version >= 6) {
-            return 2;
-        }
-        if (bowser.opera && bowser.version >= 11.1) {
-            return 2;
-        }
-        if (bowser.ios && bowser.version >= 6.1) {
-            return 2;
-        }
-        if (bowser.android && bowser.version >= 4) {
-            return 2;
-        }
-        return 1;
     }
 
     window.addEventListener('resize', this.windowResize);
