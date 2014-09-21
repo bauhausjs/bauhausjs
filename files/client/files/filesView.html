@@ -1,4 +1,4 @@
-<div class="loginoverlay" style="display:{{shareshow}};">
+<!--<div class="loginoverlay" style="display:{{shareshow}};">
     <div class="sharefield">
         <div class="sharefieldline">
             <div class="icon3"></div>
@@ -6,7 +6,7 @@
             <input type="text" class="linkFile" title="guestlink" onclick="this.select();" ng-value="getLink()" disabled>
             <input class="alertbutton" id="closeStyle" type="button" value="CLOSE" ng-click="shareclose();">
             <!--<input class="alertbutton" id="saveStyle" type="button" value="Save" onclick="data.set('shareshow', 'none');">-->
-        </div>
+      <!--  </div>
         
         <div class="cutline">
             <ul class="shareconfigulhead">
@@ -39,9 +39,9 @@
             <br>
         </div>
     </div>
-</div>
+</div>-->
 
-<div class="loginoverlay" style="display:{{loadshow}};">
+<!--<div class="loginoverlay" style="display:{{loadshow}};">
     <div class="loginwait">{{loadinginfo}}
         <div class="loadicon"></div>
         <div class="loadingslideIN" id="loadingslide"></div>
@@ -58,7 +58,7 @@
 
 <div class="loginTop">
     <div class="loginLogo"></div>
-</div>
+</div>-->
 <div class="noteconBackground" id="noteconBackground" ng-mouseup="mouseup();" ng-mousemove="clog(); mousemove($event);">
     <!--ng-mousedown="setinactive();"-->
     <div class="fileListOverlay">
@@ -91,7 +91,7 @@
             </li>
             <li ng-repeat="key in dirShow" class="{{getactive(key)}}" ng-mouseup="setactive($event, key);" ng-mousedown="mousedown(key, $event);" ng-mouseover="mouseover(key);" ng-dblclick="configFile(key);">
                 <!--<div class="ico{{key.substr(0,1);}}"></div>-->
-                <i class="{{getIconClass(key.substr(0,1))}} fileexplorericon"></i>
+                <i class="{{getIconClass(key)}} fileexplorericon"></i>
                 <font class="filenameDir" style="position: relative; left: 30px;" ng-click="openFileAngu(key);">{{dirObject[key].name}}
                 <font class="privateFile">{{sharedinfo(key)}}
                 </font>

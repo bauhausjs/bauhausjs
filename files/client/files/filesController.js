@@ -7,6 +7,7 @@ var testfs = {
             "name": "MyFolder",
             "type": 1,
             "__v": 0,
+            "parent": "5412a796861b588f45e9710f",
             "content": [
         "5412a9c2b2261b9e4563bc8e"
       ]
@@ -16,6 +17,7 @@ var testfs = {
             "name": "root",
             "type": 0,
             "__v": 0,
+            "parent": "5412a796861b588f45e9710f",
             "content": [
         "5412a80e861b588f45e97110",
         "5412a85a09d4ac944576b53d",
@@ -25,8 +27,9 @@ var testfs = {
         "5412a9c2b2261b9e4563bc8e": {
             "_id": "5412a9c2b2261b9e4563bc8e",
             "name": "MeineErsteDatei",
-            "type": 1,
+            "type": 2,
             "__v": 0,
+            "parent": "5412a80e861b588f45e97110",
             "metadata": {
                 "content-type": "image/jpeg"
             },
@@ -35,8 +38,9 @@ var testfs = {
         "5412a335d80f7a744595799b": {
             "_id": "5412a335d80f7a744595799b",
             "name": "Haha",
-            "type": 1,
+            "type": 2,
             "__v": 0,
+            "parent": "5412a796861b588f45e9710f",
             "metadata": {
                 "content-type": "image/jpeg"
             },
@@ -47,6 +51,7 @@ var testfs = {
             "name": "MySecondFile",
             "type": 2,
             "__v": 0,
+            "parent": "5412a796861b588f45e9710f",
             "metadata": {
                 "content-type": "image/jpeg"
             },
@@ -283,7 +288,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         };
 
         $scope.mouseover = function (key) {
-            if ($scope.activeArray[key] == true || key.substr(0, 1) == 3) {
+            if ($scope.activeArray[key] == true || $scope.dirObject[key].type == 2) {
                 $scope.moveto = "...";
                 $scope.movetofile = "";
             } else {
@@ -421,19 +426,22 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         };
 
         $scope.openFileAngu = function (id) {
-            //console.log("Openfile: " + id);
-            switch (id.substr(0, 1)) {
-            case "3":
+            console.log("Openfile: " + id);
+            console.log($scope.dirObject[id].type);
+            switch ($scope.dirObject[id].type) {
+            case 2:    
+                console.log("Openfile: = = = > FILE");
                 //Datei Oeffnen
                 $scope.cilpboardaction = '';
-                uiControl.loadFile(id);
+                //uiControl.loadFile(id);
                 break;
-            case "4":
+            case 1:
+                console.log("Openfile: = = = > FOLDER");
                 $scope.forceinactiv();
                 $scope.actualDir = id;
                 data.acutalDir = id;
                 $scope.update();
-                $scope.update();
+                //$scope.update();
                 if (!$scope.$$phase) {
                     $scope.$apply();
                 }
@@ -442,15 +450,17 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                 //this.generateFileSuperPath(id);
                 //this.lastDir = id;
                 break;
-            case "5":
+            case 0:
+                console.log("Openfile: = = = > FOLDER");
                 $scope.forceinactiv();
                 $scope.actualDir = id;
                 data.acutalDir = id;
                 $scope.update();
-                $scope.update();
+                //$scope.update();
                 if (!$scope.$$phase) {
                     $scope.$apply();
                 }
+
                 //this.showDir(id);
                 //this.generateFileSuperPath(id);
                 //this.lastDir = id;
@@ -458,42 +468,19 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
             }
         };
 
-        $scope.getIconClass = function (suffix) {
-            switch (suffix) {
-            case "3":
+        $scope.getIconClass = function (key) {
+            
+            switch ($scope.dirObject[key].type) {
+            case 2:
                 return "fa fa-file-text";
                 break;
-            case "4":
+            case 1:
                 return "fa fa-folder";
                 break;
-            case "5":
-                return "fa fa-user";
+            case 0:
+                return "fa fa-folder";
                 break;
             };
-        };
-
-        $scope.showConfigFile = function (key) {
-            if ('*' in $scope.dirObject[key].share && $scope.dirObject[key].share['*'].f != key) {
-                return true;
-            } else {
-                return false;
-            }
-        };
-
-        // Change Password handler ===========================================
-
-
-        $scope.chpw = {};
-        $scope.chpw.old = "";
-        $scope.chpw.new = "";
-        $scope.chpw.new2 = "";
-
-        $scope.chpass = function () {
-            //console.log($scope.chpw);
-            L2.send(sID.chPassword, JSON.stringify($scope.chpw));
-            $scope.chpw.old = "";
-            $scope.chpw.new = "";
-            $scope.chpw.new2 = "";
         };
 
         // Change FileName handler =============================================
@@ -547,156 +534,6 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         };
 
 
-        // Share Popup handler ------------------------------------------
-
-        $scope.shareshow = 'none';
-        $scope.shareshowbool = false;
-        //if($scope.sharedata == undefined){$scope.sharedata = [];}
-        //if($scope.fileinfoid == undefined){$scope.fileinfoid = '';}
-        //if($scope.filedata == undefined){$scope.filedata = {}; $scope.filedata = data.dirObject[$scope.fileinfoid];}
-        $scope.filedata = {};
-        $scope.sharedata = [];
-        $scope.fileinfoid = '';
-        //$scope.filedata = data.dirObject[$scope.fileinfoid];
-        $scope.rightinfo = ['readonly', 'write', 'admin'];
-        $scope.addvalue = 0;
-        $scope.addname = "no name";
-        $scope.storageScore = 0;
-        $scope.maxStorageScore = 0;
-
-        $scope.loadfileshare = function () {
-            $scope.sharedata = null;
-            $scope.sharedata = [];
-            if ($scope.dirObject[$scope.fileinfoid]) {
-                for (key in $scope.dirObject[$scope.fileinfoid].share) {
-                    if ('*' != key) {
-                        $scope.sharedata.push({
-                            "id": key,
-                            "value": $scope.dirObject[$scope.fileinfoid].share[key].r,
-                            "accept": $scope.dirObject[$scope.fileinfoid].share[key].a
-                        });
-                    }
-                }
-                //console.log(JSON.stringify($scope.sharedata));
-            } else {
-                $scope.shareclose();
-            }
-        };
-
-        $scope.getacceptClass = function (a) {
-            switch (a) {
-            case "y":
-                return "fa-check";
-                break;
-            case "n":
-                return "fa-circle-o-notch fa-spin";
-                break;
-            default:
-                return "fa-warning";
-                break;
-            }
-        }
-
-        $scope.updateShare = function () {
-            //console.log("Update Angular "+$scope.alertinfo);
-            if (!$scope.shareshowbool) {
-                $scope.shareshow = 'none';
-                //tab.position("slideOut");
-                //console.log("deactivate bboo");
-            } else {
-                $scope.getProposals();
-                $scope.shareshow = 'block';
-                //tab.position("fastIn");
-                $scope.loadfileshare();
-            }
-        }
-
-        $scope.shareclose = function () {
-            if (true) {
-                //data.set('shareshow', false);
-            }
-        };
-
-        /*data.databind('shareshow', function (x) {
-            //console.log("Data: "+JSON.stringify(x));
-            $scope.shareshowbool = x;
-            $scope.updateShare();
-            if (!$scope.$$phase) {
-                $scope.$apply();
-            }
-        });*/
-
-
-        $scope.shareUpdater = function () {
-            var out = {};
-            for (key in $scope.sharedata) {
-                if ($scope.sharedata[key].id == "5GUESTUSER" && $scope.sharedata[key].value > 1) {
-                    $scope.sharedata[key].value = 1;
-                    uiControl.alert("Guest can not be admin!");
-                }
-                out[$scope.sharedata[key].id] = {};
-                out[$scope.sharedata[key].id].r = $scope.sharedata[key].value;
-                out[$scope.sharedata[key].id].a = "n";
-
-                //console.log("KEY=>" + key);
-            };
-            //console.log(JSON.stringify($scope.sharedata));
-            //console.log(JSON.stringify(out));
-            if ('*' in $scope.dirObject[$scope.fileinfoid].share) {
-                out['*'] = JSON.parse(JSON.stringify($scope.dirObject[$scope.fileinfoid].share['*']));
-            }
-            $scope.dirObject[$scope.fileinfoid].share = out;
-            L3.setFileInfo('share', $scope.fileinfoid, out);
-        };
-
-        $scope.pushsharedata = function () {
-            var id = $scope.resolveId($scope.addname) || "s";
-            if ($scope.addname.length > 2 && id.length == 10 && id[0] == "5") {
-                var da = "n";
-                if ($scope.addname == "Guest" && $scope.addvalue > 1) {
-                    $scope.addvalue = 1;
-                    da = "y";
-                    uiControl.alert("Guest can not be admin!");
-                }
-                $scope.dirObject[$scope.fileinfoid].share[id] = {};
-                $scope.dirObject[$scope.fileinfoid].share[id].r = $scope.addvalue;
-                $scope.dirObject[$scope.fileinfoid].share[id].a = da;
-                $scope.getProposals();
-                $scope.loadfileshare();
-                L3.setFileInfo('share', $scope.fileinfoid, $scope.dirObject[$scope.fileinfoid].share);
-            } else {
-                uiControl.alert("Username is invalid!");
-            }
-        };
-
-        $scope.changeName = function () {
-            L3.setFileInfo('name', $scope.fileinfoid, $scope.dirObject[$scope.fileinfoid].name);
-        };
-
-        $scope.deleteshare = function (index) {
-            $scope.sharedata.splice(index, 1);
-            $scope.shareUpdater();
-        };
-
-        $scope.configFile = function (id) {
-            //$scope.fileinfoid = id;
-            //$scope.filedata = data.dirObject[$scope.fileinfoid];
-            //data.set('shareshow', true);
-        }
-
-        $scope.getLink = function () {
-            return location.href.split("#")[0] + "#/editor/" + $scope.fileinfoid + "/?login=guest";
-        }
-
-        //$scope.loadfileshare();
-
-        $scope.sharedinfo = function (key) {
-            if (!$scope.isEmpty($scope.dirObject[key].share)) {
-                return "Shared";
-            }
-            return "";
-        };
-
         $scope.isEmpty = function (value) {
             return Boolean(value && typeof value == 'object') && !Object.keys(value).length;
         };
@@ -709,89 +546,16 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
             //return data.getUserId(name);
         };
 
-        /*data.databind('nameCache', function (x) {
-            $scope.updateShare();
-            if (!$scope.$$phase) {
-                $scope.$apply();
-            }
-        });*/
-
-        /*data.databind('idCache', function (x) {
-            $scope.updateShare();
-            if (!$scope.$$phase) {
-                $scope.$apply();
-            }
-        });*/
-
-        $scope.proposals = ["5GUESTUSER"];
-
-        $scope.getProposals = function () {
-            if ($scope.dirObject[$scope.fileinfoid]) {
-                var obj = {
-                    "5GUESTUSER": true
-                };
-                for (i in $scope.dirObject) {
-                    for (j in $scope.dirObject[i].share) {
-                        if (j != '*') {
-                            obj[j] = true;
-                        }
-                    }
-                    obj[$scope.dirObject[i].owner] = true;
-                }
-                for (i in $scope.dirObject[$scope.fileinfoid].share) {
-                    if (i != '*') {
-                        obj[i] = true;
-                    }
-                }
-                var arr = [];
-                for (i in obj) {
-                    if (i != "undefined") {
-                        arr.push(i);
-                    }
-                }
-                $scope.proposals = arr;
-                /*if(!$scope.$$phase) {
-                    $scope.$apply();
-                }*/
-            } else {
-                $scope.shareclose();
-                //uiControl.alert("You are kicked!");
-            }
-        };
-
-        /*data.databind('dirObject', function (x) {
-            //console.log("Data: "+JSON.stringify(x));
-            $scope.dirObject = x;
-            $scope.storagePercent = Math.round($scope.dirObject.storageScore / $scope.dirObject.maxStorageScore * 100);
-            $scope.update();
-            $scope.filedata = data.dirObject[$scope.fileinfoid];
-            $scope.updateShare();
-            //$scope.getProposals();
-            if (!$scope.$$phase) {
-                $scope.$apply();
-            }
-        });*/
-
-        $scope.showGuestLink = function () {
-            if ($scope.fileinfoid && $scope.dirObject && $scope.dirObject[$scope.fileinfoid] && $scope.dirObject[$scope.fileinfoid].share && $scope.dirObject[$scope.fileinfoid].share[data.guestUser]) {
-                if ($scope.dirObject[$scope.fileinfoid].share[data.guestUser] && $scope.fileinfoid[0] == "3") {
-                    return false;
-                } else {
-                    return true;
-                }
-            } else {
-                return true;
-            }
-        };
 
         // Tab Handler
         //tab.deactivateAll();
-        $scope.fileinfoid = "5erudtuyvw";
-        $scope.actualDir = "5erudtuyvw";
-        $scope.dirObject = testfs;
+        $scope.fileinfoid = "5412a796861b588f45e9710f";
+        $scope.actualDir = "5412a796861b588f45e9710f";
+        $scope.mainDir = "5412a796861b588f45e9710f";
+        $scope.dirObject = testfs.data;
         $scope.update();
-        $scope.filedata = $scope.dirObject[$scope.fileinfoid];
-        $scope.updateShare();
+        //$scope.filedata = $scope.dirObject[$scope.fileinfoid];
+        //$scope.updateShare();
         //$scope.getProposals();
         if (!$scope.$$phase) {
             $scope.$apply();
