@@ -101,10 +101,16 @@ var cropImages = function (params) {
                     var width = parseInt(elem.getAttribute('cropWidth'));
                     var uploadURL = elem.getAttribute('uploadUrl');
                     var max = elem.getAttribute('maxSize');
+                    var circle = elem.getAttribute('circle');
                     if (max && max != "false") {
                         max = true;
                     } else {
                         max = false;
+                    }
+                    if (circle && circle != "false") {
+                        circle = true;
+                    } else {
+                        circle = false;
                     }
                     that.onimgset = elem.getAttribute('onimgset');
                     that.oncancel = elem.getAttribute('oncancel');
@@ -133,7 +139,8 @@ var cropImages = function (params) {
                             that.callCache.oWidth = oWidth;
                             that.callCache.oHeight = oHeight;
                             that.callCache.max = max;
-                            that.displayCropper(dataURL, width, height, uploadURL, div, oWidth, oHeight, max);
+                            that.callCache.circle = circle;
+                            that.displayCropper(dataURL, width, height, uploadURL, div, oWidth, oHeight, max, circle);
                         };
                     }(file));
                     reader.readAsDataURL(file);
@@ -178,7 +185,7 @@ var cropImages = function (params) {
         return div;
     };
 
-    this.displayCropper = function (dataURL, width, height, uploadURL, div, oWidth, oHeight, max) {
+    this.displayCropper = function (dataURL, width, height, uploadURL, div, oWidth, oHeight, max, circle) {
 
         // BackgroundLeft
         var ileft = document.createElement('div');
@@ -227,6 +234,36 @@ var cropImages = function (params) {
         iBottom.style.marginRight = (0 - (width / 2)) + "px";
         iBottom.style.background = "rgba(0, 0, 0, 0.79)";
         iBottom.style.zIndex = that.zIndex;
+
+
+        var winw = window.innerWidth;
+        var winh = window.innerHeight;
+        if (circle) {
+            var rad = Math.sqrt(winw * winw, winh * winh) - (height + width) / 2;
+        } else {
+            var rad = (winh - height) / 2;
+            if ((winw - width) / 2 > rad) {
+                rad = (winw - width) / 2;
+            }
+        }
+
+        console.log("RAD: " + rad);
+
+        // iCropShow Overlay to view 
+        var iCropShow = document.createElement('div');
+        iCropShow.style.position = "absolute";
+        iCropShow.style.top = "50%";
+        iCropShow.style.left = "50%";
+        iCropShow.style.width = width + "px";
+        iCropShow.style.height = height + "px";
+        iCropShow.style.marginTop = (-((height / 2) + rad)) + "px";
+        iCropShow.style.marginLeft = (-((width / 2) + rad)) + "px";
+        iCropShow.style.background = "rgba(0, 0, 0, 0.0)";
+        iCropShow.style.border = rad + "px solid rgba(0, 0, 0, 0.79)";
+        if (circle) {
+            iCropShow.style.borderRadius = "50%";
+        }
+        iCropShow.style.zIndex = that.zIndex;
 
         var overlay = document.createElement('div');
         overlay.style.position = "absolute";
@@ -337,6 +374,7 @@ var cropImages = function (params) {
                 oh: oHeight,
                 uploadURL: uploadURL,
                 max: max,
+                circle: circle,
                 change: false
             };
 
@@ -406,10 +444,11 @@ var cropImages = function (params) {
             div.addEventListener("wheel", that.scroll);
             div.addEventListener("mouseout", that.mouseout);
             div.appendChild(size);
-            div.appendChild(ileft);
-            div.appendChild(iTop);
-            div.appendChild(iRight);
-            div.appendChild(iBottom);
+            //div.appendChild(ileft);
+            //div.appendChild(iTop);
+            //div.appendChild(iRight);
+            //div.appendChild(iBottom);
+            div.appendChild(iCropShow);
             div.appendChild(overlay);
             div.appendChild(menubar);
 
@@ -606,7 +645,7 @@ var cropImages = function (params) {
         var src = document.getElementById('bauhausCropImage').src;
         that.removeElementById('bauhausCropImageWrapper');
         var div = that.makeBlackDiv(that.waitupload);
-        that.resizeAndReturn(src, that.data.kw, that.data.kh, that.data.ct, that.data.cl, that.data.nw, that.data.nh, that.data.max);
+        that.resizeAndReturn(src, that.data.kw, that.data.kh, that.data.ct, that.data.cl, that.data.nw, that.data.nh, that.data.max, that.data.circle);
     };
 
     this.cancel = function (evt) {
@@ -628,7 +667,7 @@ var cropImages = function (params) {
         that.removeElementById('bauhausCropImageWrapper');
     };
 
-    this.resizeAndReturn = function (file, kw, kh, ct, cl, nw, nh, max) {
+    this.resizeAndReturn = function (file, kw, kh, ct, cl, nw, nh, max, circle) {
         //var reader = new FileReader();
         //reader.onloadend = function () {
 
@@ -659,7 +698,19 @@ var cropImages = function (params) {
             var ctx = canvas.getContext("2d");
 
             ctx.drawImage(this, cl, ct, nw, nh);
-            var dataURL = canvas.toDataURL("image/jpeg");
+            /*if (circle) {
+                ctx.globalCompositeOperation = "xor";
+                ctx.globalAlpha = 1;
+                var gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 1,
+                    canvas.width/2, canvas.height/2, canvas.width/2);
+                gradient.addColorStop(0.99, 'rgba(255,255,255,0)');
+                gradient.addColorStop(1, 'rgba(255,255,255,1)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, nw, nh);
+                var dataURL = canvas.toDataURL("image/png");
+            } else {*/
+                var dataURL = canvas.toDataURL("image/jpeg");
+            //}
 
             //var div = document.createElement('div');
             //div.innerHTML = '<img draggable="false" src="' + dataURL + '" />'; // style="width: 100%;"
@@ -678,7 +729,7 @@ var cropImages = function (params) {
 
             //that.exit();
 
-            that.upload(dataURL, that.data.uploadURL);
+            that.upload(dataURL, that.data.uploadURL, that.data);
         }
 
         //}
@@ -722,7 +773,7 @@ var cropImages = function (params) {
         }
     };
 
-    this.upload = function (dataURL, uploadURL) {
+    this.upload = function (dataURL, uploadURL, data) {
         this.uploadReq = getHTTPObject();
         if (this.uploadReq != null) {
             this.uploadReq.onreadystatechange = this.uploadCB;
@@ -735,7 +786,7 @@ var cropImages = function (params) {
             this.uploadReq.open("POST", uploadURL, true);
             this.uploadReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
             var dataN = encodeURIComponent(dataURL);
-            this.uploadReq.send("image=" + dataN);
+            this.uploadReq.send("data=" + JSON.stringify(data) + "&image=" + dataN);
         }
     };
 
@@ -772,7 +823,7 @@ var cropImages = function (params) {
                 height = width / scale;
             }
 
-            that.displayCropper(that.callCache.dataURL, width, height, that.callCache.uploadURL, div, that.data.ow, that.data.oh, that.callCache.max);
+            that.displayCropper(that.callCache.dataURL, width, height, that.callCache.uploadURL, div, that.data.ow, that.data.oh, that.callCache.max, that.callCache.circle);
         }
     }
 

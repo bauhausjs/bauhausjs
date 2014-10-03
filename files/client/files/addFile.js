@@ -22,13 +22,13 @@
 #
 ******************************************************************************************/
 
-var addFile_typ = function addFile_typ(){
+var addFile_typ = function addFile_typ() {
 
     this.AddFile = false;
     this.AddFileChoice = false;
 
-    this.toggleAddFile = function(){
-        if(this.AddFile){
+    this.toggleAddFile = function () {
+        if (this.AddFile) {
             document.getElementById('AddFile').className = 'dirButtonsLi';
             this.AddFile = false;
         } else {
@@ -37,19 +37,19 @@ var addFile_typ = function addFile_typ(){
             document.getElementById('AddFileInput').focus();
         }
     }
-    
-    this.AddFileD = function(x){
-        if(x){
+
+    this.AddFileD = function (x) {
+        if (x) {
             document.getElementById('AddFile').className = 'dirButtonsLiAdd';
             this.AddFile = true;
-        }else{
+        } else {
             document.getElementById('AddFile').className = 'dirButtonsLi';
             this.AddFile = false;
         }
-    }//
-    
-    this.toggleAddFileChoice = function(){
-        if(this.AddFileChoice){
+    } //
+
+    this.toggleAddFileChoice = function () {
+        if (this.AddFileChoice) {
             /*document.getElementById('AddFileChoice').src = 'img/doc/file.png';
             document.getElementById('AddFileChoice').style.bottom = '0px';*/
             document.getElementById('awsomefilechoice').className = "fa fa-file-text addFileIcon";
@@ -63,16 +63,16 @@ var addFile_typ = function addFile_typ(){
             document.getElementById('AddFileInput').focus();
         }
     }
-    
-    this.checkEnter = function(){  
-      if(event.keyCode == 13){
-        this.AddFileEnter();
-      }  
+
+    this.checkEnter = function () {
+        if (event.keyCode == 13) {
+            this.AddFileEnter();
+        }
     }
-    
-    this.AddFileEnter = function(){
+
+    this.AddFileEnter = function () {
         var fileType = 'p';
-        if(this.AddFileChoice){
+        if (this.AddFileChoice) {
             fileType = 'f';
         }
         var fileName = document.getElementById('AddFileInput').value;
@@ -80,55 +80,67 @@ var addFile_typ = function addFile_typ(){
         document.getElementById('AddFileInput').value = "";
         document.getElementById('AddFileInput').blur();
         //console.log(fileType+' '+fileName);
-        uiControl.addFile(fileName, fileType);
+        //uiControl.addFile(fileName, fileType);
+        data.fop({
+            "op": "add",
+            "name": fileName,
+            "dir": data.actualDir,
+            "type": fileType
+        }, function (e) {
+            if (e.success && e.dirObject) {
+                data.updateDirObject(e.dirObject);
+            } else {
+                alert("Error: "+e.error);
+            }
+        });
     }
 }
 
 var addFile = new addFile_typ();
 
-var dirCreator_typ = function dirCreator_typ(){
-    
+var dirCreator_typ = function dirCreator_typ() {
+
     this.dirObject = {};
     this.lastDir = "";
     this.mainDir = "";
-    
-    this.searchParent = function(id, dirObject){
-        for(key in dirObject){
-            var first = key.substr(0,1);
-            if(first == "4" || first == "5"){
-                if(dirObject[key].content.indexOf(id) != -1){
+
+    this.searchParent = function (id, dirObject) {
+        for (key in dirObject) {
+            var first = key.substr(0, 1);
+            if (first == "4" || first == "5") {
+                if (dirObject[key].content.indexOf(id) != -1) {
                     return key;
                 }
             }
         }
         return false;
     };
-    
-    this.setDir = function(jsontext){
+
+    this.setDir = function (jsontext) {
         this.dirObject = JSON.parse(jsontext);
     };
-    
-    this.getName = function(id){
-        if(this.dirObject[id]){
+
+    this.getName = function (id) {
+        if (this.dirObject[id]) {
             return this.dirObject[id].name;
         } else {
             return "unnamed file";
         }
     };
-    
-    this.showDir = function(id){
+
+    this.showDir = function (id) {
         uiControl.view('files');
-        if(this.dirObject[id]){
+        if (this.dirObject[id]) {
             var content = this.dirObject[id].content;
             var contentArray = content.split(';');
             var html = "";
-            for(i in contentArray){
-                if(this.dirObject[contentArray[i]]){
+            for (i in contentArray) {
+                if (this.dirObject[contentArray[i]]) {
                     name = this.getName(contentArray[i]);
-                    html = html+this.createElement(contentArray[i], name);
+                    html = html + this.createElement(contentArray[i], name);
                 }
             }
-            if(document.getElementById('fileListUl')){
+            if (document.getElementById('fileListUl')) {
                 //document.getElementById('fileListUl').innerHTML = html;
             } else {
                 console.log('Error: Can not load filelist to DOM');
@@ -137,72 +149,72 @@ var dirCreator_typ = function dirCreator_typ(){
             console.log("Error: Unknown Concept Bug [1] Issue #56");
         }
     };
-    
-    this.generateFileSuperPath = function(id){
-        if(this.dirObject[id]){
+
+    this.generateFileSuperPath = function (id) {
+        if (this.dirObject[id]) {
             var name = this.dirObject[id].name;
             var html = this.createFolderElement(id, name);
-            while(id != this.mainDir){
+            while (id != this.mainDir) {
                 id = this.dirObject[id].parent;
                 name = this.dirObject[id].name;
-                html = this.createFolderElement(id, name)+html;
+                html = this.createFolderElement(id, name) + html;
             }
-            if(document.getElementById('fileListUl')){
+            if (document.getElementById('fileListUl')) {
                 //document.getElementById('dirShow').innerHTML = html;
             }
         } else {
             console.log("Error: Unknown Concept Bug [2] Issue #56");
         }
     };
-    
-    this.refreshShow = function(){
+
+    this.refreshShow = function () {
         this.showDir(this.lastDir);
         this.generateFileSuperPath(this.lastDir);
     };
-    
-    this.openFile = function(id){
-        switch(id.substr(0,1)){
-            case "3":
-                //Datei Oeffnen
-                uiControl.loadFile(id);
-                break;
-            case "4":
-                this.showDir(id);
-                this.generateFileSuperPath(id);
-                this.lastDir = id;
-                break;
-            case "5":
-                this.showDir(id);
-                this.generateFileSuperPath(id);
-                this.lastDir = id;
-                break;
+
+    this.openFile = function (id) {
+        switch (id.substr(0, 1)) {
+        case "3":
+            //Datei Oeffnen
+            uiControl.loadFile(id);
+            break;
+        case "4":
+            this.showDir(id);
+            this.generateFileSuperPath(id);
+            this.lastDir = id;
+            break;
+        case "5":
+            this.showDir(id);
+            this.generateFileSuperPath(id);
+            this.lastDir = id;
+            break;
         }
     };
-    
-    this.createElement = function(id, name){
+
+    this.createElement = function (id, name) {
         var t = new Array("fileIcon", "file");
-        switch(id.substr(0,1)){
-                case "3":
-                t[0] = "fileIcon";
-                t[1] = "file";
-                break;
-                case "4":
-                t[0] = "folderIcon";
-                t[1] = "folder";
-                break;
-                case "5":
-                t[0] = "fileIcon";
-                t[1] = "user";
-                break;
+        switch (id.substr(0, 1)) {
+        case "3":
+            t[0] = "fileIcon";
+            t[1] = "file";
+            break;
+        case "4":
+            t[0] = "folderIcon";
+            t[1] = "folder";
+            break;
+        case "5":
+            t[0] = "fileIcon";
+            t[1] = "user";
+            break;
         }
-        id = "'"+id+"'";
-        var e = '<li><img src="img/doc/'+t[1]+'.png" class="'+t[0]+'"><font class="filenameDir" style="position: relative; left: 30px;" onclick="dirCreator.openFile('+id+');">'+name+'</font><img src="img/gear.png" class="gearIcon"><img src="img/share.png" class="shareIcon"></li>';
+        id = "'" + id + "'";
+        var e = '<li><img src="img/doc/' + t[1] + '.png" class="' + t[0] + '"><font class="filenameDir" style="position: relative; left: 30px;" onclick="dirCreator.openFile(' + id + ');">' + name + '</font><img src="img/gear.png" class="gearIcon"><img src="img/share.png" class="shareIcon"></li>';
         return e;
     };
-    
-    this.createFolderElement = function(id, name){
-        id = "'"+id+"'";
-        var e = '<li onclick="dirCreator.openFile('+id+');">'+name+'</li>';
+
+    this.createFolderElement = function (id, name) {
+        id = "'" + id + "'";
+        var e = '<li onclick="dirCreator.openFile(' + id + ');">' + name + '</li>';
         return e;
     };
 }
@@ -210,7 +222,7 @@ var dirCreator_typ = function dirCreator_typ(){
 var dirCreator = new dirCreator_typ();
 //dirCreator.setDir(testtext);
 
-function OpenInNewTab(){
-  var win=window.open("https://github.com/pragm/pragmnote", '_blank');
-  win.focus();
+function OpenInNewTab() {
+    var win = window.open("https://github.com/pragm/pragmnote", '_blank');
+    win.focus();
 }

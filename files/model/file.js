@@ -7,9 +7,10 @@ var fileSchema = new Schema({
     type: Number,
     data: Buffer,
     content: Array,
+    lastmod: Number,
     metadata: Object,
-    transform: Object,
-    parent: Schema.Types.ObjectId,
+    transforms: Object,
+    parent: String,
     parentId: Schema.Types.ObjectId
 });
 

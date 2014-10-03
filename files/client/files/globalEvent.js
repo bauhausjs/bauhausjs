@@ -29,9 +29,15 @@ var globalEvent_typ = function globalEvent_typ() {
     //   stateupdate();
     //}
     this.ctrl = {};
+    this.events = {};
 
     this.ctrlbind = function (i, callback) {
         globalEvent.ctrl[i] = callback;
+    };
+
+    this.eventbind = function (i, callback) {
+        //console.log("Bound event "+i);
+        globalEvent.events[i] = callback;
     };
 
     this.unbindAll = function () {
@@ -140,12 +146,18 @@ var globalEvent_typ = function globalEvent_typ() {
         }
     };
 
-    this.mousedown = function () {
+    this.mousedown = function (e) {
         //global.mousedown = true;
+        if (globalEvent.events.mousedown) {
+            return globalEvent.events.mousedown(e);
+        }
     };
 
-    this.mouseup = function () {
+    this.mouseup = function (e) {
         //global.mousedown = false;
+        if (globalEvent.events.mouseup) {
+            return globalEvent.events.mouseup(e);
+        }
     };
 
     this.fpsTimer = false;
@@ -153,7 +165,7 @@ var globalEvent_typ = function globalEvent_typ() {
     this.fpsControl = false;
     this.stateTimer = false;
 
-    this.mousemove = function () {
+    this.mousemove = function (e) {
         /*if (globalEvent.fpsControl) {
             if (!globalEvent.fpsTimer) {
                 clearTimeout(globalEvent.fpsTimer2);
@@ -164,6 +176,9 @@ var globalEvent_typ = function globalEvent_typ() {
         } else {
             globalEvent.mousemove_fps();
         }*/
+        if (globalEvent.events.mousemove) {
+            return globalEvent.events.mousemove(e);
+        }
     };
 
     this.mousemove_fps = function () {
@@ -243,12 +258,19 @@ var globalEvent_typ = function globalEvent_typ() {
             break;
         }
     }
+    
+    this.imagereload = function(e){
+        if (globalEvent.events.imagereload) {
+            return globalEvent.events.imagereload(e);
+        }
+    }
+
+    window.onkeydown = this.keydown;
+    window.onkeyup = this.keyup;
+    window.onblur = this.blur;
+    window.onmousedown = this.mousedown;
+    window.onmouseup = this.mouseup;
+    window.onmousemove = this.mousemove;
 };
 
 var globalEvent = new globalEvent_typ();
-
-window.onkeydown = globalEvent.keydown;
-window.onkeyup = globalEvent.keyup;
-window.onblur = globalEvent.blur;
-window.onmousedown = globalEvent.mousedown;
-window.onmouseup = globalEvent.mouseup;

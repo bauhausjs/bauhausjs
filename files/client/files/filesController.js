@@ -92,6 +92,72 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
             }
         });*/
 
+        // File Edit Handler =============================
+
+        $scope.fileedit = false;
+        $scope.filesrc = "";
+        $scope.filenamecache = "";
+
+        $scope.editopen = function (id) {
+            console.log(id);
+            $scope.fileedit = true;
+            $scope.filedata = $scope.dirObject[id];
+            $scope.filesrc = "http://localhost:1919/files/" + id + ".jpg";
+            $scope.filenamecache = $scope.filedata.name;
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
+        };
+
+        $scope.editclose = function () {
+            $scope.fileedit = false;
+            $scope.filesrc = "";
+
+            var cb = function (e) {
+                if (e.success && e.dirObject) {
+                    $scope.dirObject = e.dirObject;
+                    $scope.update();
+                    if (!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                } else {
+                    alert("Error: " + e.error);
+                }
+                //console.log(e);
+            };
+
+            if ($scope.filenamecache != $scope.filedata.name) {
+                data.fop({
+                    "op": "changename",
+                    "id": $scope.filedata._id,
+                    "name": $scope.filedata.name
+                }, cb);
+            }
+
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
+        };
+
+        $scope.editgeneratelink = function () {
+            var id = $scope.filedata._id;
+            if ($scope.dirObject[id] && $scope.dirObject[id].type == 2) {
+                return "http://localhost:1919/files/" + id;
+            }
+        };
+
+        $scope.imagereload = function (e) {
+            //console.log("imgrefresh");
+
+            //console.log(e);
+            $scope.filesrc = e.dataURL
+
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
+        };
+
+
         // Alert handler   ---------------------------------------------------------
         $scope.alertinfo = "";
         $scope.alertshow = 'none';
@@ -127,11 +193,11 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
 
         // Something else -------------------------------------------
         $scope.dirObject = {};
-        /*if (data.acutalDir != "") {
-            $scope.actualDir = data.acutalDir;
+        /*if (data.actualDir != "") {
+            $scope.actualDir = data.actualDir;
         } else {
             $scope.actualDir = data.login.userID;
-            data.acutalDir = data.login.userID;
+            data.actualDir = data.login.userID;
         }*/
         //$scope.mainDir = data.login.userID;
         $scope.dirShow = [];
@@ -197,7 +263,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                         selectionarray.push(i);
                     }
                 }
-                //data.selectionarray = selectionarray;
+                data.selectionarray = selectionarray;
                 selectionarray = null;
                 $scope.activenum = activecount;
                 if (!$scope.$$phase) {
@@ -234,7 +300,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                     selectionarray.push(i);
                 }
             }
-            //data.selectionarray = selectionarray;
+            data.selectionarray = selectionarray;
             selectionarray = null;
             $scope.activenum = activecount;
         };
@@ -271,24 +337,55 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         $scope.mouseup = function () {
             if ($scope.draganddrop == true && $scope.movetofile != "" && $scope.movetofile != $scope.actualDir) {
                 //console.log("Move files " + JSON.stringify(data.selectionarray) + " to " + $scope.movetofile);
+                data.fop({
+                    "op": "move",
+                    "moveobject": {
+                        "files": data.selectionarray,
+                        "fromid": $scope.actualDir,
+                        "toid": $scope.movetofile
+                    }
+                }, function (e) {
+                    if (e.success && e.dirObject) {
+                        $scope.dirObject = e.dirObject;
+                        $scope.update();
+                        if (!$scope.$$phase) {
+                            $scope.$apply();
+                        }
+                    } else {
+                        alert("Error: " + e.error);
+                    }
+                });
                 //L3.moveFileList(data.selectionarray, $scope.movetofile, $scope.actualDir);
             }
             $scope.draganddrop = false;
             $scope.elmdisplay = "none";
             $scope.draganddropactive = false;
+
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
         };
 
         $scope.mousemove = function ($event) {
+
+            //console.log("MOVE");
             if ($scope.draganddrop == true) {
-                $scope.elmtop = $event.clientY - 0;
-                $scope.elmleft = $event.clientX + 0;
+                var y = $event.clientY - 50;
+                var x = $event.clientX - 205;
+                //console.log("UPDATE " + y + " " + x);
+
+                $scope.elmtop = y;
+                $scope.elmleft = x;
                 $scope.elmdisplay = "block";
                 $scope.draganddropactive = true;
+                if (!$scope.$$phase) {
+                    $scope.$apply();
+                }
             }
         };
 
         $scope.mouseover = function (key) {
-            if ($scope.activeArray[key] == true || $scope.dirObject[key].type == 2) {
+            if ($scope.activeArray[key] == true || ($scope.dirObject[key] && $scope.dirObject[key].type == 2)) {
                 $scope.moveto = "...";
                 $scope.movetofile = "";
             } else {
@@ -303,11 +400,19 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                 }
                 $scope.movetofile = key;
             }
+
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
         };
 
         $scope.mouseout = function () {
             $scope.moveto = "...";
             $scope.movetofile = "";
+
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
         };
 
 
@@ -317,38 +422,74 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         $scope.cilpboardaction;
 
         globalEvent.ctrlbind('X', function () {
-            if (uiControl.lastview == 'files') {
-                //console.log("CRTL+X");
-                $scope.moveclipboard = data.selectionarray;
-                $scope.cilpboardaction = 'move';
-                $scope.movefromdir = $scope.actualDir;
-                data.set('alertinfo', 'Saved to clipboard!');
-            }
+            //if (uiControl.lastview == 'files') {
+            //console.log("CRTL+X");
+            $scope.moveclipboard = data.selectionarray;
+            $scope.cilpboardaction = 'move';
+            $scope.movefromdir = $scope.actualDir;
+            data.set('alertinfo', 'Saved to clipboard!');
+            //}
         });
 
         globalEvent.ctrlbind('C', function () {
-            if (uiControl.lastview == 'files') {
-                //console.log("CRTL+C");
-                $scope.moveclipboard = data.selectionarray;
-                $scope.cilpboardaction = 'copy';
-                $scope.movefromdir = $scope.actualDir;
-                data.set('alertinfo', 'Saved to clipboard!');
-            }
+            //if (uiControl.lastview == 'files') {
+            //console.log("CRTL+C");
+            $scope.moveclipboard = data.selectionarray;
+            $scope.cilpboardaction = 'copy';
+            $scope.movefromdir = $scope.actualDir;
+            data.set('alertinfo', 'Saved to clipboard!');
+            //}
         });
 
         globalEvent.ctrlbind('V', function () {
-            if (uiControl.lastview == 'files') {
-                //console.log("CRTL+V");
-                if ($scope.cilpboardaction == 'move') {
-                    //console.log("Move files " + JSON.stringify($scope.moveclipboard) + " to " + $scope.actualDir);
-                    L3.moveFileList($scope.moveclipboard, $scope.actualDir, $scope.movefromdir);
-                }
-                if ($scope.cilpboardaction == 'copy') {
-                    //console.log("Copy files " + JSON.stringify($scope.moveclipboard) + " to " + $scope.actualDir);
-                    L3.copyFileList($scope.moveclipboard, $scope.actualDir, $scope.movefromdir);
-                }
-                $scope.cilpboardaction = '';
+            //if (uiControl.lastview == 'files') {
+            //console.log("CRTL+V");
+            if ($scope.cilpboardaction == 'move') {
+                //console.log("Move files " + JSON.stringify($scope.moveclipboard) + " to " + $scope.actualDir);
+                data.fop({
+                    "op": "move",
+                    "moveobject": {
+                        "files": $scope.moveclipboard,
+                        "fromid": $scope.movefromdir,
+                        "toid": $scope.actualDir
+                    }
+                }, function (e) {
+                    if (e.success && e.dirObject) {
+                        $scope.dirObject = e.dirObject;
+                        $scope.update();
+                        if (!$scope.$$phase) {
+                            $scope.$apply();
+                        }
+                    } else {
+                        alert("Error: " + e.error);
+                    }
+                });
+                //L3.moveFileList($scope.moveclipboard, $scope.actualDir, $scope.movefromdir);
             }
+            if ($scope.cilpboardaction == 'copy') {
+                //console.log("Copy files " + JSON.stringify($scope.moveclipboard) + " to " + $scope.actualDir);
+                data.fop({
+                    "op": "copy",
+                    "copyobject": {
+                        "files": $scope.moveclipboard,
+                        "toid": $scope.actualDir,
+                        "fromid": $scope.movefromdir
+                    }
+                }, function (e) {
+                    if (e.success && e.dirObject) {
+                        $scope.dirObject = e.dirObject;
+                        $scope.update();
+                        if (!$scope.$$phase) {
+                            $scope.$apply();
+                        }
+                    } else {
+                        alert("Error: " + e.error);
+                    }
+                });
+                //L3.copyFileList($scope.moveclipboard, $scope.actualDir, $scope.movefromdir);
+            }
+            $scope.cilpboardaction = '';
+            //}
         });
 
         globalEvent.ctrlbind('A', function () {
@@ -373,7 +514,25 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         });
 
         $scope.deleteSelection = function () {
-            L3.moveFileList(data.selectionarray, data.deleteDir, $scope.actualDir);
+            data.fop({
+                "op": "delete",
+                "deleteobject": {
+                    "deletelist": data.selectionarray,
+                    "fromid": $scope.actualDir
+                }
+            }, function (e) {
+                console.warn(e);
+                if (e.success && e.dirObject) {
+                    $scope.dirObject = e.dirObject;
+                    $scope.update();
+                    if (!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                } else {
+                    alert("Error: " + e.error);
+                }
+            });
+            //L3.moveFileList(data.selectionarray, data.deleteDir, $scope.actualDir);
         };
 
 
@@ -426,20 +585,25 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         };
 
         $scope.openFileAngu = function (id) {
-            console.log("Openfile: " + id);
-            console.log($scope.dirObject[id].type);
+            //console.log("Openfile: " + id);
+            //console.log($scope.dirObject[id].type);
             switch ($scope.dirObject[id].type) {
-            case 2:    
-                console.log("Openfile: = = = > FILE");
+            case 2:
+                //console.log("Openfile: = = = > FILE");
                 //Datei Oeffnen
+                $scope.editopen(id);
+
                 $scope.cilpboardaction = '';
+                //$scope.c = null;
+                //$scope.c = new cropImages();
+                $scope.c.addEventListeners();
                 //uiControl.loadFile(id);
                 break;
             case 1:
-                console.log("Openfile: = = = > FOLDER");
+                //console.log("Openfile: = = = > FOLDER");
                 $scope.forceinactiv();
                 $scope.actualDir = id;
-                data.acutalDir = id;
+                data.actualDir = id;
                 $scope.update();
                 //$scope.update();
                 if (!$scope.$$phase) {
@@ -451,10 +615,10 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                 //this.lastDir = id;
                 break;
             case 0:
-                console.log("Openfile: = = = > FOLDER");
+                //console.log("Openfile: = = = > FOLDER");
                 $scope.forceinactiv();
                 $scope.actualDir = id;
-                data.acutalDir = id;
+                data.actualDir = id;
                 $scope.update();
                 //$scope.update();
                 if (!$scope.$$phase) {
@@ -469,7 +633,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         };
 
         $scope.getIconClass = function (key) {
-            
+
             switch ($scope.dirObject[key].type) {
             case 2:
                 return "fa fa-file-text";
@@ -546,20 +710,93 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
             //return data.getUserId(name);
         };
 
+        globalEvent.eventbind('mouseup', function (e) {
+            $scope.mouseup(e);
+        });
+
+        globalEvent.eventbind('mousemove', function (e) {
+            $scope.mousemove(e);
+        });
+
+        globalEvent.eventbind('imagereload', function (e) {
+            $scope.imagereload(e);
+        });
+
+        $scope.searchMainDir = function () {
+            for (i in $scope.dirObject) {
+                if ($scope.dirObject[i].type === 0) {
+                    $scope.fileinfoid = i;
+                    $scope.actualDir = i;
+                    data.actualDir = i;
+                    $scope.mainDir = i;
+                    return true;
+                }
+            }
+            return false;
+        };
 
         // Tab Handler
         //tab.deactivateAll();
-        $scope.fileinfoid = "5412a796861b588f45e9710f";
-        $scope.actualDir = "5412a796861b588f45e9710f";
-        $scope.mainDir = "5412a796861b588f45e9710f";
-        $scope.dirObject = testfs.data;
-        $scope.update();
+
+        $scope.refreshDir = function () {
+            data.fop({
+                "op": "list"
+            }, function (e) {
+                console.warn(e);
+                if (e.success && e.dirObject) {
+                    $scope.dirObject = e.dirObject;
+                    $scope.update();
+                    if (!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                } else {
+                    alert("Error: " + e.error);
+                }
+            });
+        };
+
+
+        data.fop({
+            "op": "list"
+        }, function (cb) {
+            console.warn(cb);
+            if (cb.success && cb.dirObject) {
+                $scope.dirObject = cb.dirObject;
+                if (!$scope.searchMainDir()) {
+                    $scope.fileinfoid = "5412a796861b588f45e9710f";
+                    $scope.actualDir = "5412a796861b588f45e9710f";
+                    data.actualDir = $scope.actualDir;
+                    $scope.mainDir = "5412a796861b588f45e9710f";
+                    console.error("Couldn't find the root dir!");
+                }
+                $scope.update();
+                if (!$scope.$$phase) {
+                    $scope.$apply();
+                }
+            } else {
+                console.error("Couldn't get dir list!");
+            }
+        });
+
+        data.binducb(function (e) {
+            $scope.dirObject = e;
+            $scope.update();
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
+        });
+
+        //$scope.fileinfoid = "5412a796861b588f45e9710f";
+        //$scope.actualDir = "5412a796861b588f45e9710f";
+        //$scope.mainDir = "5412a796861b588f45e9710f";
+        //$scope.dirObject = testfs.data;
+        //$scope.update();
         //$scope.filedata = $scope.dirObject[$scope.fileinfoid];
         //$scope.updateShare();
         //$scope.getProposals();
-        if (!$scope.$$phase) {
-            $scope.$apply();
-        }
+        //if (!$scope.$$phase) {
+        //    $scope.$apply();
+        //}
         //}
 
-}]);
+            }]);

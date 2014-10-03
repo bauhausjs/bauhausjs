@@ -1,4 +1,4 @@
-angular.module('bauhaus.page.services', []);
+/*angular.module('bauhaus.page.services', []);
 
 angular.module('bauhaus.page.services').factory('Page', function ($resource) {
     return $resource('api/Pages/:pageId', {}, {
@@ -28,7 +28,7 @@ angular.module('bauhaus.page.services').factory('PageTree', function ($resource)
 });
 
 /** This Service stores the status of the page tree, which can be shared between views **/
-angular.module('bauhaus.page.services').factory('SharedPageTree', function (PageTree, $rootScope) {
+/*angular.module('bauhaus.page.services').factory('SharedPageTree', function (PageTree, $rootScope) {
     var scope = $rootScope.$new();
     scope.tree = {
         current: {
@@ -37,17 +37,17 @@ angular.module('bauhaus.page.services').factory('SharedPageTree', function (Page
         },
         expanded: {},
         /** Check if given page has children **/
-        hasChildren: function (page) {
+        /*hasChildren: function (page) {
             return (page && page.children && Object.keys(page.children).length > 0) ? true : false;
         },
         /** Check if given page is root node **/
-        isRoot: function (page) {
+        /*isRoot: function (page) {
             return scope.tree.current.rootPageId === page._id ? true : false;
         },
 
 
         /** Expand given root by expanding all parent nodes **/
-        expand: function (page) {
+        /*expand: function (page) {
             scope.tree.expanded[page._id] = true;
             page = scope.tree.getByPath(page.path, page._id);
             if (page) {
@@ -71,7 +71,7 @@ angular.module('bauhaus.page.services').factory('SharedPageTree', function (Page
 
 
         /** Parse path of ids and commas to array of ids **/
-        pathToIdArray: function (path) {
+        /*pathToIdArray: function (path) {
             if (path === '') return [];
             var hierachy = path.split(',');
             // remove first key, which is always empty
@@ -79,7 +79,7 @@ angular.module('bauhaus.page.services').factory('SharedPageTree', function (Page
             return hierachy;
         },
         /** Convert path to array of page objects **/ 
-        pathToPageArray: function (path) {
+        /*pathToPageArray: function (path) {
             var hierachy = scope.tree.pathToIdArray(path);
 
             var pages = [];
@@ -99,12 +99,12 @@ angular.module('bauhaus.page.services').factory('SharedPageTree', function (Page
             return pages;
         },
         /** Get a page object by parent id **/
-        getParentId: function (page) {
+        /*getParentId: function (page) {
             var parents = scope.tree.pathToIdArray(page.path);
             return parents[ parents.length - 1 ];
         },
         /** Get an page by passing path and id **/
-        getByPath: function (path, id) {
+        /*getByPath: function (path, id) {
             var hierachy = scope.tree.pathToPageArray(path);
             var parent = hierachy[ hierachy.length - 1 ];
             
@@ -116,7 +116,7 @@ angular.module('bauhaus.page.services').factory('SharedPageTree', function (Page
             return null;
         },
         /** Deleting a page from tree by passing path and id **/
-        deleteByPath: function (path, id) {
+        /*deleteByPath: function (path, id) {
             var hierachy = scope.tree.pathToPageArray(path);
             // get parent (last element in hierachy)
             var parent = hierachy[ hierachy.length - 1 ];
@@ -125,7 +125,7 @@ angular.module('bauhaus.page.services').factory('SharedPageTree', function (Page
             }
         },
         /** Execute callback on all parents **/
-        forEachParentByPath: function (path, id, callback) {
+        /*forEachParentByPath: function (path, id, callback) {
             var parents = scope.tree.pathToPageArray(path);
             for (var p in parents) {
                 callback(parents[p]);
@@ -234,4 +234,4 @@ angular.module('bauhaus.page.services').factory('PageContent', function ($resour
             isArray: true
         }
     });
-});
+});*/

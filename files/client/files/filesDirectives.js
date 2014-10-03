@@ -1,4 +1,4 @@
-angular.module('bauhaus.page.directives', []);
+/*angular.module('bauhaus.page.directives', []);
 
 angular.module('bauhaus.page.directives').filter('toArray', function(){
     return function(obj) {
@@ -52,7 +52,7 @@ angular.module('bauhaus.page.directives').directive('bauhausPageTree', function 
             };
 
             /* Create new child page at rest service, called from UI */
-            scope.newPage = function (page) {
+            /*scope.newPage = function (page) {
                 var seperator = (page.route[ page.route.length - 1 ] === '/') ? '' : '/';
 
                 var newPage = {
@@ -143,4 +143,4 @@ angular.module('bauhaus.page.directives').directive('bauhausHtml', function () {
             config: '=fieldConfig'
         }
     };
-});
+});*/

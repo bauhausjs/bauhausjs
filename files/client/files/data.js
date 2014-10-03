@@ -22,6 +22,14 @@
 #
 ******************************************************************************************/
 
+function getHTTPObject() {
+    if (window.ActiveXObject) return new ActiveXObject("Microsoft.XMLHTTP");
+    else if (window.XMLHttpRequest) return new XMLHttpRequest();
+    else {
+        alert("Dein Browser unterstuetzt kein AJAX!");
+        return null;
+    }
+}
 
 var data_typ = function data_typ(){
     
@@ -60,6 +68,8 @@ var data_typ = function data_typ(){
     this.ecoModeTimer = false;
     this.ecoModeLongTimer = false;
     this.showTabs = {}; //"3m2oijsq1e":true,"35ragxwaz9":false
+    
+    var that = this;
     
     this.unbindCallbacks = function(){
         this.callbacks = null;
@@ -117,7 +127,7 @@ var data_typ = function data_typ(){
                     break;
             }
         } else {
-            console.log("Error: UI is not in sync with L3");
+            //console.log("Error: UI is not in sync with L3");
         }
     };
     
@@ -163,7 +173,7 @@ var data_typ = function data_typ(){
                 }
             }
         } else {
-            console.log("Error: uiControl.file needs to be prepared before switching UI!");
+            //console.log("Error: uiControl.file needs to be prepared before switching UI!");
         }
     };
     
@@ -210,6 +220,45 @@ var data_typ = function data_typ(){
     
     this.getUrl = function(){
         return location.href.split("#")[0];
+    };
+    
+    // NEW FOR BETTERVEST
+    
+    this.fopCB = function (fopReq, callback) {
+        if (fopReq.readyState == 4) {
+            if(callback){
+                try{
+                    callback(JSON.parse(fopReq.responseText));
+                } catch (e){
+                    console.error({"error": "Invalid JSON!", e: e});
+                }
+            }
+        }
+    };
+
+    this.fop = function (data, callback) {
+        var fopReq = getHTTPObject();
+        if (fopReq != null) {
+            fopReq.onreadystatechange = function(){
+                that.fopCB(fopReq, callback);
+            };
+            fopReq.open("POST", "api/files/fop", true);
+            fopReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            fopReq.send("data="+JSON.stringify(data));
+        }
+    };
+    
+    this.updateCallback;
+    this.actualDir;
+    
+    this.binducb = function(cb){
+        this.updateCallback = cb;
+    };
+    
+    this.updateDirObject = function(e){
+        if(this.updateCallback){
+            this.updateCallback(e);
+        }
     };
     
 };
