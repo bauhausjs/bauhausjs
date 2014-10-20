@@ -4,6 +4,8 @@
         "components/angular-resource/angular-resource.js",
         "components/angular-route/angular-route.js",
         "components/angular-slugify/angular-slugify.js",
+        "components/angular-sanitize/angular-sanitize.js",
+        "components/textAngular/textAngular.js",
         "js/dashboard/dashboard.js", 
         "js/dashboard/dashboardController.js", 
         "js/general/general.js",

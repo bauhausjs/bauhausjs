@@ -16,15 +16,54 @@ function PageNotFoundError (route) {
 middleware.loadPage = function loadPage (req, res, next) {
     if (!req.bauhaus) req.bauhaus = {};
 
-    var route = req.url;
+    var route = req.path;
 
-    Page.findOne({ 'route': route  }, "title label _type _model", function (err, page) {
+    Page.findOne({ 'route': route  }, "title label isSecure roles _type _model", function (err, page) {
         if (err || page === null) return next(new PageNotFoundError(route));
 
         req.bauhaus.page = page;
         debug('Loaded "' +  page.title + '" (' + page._id + ') for route ' + route);
         next();
     });
+};
+
+middleware.checkAccess = function (req, res, next) {
+    if (!req.bauhaus || !req.bauhaus.page) return next();
+
+    if (req.bauhaus.page.isSecure !== true) {
+        // page is not secured, let request pass
+        return next();
+    } 
+
+    if (!req.session.user) {
+        debug("request page is secured, but no user is authorized");
+        res.status(401)
+        return next("Unauthorized");
+    }
+
+    if (req.bauhaus.page.roles && req.bauhaus.page.roles.length > 0) {
+        debug("Page accessible only with any of the roles", req.bauhaus.page.roles);
+
+        if (!req.session.user.roleIds || req.session.user.roleIds.length === 0) {
+            res.status(403);
+            return next("Forbidden");
+        }
+        var userRoles = req.session.user.roleIds;
+        for (var r in req.bauhaus.page.roles) {
+            var pageRoleId = req.bauhaus.page.roles[r].toString();
+            if (userRoles.indexOf(pageRoleId) !== -1) {
+                debug("User has role, let pass", pageRoleId);
+                return next();
+            }
+        }
+
+        debug("User did not match any of the roles, reject");
+        res.status(403);
+        return next("Forbidden");
+    } else {
+        // no roles defined and user authorized -> let pass
+        return next();
+    }
 };
 
 /**
@@ -48,17 +87,88 @@ middleware.loadNavigation = function (req, res, next) {
     req.bauhaus.navigation = {};
     var query = { parentId: null };
 
+    // Method recursively iterates over items and adds `isActive` and
+    // `hasActiveChild` fields
+    function parseNavItem (item) {
+        if (item.route === req.path) {
+            item.isActive = true;
+        }
+
+        // replace object by array structure
+        var childArray = [];
+        for (var child in item.children) {
+            var subItem = parseNavItem( item.children[ child ] );
+            if (subItem.isActive || subItem.hasActiveChildren) {
+                item.hasActiveChildren = true;
+            }
+            // check if user can access item
+            if (userHasAccess(subItem)) {
+                childArray.push(subItem);
+            }
+        }
+        // sort by _w
+        childArray.sort(function (a, b) { return a._w - b._w });
+        item.children = childArray;
+
+        return item;
+    }
+
+    // Returns true if user is allowed to see page
+    function userHasAccess (item) {
+        if (typeof item.isSecure !== 'boolean' || item.isSecure === false) {
+            // page has no security settings or false, let user pass
+            return true;
+        } else {
+            // page is secured, check if user has access
+            var pageRoles = item.roles;
+
+            if (Array.isArray(pageRoles) && pageRoles.length === 0) {
+                // page is secured, but requires no specific role
+                if (req.session.user) {
+                    // user is authenticated, let pass
+                    return true;
+                } else {
+                    // user is not authenticated, reject
+                    return false
+                }
+            }
+
+            var userRoles = req.session.user.roles;
+
+            // compare required roles and user roles
+            for (var r in pageRoles) {
+                var pageRoleId = pageRoles[r].toString();
+                if (userRoles.indexOf(pageRoleId) !== -1) {
+                    // user has role, let pass
+                    return true;
+                }
+            }
+        }
+        // all pass rules failed, reject user
+        return false;
+    }
+
     Page.findOne(query, function (err, doc) {
         doc.getTree({
             condition: { public: true },
-            fields: { route: 1, title: 1, label: 1 }
+            fields: { route: 1, title: 1, label: 1, isSecure: 1, roles: 1, _w: 1 }
         }, { 
-            fields: { route: 1, title: 1, label: 1, path: 1, id: 1, parentId: 1, _w: 1 },
+            fields: { route: 1, title: 1, label: 1, path: 1, id: 1, parentId: 1, isSecure: 1, roles: 1, _w: 1 },
             condition: { public: true }
         }, function (err, tree) {
-            for (var parentId in tree) {
-                req.bauhaus.navigation.main = tree[ parentId ].children;
+            req.bauhaus.navigation.main = [];
+            for (var id in tree) {
+                if (tree[ id ].parentId === null) {
+                    for (var child in tree[ id ].children) {
+                        if (userHasAccess(tree[ id ].children[ child ])) {
+                            req.bauhaus.navigation.main.push( parseNavItem( tree[ id ].children[ child ] ) );
+                        }
+                    }
+
+                }  
             }
+            // sort by _w
+            req.bauhaus.navigation.main.sort(function (a, b) { return a._w - b._w });
             debug('Loaded navigation');
             next();
         });
@@ -123,6 +233,7 @@ middleware.errorHandler = function errorHandler (err, req, res, next) {
 middleware.renderStack = function (pageTypes, contentTypes) {
     return [
         middleware.loadPage,
+        middleware.checkAccess,
         middleware.loadPageType(pageTypes),
         middleware.loadNavigation,
         contentMiddleware.loadContent(contentTypes),

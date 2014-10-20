@@ -1,20 +1,20 @@
-<div class="crud">
+<div class="bauhaus-editor-view">
     <h2 class="crud-title">
         <span ng-switch on="isNew()">
             <span ng-switch-when="true">
-                Create new {{ type }}
+                Create new {{ modelConfig.name }}
             </span>
             <span ng-switch-default>
-                Edit {{ type }} "{{ document.title }}{{ document.name }}"
+                Edit {{ modelConfig.name }} "{{ document[ useAsLabel ] }}"
             </span>
         </span>
     </h2>
 
     <div class="crud-actions">
-        <button class="button" ng-click="updateDocument()">Save</button> <button class="button" ng-click="deleteDocument()">Delete</button>
+        <button class="button" ng-click="updateDocument()">Save</button> <button class="button" ng-click="deleteDocument()" ng-show="!isNew()">Delete</button>
     </div>
 
-    <ul class="crud-form">
+    <div class="crud-form">
         <div class="form">
             <div bauhaus-document-form ng-model="document" config="modelConfig"></div>
         </div>

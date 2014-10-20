@@ -1,4 +1,4 @@
-angular.module('bauhaus.role.directives', []);
+angular.module('bauhaus.role.directives', ['bauhaus.role.services']);
 
 angular.module('bauhaus.role.directives').directive('bauhausRoles', function (SharedRoles) {
     return {
@@ -16,6 +16,10 @@ angular.module('bauhaus.role.directives').directive('bauhausRoles', function (Sh
 
             scope.chooseRole = {};
             scope.roles = SharedRoles.store;
+
+            if (Array.isArray(scope.value) === false) {
+                scope.value = [];
+            }
 
             scope.getRoles = function () {
                 var roles = {};
@@ -82,13 +86,17 @@ angular.module('bauhaus.role.directives').directive('bauhausPermissions', functi
                   '     </div>' + 
                   '</div>',
         scope: {
-            value: '=rolePermissions',
-            config: '=config'
+            value: '=ngModel',
+            config: '=fieldConfig'
         }, 
         controller: function ($scope) {
             $scope.permissions = SharedPermissions.store;
+
             $scope.$watchCollection('value', function (newVal) {
-                // permission updated
+                // permission updated, set to default value if undefined
+                if (typeof newVal === 'undefined') {
+                    $scope.value = {};
+                }
             }), true;
         }
     };

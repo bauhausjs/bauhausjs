@@ -16,7 +16,7 @@ describe('PageMiddleware', function () {
             });
             // create new page in DB
             page.save(function () { 
-                var req = { url: path };
+                var req = { path: path };
                 var res = {};
                 var next = function () {
                     assert(req.bauhaus, "Defined bauhaus obj in req");
@@ -86,7 +86,7 @@ describe('PageMiddleware', function () {
             var next = function () {
                 assert(req.bauhaus.slots, "Req has slots");
                 assert(req.bauhaus.slots.content, "Req has content slot");
-                assert(req.bauhaus.slots.content == "content1content2", "Content slot html is correct");
+                assert(req.bauhaus.slots.content == "content1\ncontent2", "Content slot html is correct");
                 assert(req.bauhaus.slots.sidebar, "Req has sidebar slot");
                 assert(req.bauhaus.slots.sidebar == "sidebar1", "Sidebar slot html is correct");
                 done();

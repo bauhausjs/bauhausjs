@@ -5,13 +5,7 @@
     <li class="navigation-list-item">
         <a href="#/page"><i class="navigation-icon fa fa-file-o"></i> Pages</a>
     </li>
-    <li class="navigation-list-item">
-        <a href="#/user"><i class="navigation-icon fa fa-user"></i> User</a>
-    </li>
-    <li class="navigation-list-item">
-        <a href="#/role"><i class="navigation-icon fa fa-group"></i> Role</a>
-    </li>
     <li class="navigation-list-item" ng-repeat="(name, document) in documents.all">
-        <a href="#/document/{{document.name}}s"><i class="navigation-icon fa fa-file"></i> {{document.name}}</a>
+        <a href="#{{document.url}}" ng-init="document.url = document.url ? document.url : '/document/' + document.name + 's'"><i class="navigation-icon fa" ng-class="(document.icon != null) ? 'fa-' + document.icon : 'fa-file'"></i> {{document.name}}</a>
     </li>
 </ul>

@@ -72,7 +72,6 @@ middleware.renderContent = function (contentTypes) {
         if (!req.bauhaus || !req.bauhaus.content) return next();
 
         req.bauhaus.content.rendered = [];
-
         var renderParallel = [];
         for (var c in req.bauhaus.content.data) {
             var data = req.bauhaus.content.data[c];
@@ -80,7 +79,7 @@ middleware.renderContent = function (contentTypes) {
             if (typeName in contentTypes) {
                 var contentType = contentTypes[typeName];
                 if (typeof contentType.render === 'function') {
-                    (function (data, render) {
+                    (function (data, contentType) {
                         renderParallel.push(function (callback) {
                             contentType.render(req, res, data, contentType.template, function (err, html) {
                                 if (err) debug("Error when calling custom render method of content " + data._id + " of type " + typeName, err);
@@ -90,14 +89,14 @@ middleware.renderContent = function (contentTypes) {
                     })(data, contentType);
                 } else {
                     // Add callback in closure
-                    (function (data, template) {
+                    (function (data, template, res) {
                         renderParallel.push(function (callback) {
                             res.render(template, data, function (err, html) {
                                 if (err) debug("Error rendering content", data, err);
                                 callback(err, html);
                             });
                         });
-                    })(data.content, contentType.template);
+                    })(data.content, contentType.template, res);
                 }
             }
         }

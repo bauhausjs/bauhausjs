@@ -1,0 +1,8 @@
+{
+    "scripts": [
+        "tag/tag.js",
+        "tag/tagDirectives.js"
+    ],
+    "styles": [],
+    "templates": []
+}

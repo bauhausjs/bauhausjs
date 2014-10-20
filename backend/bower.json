@@ -5,7 +5,8 @@
     "angular-resource": "~1.2.5",
     "angular-route": "~1.2.5",
     "font-awesome": "~4.0.3",
-    "angular-slugify": "~1.0.0"
+    "angular-slugify": "~1.0.0",
+    "textAngular": "~1.2.0"
   },
   "resolutions": {
     "angular": "~1.2.5"

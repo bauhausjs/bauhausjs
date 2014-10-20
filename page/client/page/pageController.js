@@ -1,6 +1,6 @@
 angular.module('bauhaus.page.controllers', ['bauhaus.page.services']);
 
-angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$routeParams', '$location', 'Page', 'SharedPageType', 'SharedContentType', 'Content', 'PageContent', 'SharedPageTree', 'Slug', function ($scope, $routeParams, $location, Page, SharedPageType, SharedContentType, Content, PageContent, SharedPageTree, Slug) {
+angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$routeParams', '$location', 'Page', 'SharedPageType', 'SharedContentType', 'Content', 'PageContent', 'SharedPageTree', 'Slug', 'unpopulateDoc', function ($scope, $routeParams, $location, Page, SharedPageType, SharedContentType, Content, PageContent, SharedPageTree, Slug, unpopulateDoc) {
     'use strict';
 
     /* reference to page tree in service */
@@ -55,7 +55,7 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
     $scope.$watch('tree.current.pageId', function (newVal, oldVal) {
         if (newVal) {
             /* Load new page */
-            $scope.page = Page.get({ pageId: newVal }, function (result) {
+            $scope.page = Page.get({ pageId: newVal, populate: 'roles' }, function (result) {
                 $scope.tree.expand(result);
                 $scope.pageHasChanges = false;
                 $scope.showPageLabel = ($scope.page.label && $scope.page.label.length != null && $scope.page.label.length > 0);
@@ -153,13 +153,14 @@ angular.module('bauhaus.page.controllers').controller('PageCtrl', ['$scope', '$r
     /** Sends currently viewed page and updated content to server and update tree, to avoid tree reload **/
     $scope.updatePage = function (page) {
         if ($scope.pageHasChanges) {
-            Page.put(page, function (result) {
+            Page.put(unpopulateDoc(page), function (result) {
                 if (result.path != null) {
                     // Choose corrosponding page in tree to update without reload
                     var pageInTree = $scope.tree.getByPath(result.path, result._id);
                     pageInTree.title = $scope.page.title;
                     pageInTree.route = $scope.page.route;
                     pageInTree.public = $scope.page.public;
+                    pageInTree.isSecure = $scope.page.isSecure;
                 }
                 // set route to valid
                 $scope.pageEditor.route.$setValidity('routeExists', true);

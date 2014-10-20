@@ -1,0 +1,88 @@
+<div class="loginoverlay ng-hide" ng-show="fileedit">
+    <div class="sharefield">
+        <div class="sharefieldline">
+            <div></div>
+            <input ng-model="filedata.name" type="text" class="renameFile" title="rename" onclick="this.select();" ng-value="filedata.name" ng-change="changeName();">
+            <input class="alertbutton" id="closeStyle" type="button" value="CLOSE" ng-click="editclose();">
+            <!--<input class="alertbutton" id="saveStyle" type="button" value="Save" onclick="data.set('shareshow', 'none');">-->
+        </div>
+
+        <div class="cutline">
+            <input type="file" class="cropImage" cropWidth="400" cropHeight="400" uploadUrl="http://localhost:1919/backend/api/files/upload/{{filedata._id}}" maxSize="false" onimgset="globalEvent.imagereload(e);" oncancel="console.error(e);" circle="true">
+            <img ng-src="{{filesrc}}" style="width: 100%;">
+        </div>
+    </div>
+</div>
+
+<!--<div class="loginoverlay" style="display:{{loadshow}};">
+    <div class="loginwait">{{loadinginfo}}
+        <div class="loadicon"></div>
+        <div class="loadingslideIN" id="loadingslide"></div>
+    </div>
+</div>
+
+<div class="loginoverlay" style="display:{{alertshow}};">
+    <div class="loginwait">{{alertinfo}}
+        <br>
+        <br>
+        <input class="alertbutton" type="button" value="OK" ng-click="unalert();">
+    </div>
+</div>
+
+<div class="loginTop">
+    <div class="loginLogo"></div>
+</div>-->
+<div class="noteconBackground" id="noteconBackground">
+    <!--ng-mouseup="mouseup();" ng-mousemove="clog(); mousemove($event);"-->
+    <!--ng-mousedown="setinactive();"-->
+    <div class="fileListOverlay">
+        <div class="fileOperationsBar">
+            <ul class="dirShow" id="dirShow">
+                <li ng-repeat="(key, id) in superFolder" ng-click="openFileAngu(id);" class="{{key}}" ng-mouseover="mouseover(id);">{{dirObject[id].name || "..."}}</li>
+            </ul>
+            <ul class="dirButtons">
+                <li class="dirButtonsLi" style="z-index: 2;" ng-click="deleteSelection();" title="delete selection"><i class="fa fa-trash-o trashicon"></i> <!-- ng-mouseover="mouseover('4DELETED00');" -->
+                </li>
+                <li class="dirButtonsLi" id="AddFile" title="add file/folder" ng-mouseover="mouseout();">
+                    <nobr>
+                        <i class="fa fa-plus addicon"></i>
+                        <div class="AddFileOverlay" onclick="addFile.toggleAddFile();"></div>
+                        <i class="fa fa-file-text addFileIcon" onclick="addFile.toggleAddFileChoice();" id="awsomefilechoice"></i>
+                        <!--<img src="img/doc/file.png" style="position: relative; margin-top: -3px; bottom: 0px; opacity: 0.6; margin-left: 9px;" id="AddFileChoice" onclick="addFile.toggleAddFileChoice();">-->
+                        <input type="text" class="AddFileInput" id="AddFileInput" onkeydown="addFile.checkEnter();">
+                    </nobr>
+                </li>
+                <li class="dirButtonsLi" style="z-index: 2;" ng-click="refreshDir();" title="refresh dir" ng-mouseover="mouseout();"><i class="fa fa-refresh refreshicon"></i>
+                </li>
+            </ul>
+        </div>
+        <ul class="fileListUl" id="fileListUl">
+            <li id="filelistHeadline" ng-click="setinactive($event);" ng-mouseover="mouseout();">
+                <div class="selectcounter">{{activenum}}</div>
+                <font style="position: relative; left: 48px;">TITLE</font>
+                <div class="ownerFile">CONTENT TYPE</div>
+                <div class="lastChange">LAST MODIFIED</div>
+            </li>
+            <li ng-repeat="key in dirShow" class="{{getactive(key)}}" ng-mouseup="setactive($event, key);" ng-mousedown="mousedown(key, $event);" ng-mouseover="mouseover(key);" ng-dblclick="configFile(key);" dragable="false">
+                <!--<div class="ico{{key.substr(0,1);}}"></div>-->
+                <i class="{{getIconClass(key)}} fileexplorericon"></i>
+                <font class="filenameDir" style="position: relative; left: 30px;" ng-click="openFileAngu(key);">{{dirObject[key].name}}
+                <font class="privateFile"> - {{key}}
+                </font>
+                </font>
+                <div class="ownerFile" style="top:10px;">{{dirObject[key].metadata['content-type'];}}</div>
+                <div class="lastChange" style="top:10px;">{{dirObject[key].lastmodform}}</div>
+                <!--<img src="img/gear.png" class="gearIcon">
+            <img src="img/share.png" class="shareIcon"></li>-->
+        </ul>
+        <div class="fileListCut">
+
+        </div>
+    </div>
+    <!--<input type="file" class="cropImage" cropWidth="800" cropHeight="400" uploadUrl="http://localhost:1919/backend/api/files/upload/5412a85a09d4ac944576b53d" maxSize="true" onimgset="console.log(e);" oncancel="console.error(e);" style="top:75px; position: absolute;">-->
+    <div class="filemoveShow" ng-style="{'top': elmtop+'px', 'left': elmleft+'px', 'display': elmdisplay}">
+        <ng-pluralize count="activenum" when="{'0': 'Nothing selected!',
+                           'one': 'Move 1 file to ',
+                           'other': 'Move {} files to '}">
+        </ng-pluralize>{{moveto}}</div>
+</div>

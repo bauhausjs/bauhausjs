@@ -1,0 +1,17 @@
+{
+    "scripts": [
+        "files/globalEvent.js",
+        "files/files.js",
+        "files/cropImages.js",
+        "files/addFile.js",
+        "files/data.js",
+        "files/filesController.js"
+    ],
+    "styles": [
+        "files/files.less"
+    ],
+    "templates": [
+        "files/filesTree.html",
+        "files/filesView.html"
+    ]
+}

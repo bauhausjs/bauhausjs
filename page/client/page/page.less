@@ -166,6 +166,9 @@
         color: #555555;
         margin-bottom: 20px;
 
+        & > div {
+            background: #eeeeee;
+        }
         .page-editor-header-title {
             font-size: 24px;
             margin: 0 0 10px 0;
@@ -314,5 +317,27 @@
         .page-content-field-textarea {
             width: 100%;
         }
+
+        .page-content-field-checkbox {
+            margin: 7px;
+        }
     }
+}
+
+/* Styling TextAngular for HTML directive */
+.ta-toolbar {
+    .btn-group {
+        display: inline-block;
+    }
+    .ta-editor {
+        background: #FFFFFF;
+        padding: 5px;
+        border: 1px solid #eeeeee;
+    }
+}
+
+.ta-editor {
+    background: #ffffff;
+    border: 1px solid #eeeeee;
+    padding: 5px;
 }

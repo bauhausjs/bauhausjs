@@ -111,10 +111,12 @@ angular.module('bauhaus.document.directives').directive('bauhausImage', function
                   '          <div class="tag" ng-repeat="id in value.assets"><img ng-src="/assets/{{id}}?{{imageQuery}}"><div class="tag-delete" ng-click="removeImage(id)"><span class="fa fa-times"></span></div></div>' +
                   '     </div>' +
                   '     <div ng-show="limit <= value.assets.length">Remove image to add new one. (Limit: {{limit}})</div>' + 
-                  '     <input class="page-content-field-input input-big" type="text" ng-model="search" placeholder="+ Add Image" ng-focus="showSelect = true" ng-blur="blur($event)"/>' +
-                  '     <div class="suggestions" ng-show="showSelect" ng-init="showSelect = false">' +
-                  '         <div class="suggestions-item clickable" ng-repeat="image in images | filter:search" ng-click="addImage(image)"><img ng-src="/assets/{{image._id}}?{{imageQuery}}">{{image.name}}</div>' +
-                  '     </div>' +
+                  '     <div class="suggestions-wrapper">' + 
+                  '         <input class="page-content-field-input input-big" type="text" ng-model="search" placeholder="+ Add Image" ng-focus="showSelect = true" ng-blur="blur($event)"/>' +
+                  '         <div class="suggestions" ng-show="showSelect" ng-init="showSelect = false">' +
+                  '             <div class="suggestions-item clickable" ng-repeat="image in images | filter:search" ng-click="addImage(image)"><img ng-src="/assets/{{image._id}}?{{imageQuery}}" title="{{image.name}} - {{image.metadata.width}}x{{image.metadata.height}}"/></div>' +
+                  '         </div>' +
+                  '     </div>' + 
                   '</div>',
         scope: {
             value: '=ngModel',
@@ -127,7 +129,7 @@ angular.module('bauhaus.document.directives').directive('bauhausImage', function
             }
 
             scope.limit = (scope.config.options.limit !== undefined && typeof scope.config.options.limit === 'number') ? scope.config.options.limit : 1;
-            scope.imageQuery = 'transform=resize&width=100&height=100';
+            scope.imageQuery = 'transform=resize&width=50&height=50';
             scope.images = [];
 
             scope.blur = function (event) {
@@ -160,7 +162,7 @@ angular.module('bauhaus.document.directives').directive('bauhausImage', function
             scope.addImage = function (image) {
                 scope.initValue();
                 if (image._id) {
-                    if (scope.value.assets.length <= scope.limit) {
+                    if (scope.value.assets.length < scope.limit) {
                         scope.value.assets.push(image._id);
                     }
                 }

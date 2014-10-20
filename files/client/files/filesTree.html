@@ -1,0 +1,21 @@
+<!--<script type="text/ng-template" id="tree-item">
+    <div href="#/page/{{data._id}}" class="page-tree-item-link clickable" ng-click="changePage(data._id)" ng-init="data.open = tree.isExpanded(data) ? true : false" ng-class="{ open: data.open === true, selected: data._id === tree.current.pageId }">
+        <div class="page-tree-item-collapse clickable" ng-click="tree.toggle(data)" ng-class="{ visible: tree.hasChildren(data) === true }" prevent-default>
+            <i class="page-tree-collapse-icon fa fa-caret-right"></i>
+        </div>
+        <div class="page-tree-item-title" title="{{data.title}}" ng-class="{ private: data.public === false }" ng-init="icon = tree.isRoot(data) ? 'fa-home' : (data.isSecure === true ? 'fa-lock' : 'fa-file-o') ">-->
+            <!--span ng-switch="tree.isRoot(data)">
+                <span ng-switch-when="true"><i class="fa fa-home"></i></span>
+                <span ng-switch-default><i class="fa fa-file-o"></i></span>
+            </span-->
+            <!--<i class="fa {{icon}}"></i>&nbsp;{{data.title}}</div>
+        <div class="page-tree-item-add clickable" ng-click="newPage(data)" prevent-default><i class="fa fa-plus"></i></div>
+    </div>
+    <ul ng-show="data.open" class="page-tree">
+        <li class="page-tree-item" ng-repeat="data in data.children | toArray | orderBy:'_w'" ng-include="'tree-item'"></li>
+    </ul>
+</script>
+
+<ul class="page-tree root">
+    <li class="page-tree-item" ng-repeat="data in tree.all" ng-include="'tree-item'"></li>
+</ul>-->

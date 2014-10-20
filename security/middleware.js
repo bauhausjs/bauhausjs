@@ -11,10 +11,12 @@ middleware.loadUser = function loadUser (req, res, next) {
             if (err) next();
 
             var roles = [];
+            var roleIds = [];
             var permissions = [];
             for (var d in docs) {
                 var role = docs[d];
                 roles.push(role.name);
+                roleIds.push(role._id);
                 if (role.permissions) {
                     for (var permission in role.permissions) {
                         if (permissions.indexOf(permission) !== 0) {
@@ -27,7 +29,9 @@ middleware.loadUser = function loadUser (req, res, next) {
             var user = {
                 id: req.user._id,
                 username: req.user.username,
+                fields: req.user.fields,
                 roles: roles,
+                roleIds: roleIds,
                 permissions: permissions
             }
             // add user info to session
@@ -133,6 +137,10 @@ middleware.isAuthenticated = function (options) {
         } else {
             if (options && options.redirect) {
                 res.redirect(options.redirect);
+            } else {
+                res.status('403');
+                res.write('Not authorized');
+                res.end();
             }
         }
     }  
