@@ -53,12 +53,14 @@ angular.module('bauhaus.asset.directives').directive('bauhausAssetData', functio
                             file: file,
                             fileFormDataName: 'data',
                         }).progress(function(evt) {
-                            console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
+                            //console.log('percent: ' + parseInt(100.0 * evt.loaded / evt.total));
                         }).success(function(data, status, headers, config) {
+                            console.log('uploaded', data)
                             // file is uploaded successfully
                             if (data && data._id) {
                                 //scope.asset = data;
                                 scope.$parent.doc = data;
+                                scope.$parent.$parent.documentId = data._id;
                                 scope.reloadImage = new Date().getTime();
                             }
                             scope.uploading = false;
@@ -69,7 +71,8 @@ angular.module('bauhaus.asset.directives').directive('bauhausAssetData', functio
                     }
 
                     if (!scope.$parent.doc._id) {
-                        scope.$parent.doc = AssetService.create(function () {
+                        AssetService.create(function (result) {
+                            scope.$parent.doc = result;
                             upload();
                         });
                     } else {

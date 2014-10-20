@@ -1,3 +1,5 @@
 node_modules/
 *.swp
 backend/build/
+backend/client/components
+backend/public

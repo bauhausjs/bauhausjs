@@ -37,6 +37,10 @@ angular.module('bauhaus.document.controllers').controller('DocumentListCtrl', ['
             }
 
             $scope.documents = documents;
+        }, function (error) {
+            if (error.status !== 404) {
+                alert('An error occured when loading docs from server. Please check if you are online and signed in.');
+            }
         });
     });
     // reference shared documentInfo service to init loading
@@ -51,7 +55,7 @@ angular.module('bauhaus.document.controllers').controller('DocumentListCtrl', ['
 
 }]);
 
-angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', ['$scope', '$location', '$routeParams', 'DocumentService', 'SharedDocuments', function ($scope, $location, $routeParams, DocumentService, SharedDocuments) {
+angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', ['$scope', '$location', '$rootScope', '$routeParams', '$timeout','DocumentService', 'SharedDocuments', function ($scope, $location, $rootScope, $routeParams, $timeout, DocumentService, SharedDocuments) {
     'use strict';
 
     $scope.document = null;
@@ -91,6 +95,17 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
     $scope.documentInfos = SharedDocuments.store;
 
 
+    // Show confirm, when user wants to navigate with unsaved changes
+    $scope.$on("$locationChangeStart", function(event, next, current){
+        if ($scope.documentChanged === true) {
+            var confirmReset = confirm('You have unsaved updates in your Document.\n\nAre you sure you want to CONTINUE WITHOUT SAVING?'); 
+            if (confirmReset === false) {
+                // prevent route change
+                event.preventDefault();
+            }
+        }
+    })
+
     $scope.isNew = function () {
         return ($scope.document && $scope.document._id) ? false : true;
     };
@@ -127,12 +142,16 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
 
     $scope.reloadDocument = function () {
         var query = $scope.modelConfig.query ? angular.copy($scope.modelConfig.query) : {};
-        query.id = $routeParams.id;
+        query.id = ($routeParams.id != 'new') ? $routeParams.id : $scope.documentId;
         $scope.service.get(query, function (result) {
             if (result && result._id) {
                 $scope.document = result;
-                $scope.documentChanged = false;
+                $timeout(function () {    
+                    $scope.documentChanged = false;
+                }, 0);
             }
+        }, function (error) {
+            $scope.handleServiceError(error);
         }); 
     };
 
@@ -142,6 +161,8 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
         if ($scope.document._id) {
             $scope.service.put(doc, function (result) {
                 $scope.reloadDocument()
+            }, function (error) {
+                $scope.handleServiceError(error);
             });
         } else {
             // create new, empty document
@@ -152,7 +173,11 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
 
                 $scope.service.put(doc, function (result) {
                     $scope.reloadDocument();
+                }, function (error) {
+                    $scope.handleServiceError(error);
                 });
+            }, function (error) {
+                $scope.handleServiceError(error);
             })
         }
     };
@@ -162,9 +187,17 @@ angular.module('bauhaus.document.controllers').controller('DocumentDetailCtrl', 
         if (ok) {
             $scope.service.delete({}, {_id: $scope.document._id }, function (result) {
                 $location.path('document/' + $scope.type);
+            }, function (error) {
+                $scope.handleServiceError(error);
             });
         }
     }
+
+    $scope.handleServiceError = function (error) {
+        if (error.status !== 404) {
+            alert('An error occured when trying to reach server. Please check if you are online and signed in.');
+        }
+    };
 
 
 }]);

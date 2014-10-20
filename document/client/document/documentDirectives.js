@@ -13,7 +13,6 @@ angular.module('bauhaus.document.directives').directive('bauhausDocumentForm', f
                 var html = '<bauhaus-' + field.type;
                 html += ' ng-model="doc.' + field.name  + '" field-config="config.fields[' + id + ']" show-errors="showErrors"';
                 if (typeof field.show === 'string') {
-                    console.log(id, field)
                     html += ' ng-show="' + field.show + '"';
                 }
                 html += '></bauhaus-' + field.type + '>'; 
