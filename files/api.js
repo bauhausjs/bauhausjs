@@ -1,8 +1,8 @@
 var express = require('express');
-var db = require('./databaseOperations.js');
-var pfs = require('./pragmFileSystem.js');
-var File = require('./model/file');
-var count = 0;
+//var db = require('./databaseOperations.js');
+//var pfs = require('./pragmFileSystem.js');
+//var File = require('./model/file');
+var fop = require('./fop.js');
 
 module.exports = function (bauhausConfig) {
     // Register document for CRUD generation
@@ -20,28 +20,18 @@ module.exports = function (bauhausConfig) {
 
     var app = express();
     var pre = "/files";
+    
+    app.get(pre + '/test', function (req, res) {
+        //req.accepts('*');
 
-    function getGCD(nominator, denominator) {
-        'use strict';
-        return ((nominator > 0) ? getGCD(denominator % nominator, nominator) : denominator);
-    }
-
-    app.get(pre + '/test', function (req, res, next) {
-        pfs.init().then(function (data) {
-            res.json({
-                "info": "LOL successful!",
-                "id": data
-            });
-        }, function (err) {
-            res.json({
-                "info": "LOL unsuccessful!",
-                "id": err
-            });
+        res.json({
+            "lol": "test"
         });
     });
 
     app.post(pre + '/upload/:id', function (req, res) {
-        req.accepts('*');
+        fop.upload(req, res);
+        /*req.accepts('*');
         try {
             var routeParams = req.route.params;
             var id = routeParams.id;
@@ -68,10 +58,10 @@ module.exports = function (bauhausConfig) {
             };
 
             db.setFileData(id, buffer, metadata).then(function (data) {
-                db.deleteCached(id).then(function(data){
-                    console.log("deleteCached: "+data);
-                }, function(err){
-                    console.log("deleteCached: ERROR: "+err);
+                db.deleteCached(id).then(function (data) {
+                    console.log("deleteCached: " + data);
+                }, function (err) {
+                    console.log("deleteCached: ERROR: " + err);
                 });
                 res.json({
                     "info": "Upload successful!",
@@ -86,19 +76,13 @@ module.exports = function (bauhausConfig) {
             console.error(err);
             res.writeHead(500);
             res.json("May DataURL corrupt!");
-        }
-    });
-
-    app.get(pre + '/list', function (req, res) {
-        req.accepts('*');
-        res.json({
-            "success": true,
-            "dirObject": pfs.dirObject
-        });
+        }*/
     });
 
     app.post(pre + '/fop', function (req, res) {
-        req.accepts('*');
+        fop.fop(req, res);
+        
+        /*req.accepts('*');
         var routeParams = req.route.params;
         var id = routeParams.id;
         var body = req.body || {};
@@ -107,6 +91,9 @@ module.exports = function (bauhausConfig) {
         if (data.op) {
             switch (data.op) {
             case "add":
+                if(data.dir == "*root*"){
+                    data.dir = pfs.systemUsr;
+                }
                 pfs.addFile(data.name, data.dir, data.type).then(function (data) {
                     res.json({
                         "success": true,
@@ -189,16 +176,69 @@ module.exports = function (bauhausConfig) {
                     });
                 }
                 break;
+            case "flist":
+                if (pfs.dirObject && data.id) {
+                    var temp = {};
+                    //temp[data.id] = pfs.dirObject[data.id];
+                    for (i in pfs.dirObject[data.id].content) {
+                        var id = pfs.dirObject[data.id].content[i];
+                        if (pfs.dirObject[id].type == 2) {
+                            temp[id] = pfs.dirObject[id];
+                        }
+                    }
+                    res.json({
+                        "success": true,
+                        "flist": temp
+                    });
+                } else {
+                    res.json({
+                        "success": false,
+                        "error": "DirObject not defined!"
+                    });
+                }
+                break;
+            case "getfilebyname":
+                if (pfs.dirObject && data.name) {
+                    var aid = "";
+                    var dir = data.dir;
+                    if(dir == "*root*"){
+                        dir = pfs.systemUsr;
+                    }
+                    for (i in pfs.dirObject[dir].content) {
+                        var id = pfs.dirObject[dir].content[i];
+                        if (pfs.dirObject[id].name == data.name) {
+                            aid = id;
+                            break;
+                        }
+                    }
+                    if (aid != "") {
+                        res.json({
+                            "success": true,
+                            "id": aid
+                        });
+                    } else {
+                        res.json({
+                            "success": false,
+                            "error": "Not found in root dir!"
+                        });
+                    }
+                } else {
+                    res.json({
+                        "success": false,
+                        "error": "DirObject not defined!"
+                    });
+                }
+                break;
             }
         } else {
             res.json({
                 "success": false,
                 "error": "No Operation"
             });
-        }
+        }*/
     });
 
-    app.post(pre + '/add', function (req, res) {
+    /*app.post(pre + '/add', function (req, res) {
         req.accepts('*');
         var routeParams = req.route.params;
         var id = routeParams.id;
@@ -267,10 +307,10 @@ module.exports = function (bauhausConfig) {
         res.json({
             "lol": 42 + count
         });
-    });
+    });*/
 
-    app.get('/Filesp', function (req, res) {
-        req.accepts('*');
+    /*app.get('/Filesp', function (req, res) {
+        req.accepts('*');*/
         /*db.addFile("SUPIFOLDER",2).then(function(data){
             console.log("MY NEW ID: "+data);
             db.getFilesInfoWithoutBuffer();
@@ -278,7 +318,7 @@ module.exports = function (bauhausConfig) {
             console.log('error lol');
             console.log(err);
         });*/
-        db.copyFile('542822426127f3c2522ed24f', "neutest").then(function (data) {
+        /*db.copyFile('542822426127f3c2522ed24f', "neutest").then(function (data) {
             console.log(data);
             res.json({
                 "dat": data
@@ -288,7 +328,7 @@ module.exports = function (bauhausConfig) {
             res.json({
                 "err": err
             });
-        });
+        });*/
 
 
         /*db.getFilesInfoWithoutBuffer().then(function(data){
@@ -308,8 +348,8 @@ module.exports = function (bauhausConfig) {
                 "lol": count,
                 "err": err
             });
-        });*/
-    });
+        });
+    });*/
 
     return app;
 }

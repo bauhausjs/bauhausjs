@@ -3,13 +3,13 @@
         <div class="sharefieldline">
             <div></div>
             <input ng-model="filedata.name" type="text" class="renameFile" title="rename" onclick="this.select();" ng-value="filedata.name" ng-change="changeName();">
-            <input class="alertbutton" id="closeStyle" type="button" value="CLOSE" ng-click="editclose();">
-            <!--<input class="alertbutton" id="saveStyle" type="button" value="Save" onclick="data.set('shareshow', 'none');">-->
+            <input type="file" class="cropImage" cropWidth="400" cropHeight="400" uploadUrl="http://localhost:1919/backend/api/files/upload/{{filedata._id}}" maxSize="false" onimgset="globalEvent.imagereload(e);" oncancel="console.error(e);" circle="true" style="position: absolute; top: 48px; left: 10px;">
+            <!--<input class="alertbutton" id="closeStyle" type="button" value="CLOSE" ng-click="editclose();">-->
+            <div class="alertbutton" id="closeStyle" style="width: 12px;" ng-click="editclose();"><i class="fa fa-times"></i></div>
         </div>
 
         <div class="cutline">
-            <input type="file" class="cropImage" cropWidth="400" cropHeight="400" uploadUrl="http://localhost:1919/backend/api/files/upload/{{filedata._id}}" maxSize="false" onimgset="globalEvent.imagereload(e);" oncancel="console.error(e);" circle="true">
-            <img ng-src="{{filesrc}}" style="width: 100%;">
+            <img ng-src="{{filesrc}}" style="width: 100%; max-height: 319px;">
         </div>
     </div>
 </div>
@@ -59,11 +59,11 @@
         <ul class="fileListUl" id="fileListUl">
             <li id="filelistHeadline" ng-click="setinactive($event);" ng-mouseover="mouseout();">
                 <div class="selectcounter">{{activenum}}</div>
-                <font style="position: relative; left: 48px;">TITLE</font>
+                <font style="position: relative; left: 48px;" ng-click="order('name_cache');">TITLE</font>
                 <div class="ownerFile">CONTENT TYPE</div>
                 <div class="lastChange">LAST MODIFIED</div>
             </li>
-            <li ng-repeat="key in dirShow" class="{{getactive(key)}}" ng-mouseup="setactive($event, key);" ng-mousedown="mousedown(key, $event);" ng-mouseover="mouseover(key);" ng-dblclick="configFile(key);" dragable="false">
+            <li ng-repeat="key in showdata = (dirShow | filter:searchText) | orderBy:sortby:reverse" class="{{getactive(key)}}" ng-mouseup="setactive($event, key);" ng-mousedown="mousedown(key, $event);" ng-mouseover="mouseover(key);" ng-dblclick="configFile(key);" dragable="false">
                 <!--<div class="ico{{key.substr(0,1);}}"></div>-->
                 <i class="{{getIconClass(key)}} fileexplorericon"></i>
                 <font class="filenameDir" style="position: relative; left: 30px;" ng-click="openFileAngu(key);">{{dirObject[key].name}}

@@ -268,7 +268,7 @@ m.setFileInfo = function (id, data) {
 
 m.getFilesInfoWithoutBuffer = function () {
     var deferred = q.defer();
-    File.find({}, '_id name type content parent', function (err, files) {
+    File.find({}, '_id name type content parent metadata', function (err, files) {
         if (err) {
             deferred.reject(err);
         } else {

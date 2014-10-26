@@ -1,146 +1,133 @@
-/*angular.module('bauhaus.page.directives', []);
 
-angular.module('bauhaus.page.directives').filter('toArray', function(){
-    return function(obj) {
-        var result = [];
-        angular.forEach(obj, function(val, key) {
-            result.push(val);
-        });
-        return result;
-    };
-});
-
-angular.module('bauhaus.page.directives').directive('preventDefault', function() {
-    return function(scope, element, attrs) {
-        angular.element(element).on('click', function (event) {
-            event.preventDefault();   
-            event.stopPropagation();         
-        });
-    };
-});
-
-angular.module('bauhaus.page.directives').directive('bauhausForm', function ($compile) {
+angular.module('bauhaus.document.directives').directive('bauhausImage', function ($timeout) {
     return {
+        restrict: 'AEC',
+        template: '<div class="page-content-field" ng-blur="showSelect = false">' +
+            '     <label class="page-content-field-label">{{config.label}}</label>' +
+            '     <div class="tag-list" ng-if="value.files.length > 0">' +
+            '          <div class="tag" ng-repeat="id in value.files"><img ng-src="/files/asset/{{id}}?{{imageQuery}}"><div class="tag-delete" ng-click="removeImage(id)"><span class="fa fa-times"></span></div></div>' +
+            '     </div>' +
+            '     <div ng-show="limit <= value.files.length">Remove image to add new one. (Limit: {{limit}})</div>' +
+            '     <div class="suggestions-wrapper">' +
+            '         <input class="page-content-field-input input-big" type="text" ng-model="search" placeholder="+ Add Image" ng-focus="showSelect = true" ng-blur="blur($event)"/>' +
+            '         <div class="suggestions" ng-show="showSelect" ng-init="showSelect = false">' +
+            '             <div class="suggestions-item clickable" ng-repeat="image in images | filter:search" ng-click="addImage(image)"><img ng-src="/files/asset/{{image._id}}?{{imageQuery}}" title="{{image.name}}"/></div>' +
+            '         </div>' +
+            '     </div>' +
+            '</div>',
         scope: {
-            content: '=ngModel',
-            config: '=config'
+            value: '=ngModel',
+            config: '=fieldConfig'
         },
         link: function (scope, el, attr) {
-            var html ='<div>';
-            for (var f in scope.config.fields) {
-                var field = scope.config.fields[f];
-                html += '<bauhaus-' + field.type + 
-                        ' ng-model="content.content.' + field.name  + 
-                        '" field-config="config.fields[' + f + ']" ></bauhaus-' + field.type + '>';
+            // Load labels of related documents
+            if (typeof scope.config.options === 'undefined') {
+                scope.config.options = {};
             }
-            html += '</div>';
 
-            el.replaceWith($compile(html)(scope));
-        }
-    };
-});
+            scope.limit = (scope.config.options.limit !== undefined && typeof scope.config.options.limit === 'number') ? scope.config.options.limit : 1;
+            scope.imageQuery = 'transform=resize&width=50&height=50';
+            scope.images = [];
 
-angular.module('bauhaus.page.directives').directive('bauhausPageTree', function (SharedPageTree, Page, $location) {
-    return {
-        templateUrl: 'page/pageTree.html',
-        scope: {},
-        link: function (scope, el, attr) {
-            scope.tree = SharedPageTree.tree;
-
-            scope.changePage = function (id) {
-                $location.path('page/' + id);
+            scope.blur = function (event) {
+                $timeout(function () {
+                    scope.showSelect = false;
+                }, 200);
             };
 
-            /* Create new child page at rest service, called from UI */
-            /*scope.newPage = function (page) {
-                var seperator = (page.route[ page.route.length - 1 ] === '/') ? '' : '/';
+            scope.$watch('showSelect', function (newVal) {
+                if (newVal == true && scope.images.length === 0) {
+                    scope.initValue();
+                    if (scope.value.dir) {
+                        scope.loadlist();
+                    } else {
+                        data.fop({
+                            "op": "getfilebyname",
+                            "dir": "*root*",
+                            "name": "projects"
+                        }, function (e) {
+                            if (e.success) {
+                                var proid = e.id;
+                                var name = scope.$parent.doc._id + " : " + scope.$parent.doc.title;
+                                data.fop({
+                                    "op": "getfilebyname",
+                                    "dir": proid,
+                                    "name": name
+                                }, function (e) {
+                                    if (e.success) {
+                                        scope.value.dir = e.id;
+                                        scope.loadlist();
+                                    } else {
+                                        data.fop({
+                                            "op": "add",
+                                            "name": name,
+                                            "dir": proid,
+                                            "type": 1
+                                        }, function (data) {
+                                            if (data.success) {
+                                                //scope.value.dir = "5437803f1c0359db06c920cc";
+                                                alert("Created new Folder in FileSystem!");
+                                                scope.value.dir = data.data;
+                                                console.log("Data Folder " + data.data);
+                                                scope.loadlist();
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
 
-                var newPage = {
-                    parentId: page._id,
-                    title: '',
-                    route: page.route + seperator,
-                    _type: page._type,
-                    public: false
-                };
-
-                Page.create(newPage, function (result) {
-                    if (!page.children) page.children = {};
-                    page.children[ result._id ] = result;
-                    scope.changePage(result._id);
+            scope.loadlist = function () {
+                data.fop({
+                    "op": "flist",
+                    "id": scope.value.dir
+                }, function (data) {
+                    if (data.success) {
+                        console.log(data.flist);
+                        for (var i in data.flist) {
+                            scope.images.push(data.flist[i]);
+                        }
+                        console.log(scope.images);
+                        if (!scope.$$phase) {
+                            scope.$apply();
+                        }
+                    }
                 });
             };
+
+            scope.addImage = function (image) {
+                var image = image;
+                //scope.initValue();
+                if (image._id) {
+                    if (scope.value.files.length < scope.limit && scope.value.files.indexOf(image._id) < 0) {
+                        scope.value.files.push(image._id);
+                        /*$timeout(function() {
+                            scope.$parent.$parent.$apply();
+                        });*/
+                    }
+                }
+                scope.showSelect = false;
+            };
+
+            scope.removeImage = function (id) {
+                var index = scope.value.files.indexOf(id);
+                if (index !== -1) {
+                    scope.value.files.splice(index, 1);
+                }
+            };
+
+            // Init relation object, of it doesn't exist yet
+            scope.initValue = function () {
+                if (typeof scope.value !== 'object') {
+                    scope.value = {
+                        files: []
+                    };
+                }
+            };
+
         }
     };
 });
-
-angular.module('bauhaus.page.directives').directive('bauhausText', function () {
-    return {
-        restrict: 'AEC',
-        template: '<div class="page-content-field">' + 
-                  '     <label class="page-content-field-label">{{config.label}}</label>' +
-                  '     <input class="page-content-field-input input-big" type="text" ng-model="value" />' + 
-                  '</div>',
-        scope: {
-            value: '=ngModel',
-            config: '=fieldConfig'
-        }
-    };
-});
-
-angular.module('bauhaus.page.directives').directive('bauhausCheckbox', function () {
-    return {
-        restrict: 'AEC',
-        template: '<div class="page-content-field">' + 
-                  '     <label class="page-content-field-label">{{config.label}}</label>' +
-                  '     <input class="page-content-field-checkbox" type="checkbox" ng-model="value" />' + 
-                  '</div>',
-        scope: {
-            value: '=ngModel',
-            config: '=fieldConfig'
-        }
-    };
-});
-
-angular.module('bauhaus.page.directives').directive('bauhausPassword', function () {
-    return {
-        restrict: 'AEC',
-        template: '<div class="page-content-field">' + 
-                  '     <label class="page-content-field-label">{{config.label}}</label>' +
-                  '     <input class="page-content-field-input input-big" type="password" ng-model="value" />' + 
-                  '</div>',
-        scope: {
-            value: '=ngModel',
-            config: '=fieldConfig'
-        }
-    };
-});
-
-angular.module('bauhaus.page.directives').directive('bauhausTextarea', function () {
-    return {
-        restrict: 'AEC',
-        template: '<div class="page-content-field">' + 
-                  '     <label class="page-content-field-label">{{config.label}}</label>' +
-                  '     <textarea class="page-content-field-textarea" ng-model="value"></textarea>' + 
-                  '</div>',
-
-        scope: {
-            value: '=ngModel',
-            config: '=fieldConfig'
-        }
-    };
-});
-
-angular.module('bauhaus.page.directives').directive('bauhausHtml', function () {
-    return {
-        restrict: 'AEC',
-        template: '<div class="page-content-field">' + 
-                  '     <label class="page-content-field-label">{{config.label}}</label>' +
-                  '     <div text-angular ta-toolbar="[ [\'p\',\'h1\',\'h2\',\'h3\'], [\'bold\',\'italics\',\'ul\',\'ol\',\'redo\',\'undo\'], [\'html\'] ]" ng-model="value"></div>' + 
-                  '</div>',
-
-        scope: {
-            value: '=ngModel',
-            config: '=fieldConfig'
-        }
-    };
-});*/

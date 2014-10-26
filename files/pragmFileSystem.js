@@ -51,6 +51,7 @@ m.addFile = function (name, dir, type) {
             type = 1;
         }
         db.addFile(name, type).then(function (id) {
+                var id = id;
                 if (type == 1) {
                     //console.log("Eins");
                     m.dirObject[id] = {};
@@ -76,7 +77,7 @@ m.addFile = function (name, dir, type) {
                 m.changedFiles[dir] = true;
                 m.changedFiles[id] = true;
                 m.saveAll().then(function (data) {
-                    deferred.resolve(true);
+                    deferred.resolve(id);
                     //console.log("Saved");
                 }, function (err) {
                     deferred.reject(err);
@@ -369,7 +370,7 @@ m.copyFolder = function (id, toid, deep) { // ==== RECURSIVE ==== !!!!!!!!!!!!!!
     var deferred = q.defer();
     deep++;
     if (deep > 990 || m.isSubOrdered(toid, id)) {
-        if(deep > 990){
+        if (deep > 990) {
             console.log(" W A R N I N G  copy abort => looped to long! ID: " + id + " TOID: " + toid);
             deferred.reject("You cannot make more than 990 subfolders!");
         } else {
@@ -554,6 +555,7 @@ m.init = function () {
     if (m.dirObject == null) {
         db.getFilesInfoWithoutBuffer().then(function (data) {
             m.dirObject = data;
+            console.log(data);
             deferred.resolve(true);
         }, function (err) {
             console.error("ERROR: Cannot load dirObject pragm file system! " + err);
