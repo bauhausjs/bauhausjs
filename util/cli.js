@@ -27,7 +27,7 @@ cli.welcome = function (app) {
     console.log('______| |_) | (_| | |_| | | | | (_| | |_| \\__ \\ |_| |___) |');
     console.log('___________/ \\__,_|\\__,_| | |_|\\__,_|\\__,_|___/\\___/|____/ ');
     console.log('\u001b[90m                        | | \u001b[93m           \u001b[91m _______   \u001b[94m      ');
-    console.log('\u001b[90m       v' + version + '           | | \u001b[93m    /\\    \u001b[91m |       | \u001b[94m  ,-´-, ');
+    console.log('\u001b[90m       v' + version + '          | | \u001b[93m    /\\    \u001b[91m |       | \u001b[94m  ,-´-, ');
     console.log('\u001b[90m                        | | \u001b[93m   /  \\   \u001b[91m |       | \u001b[94m /     \\ ');
     console.log('\u001b[90m      ' + mode + '      \u001b[90m| | \u001b[93m  /    \\  \u001b[91m |       | \u001b[94m \\     / ');
     console.log('\u001b[90m                        | | \u001b[93m /______\\ \u001b[91m |_______| \u001b[94m  `-,-´');
