@@ -5,7 +5,8 @@
         "files/cropImages.js",
         "files/addFile.js",
         "files/data.js",
-        "files/filesController.js"
+        "files/filesController.js",
+        "files/filesDirectives.js"
     ],
     "styles": [
         "files/files.less"

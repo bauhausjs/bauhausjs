@@ -9,7 +9,7 @@ m.addDocument = function () {
     });
     file.save(function (err, file) {
         if (err) return console.error(err);
-        console.log("saved");
+        //console.log("saved");
     });
 };
 
@@ -75,7 +75,7 @@ m.copyFile = function (id, name) {
                 if (filecopy.type == 1 || filecopy.type == 0) {
                     filecopy.content = [];
                 }
-                console.log(filecopy);
+                //console.log(filecopy);
 
                 m.addFileObject(filecopy).then(function (data) {
                     deferred.resolve(data);
@@ -250,7 +250,7 @@ m.setFileInfo = function (id, data) {
                 for (var k in data) {
                     if(k != "_id"){
                         file[k] = data[k];
-                        console.log("set file "+k+" "+JSON.stringify(file[k]));
+                        //console.log("set file "+k+" "+JSON.stringify(file[k]));
                     }
                 }
                 file.save(function (err, file) {
@@ -268,7 +268,7 @@ m.setFileInfo = function (id, data) {
 
 m.getFilesInfoWithoutBuffer = function () {
     var deferred = q.defer();
-    File.find({}, '_id name type content parent', function (err, files) {
+    File.find({}, '_id name type content parent metadata', function (err, files) {
         if (err) {
             deferred.reject(err);
         } else {

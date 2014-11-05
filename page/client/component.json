@@ -1,11 +1,13 @@
 {
     "scripts": [
+        "kalendae.standalone.js",
         "page/page.js",
         "page/pageController.js",
         "page/pageDirectives.js",
         "page/pageServices.js"
     ],
     "styles": [
+        "kalendae.css",
         "page/page.less"
     ],
     "templates": [

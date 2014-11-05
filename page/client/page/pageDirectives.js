@@ -144,3 +144,112 @@ angular.module('bauhaus.page.directives').directive('bauhausHtml', function () {
         }
     };
 });
+angular.module('bauhaus.page.directives').directive('bauhausAddress', function ($compile, $timeout) {
+//app.directive('bauhausAddress', function ($compile) {
+    return {
+        restrict: 'AEC',
+        template: '<div class="page-content-field" ng-if="showit">' + 
+                  '     <label class="page-content-field-label">{{config.label}} {{config.options.required ? "*" : "" }}</label>' +
+                  '     <input class="page-content-field-input input-big" type="text" name="{{config.name}}.street" ng-model="value.street" placeholder="Straße">' + 
+                  '     <input class="page-content-field-input input-short" type="text" name="{{config.name}}.streetNo" ng-model="value.streetNo" placeholder="Hausnummer"  ng-disabled="config.permission === \'view\'"/><br />' + 
+                  '     <input class="page-content-field-input input-short" type="text" name="{{config.name}}.postcode" ng-model="value.postcode" placeholder="PLZ" ng-disabled="config.permission === \'view\'" />' + 
+                  '     <input class="page-content-field-input input-big" type="text" name="{{config.name}}.place" ng-model="value.place" placeholder="Ort"  ng-disabled="config.permission === \'view\'"/>' + 
+                  '     <div class="error" ng-show="(validateStreet.$error.required || validateStreetNo.$error.required || validatePostcode.$error.required || validatePlace.$error.required ) && showErrors">Bitte geben Sie eine vollständige Adresse an.</div>' + 
+                  '</div>',
+        scope: {
+            value: '=ngModel',
+            config: '=fieldConfig'
+        },
+        link: function (scope, el, attr) {
+            /*$timeout(function(){
+            console.log(scope.value.street);
+            console.log(scope.value.streetNo);
+            console.log(scope.value.postcode);
+            console.log(scope.value.place);
+            },1000);*/
+            scope.$watch('value', function (newVal, oldVal) { 
+                if(typeof newVal !== 'object'){
+                    scope.value = {'street':'Straße','streetNo':'12','postcode':'69257','place':'Gammel'};
+                }
+            });
+            scope.showit = true;
+            
+            
+            /*scope.$watch('config.name', function (newVal, oldVal) {
+                if (newVal) {
+                    scope.value.validateStreet = scope.$parent.form[ scope.config.name + '.street' ];
+                    scope.value.validateStreetNo = scope.$parent.form[ scope.config.name + '.streetNo' ];
+                    scope.value.validatePostcode = scope.$parent.form[ scope.config.name + '.postcode' ];
+                    scope.value.validatePlace = scope.$parent.form[ scope.config.name + '.place' ];
+                }
+            });*/
+            var input = el.find('input');
+            if (scope.config && scope.config.options && typeof scope.config.options.required === 'boolean') {
+                input.attr('ng-required', true);
+            }
+            $compile(el.contents())(scope)
+        }
+    };
+});
+
+angular.module('bauhaus.page.directives').directive('bauhausDatetime', function ($timeout) {
+    return {
+        restrict: 'AEC', //AEC
+        template: '<div class="page-content-field">' + 
+                  '     <label class="page-content-field-label">{{config.label}}</label>' +
+                  '     <!--<input class="page-content-field-input input-big" type="text" ng-value="value" />-->' + 
+                  '     <input type="text" ng-value="dateval" id="input1{{config.name}}">' + 
+                  '     <input type="time" name="usr_time" ng-model="time">' + 
+                  '</div>',
+        scope: {
+            value: '=ngModel',
+            config: '=fieldConfig'
+        },
+        link: function (scope, el, attr) { 
+            
+            scope.load = function(newVal){
+                console.log('loaded');
+                scope.dateval= newVal.substr(0,10);
+                scope.time = newVal.substr(11,5);
+                scope.kal = new Kalendae.Input('input1'+scope.config.name, {
+                    months:2,
+                    format:'YYYY-MM-DD'
+                });
+                scope.kal.subscribe('change', function (date, action) {
+                    console.log("UPDATE", date, date._i+scope.value.substr(10));
+                    var temp = date._i+scope.value.substr(10);
+                    scope.$apply(function() {
+                        scope.value = temp;
+                    });
+                });
+            };
+            scope.numb = 0;
+            scope.$watch('value', function (newVal, oldVal) {
+                scope.numb++;
+                console.log("called "+scope.numb);
+                if (scope.numb === 2) {
+                    if(!newVal){ 
+                        newVal = new Date().toJSON();
+                        scope.value = new Date().toJSON();
+                    }
+                    scope.load(newVal);
+                } else {
+                    $timeout(function(){
+                        if(scope.numb < 2){
+                            scope.numb = 3;
+                            scope.value = new Date().toJSON();
+                            scope.load(scope.value);
+                        }
+                    },100)
+                }
+            });
+            scope.$watch('time', function (newVal, oldVal) {
+                if (newVal) {
+                    console.log("UPDATE", scope.value.substr(0,11)+newVal+':00.000Z');
+                    var temp = scope.value.substr(0,11)+newVal+':00.000Z';
+                    scope.value = temp;
+                }
+            });
+        }
+    };
+});

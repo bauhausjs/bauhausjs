@@ -51,6 +51,7 @@ m.addFile = function (name, dir, type) {
             type = 1;
         }
         db.addFile(name, type).then(function (id) {
+                var id = id;
                 if (type == 1) {
                     //console.log("Eins");
                     m.dirObject[id] = {};
@@ -76,7 +77,7 @@ m.addFile = function (name, dir, type) {
                 m.changedFiles[dir] = true;
                 m.changedFiles[id] = true;
                 m.saveAll().then(function (data) {
-                    deferred.resolve(true);
+                    deferred.resolve(id);
                     //console.log("Saved");
                 }, function (err) {
                     deferred.reject(err);
@@ -246,10 +247,10 @@ m.moveFileList = function (moveObject) {
 };
 
 m.moveFile = function (id, toid, fromid) {
-    console.log("ID: " + id + " TOID: " + toid + " FROMID: " + fromid);
+    //console.log("ID: " + id + " TOID: " + toid + " FROMID: " + fromid);
     var s = m.isSubOrdered(toid, id);
     if (m.dirObject[id].parent == fromid && !s) {
-        console.log("GO");
+        //console.log("GO");
         m.removeLink(fromid, id);
         m.dirObject[id].parent = toid;
         m.addLink(toid, id);
@@ -356,7 +357,7 @@ m.copyFile = function (id, toid) {
         m.addLink(toid, nid);
         m.changedFiles[nid] = true;
         m.changedFiles[toid] = true;
-        console.log("Finish copy of " + name);
+        //console.log("Finish copy of " + name);
         deferred.resolve(nid);
     }, function (err) {
         deferred.reject(err);
@@ -369,11 +370,11 @@ m.copyFolder = function (id, toid, deep) { // ==== RECURSIVE ==== !!!!!!!!!!!!!!
     var deferred = q.defer();
     deep++;
     if (deep > 990 || m.isSubOrdered(toid, id)) {
-        if(deep > 990){
+        if (deep > 990) {
             console.log(" W A R N I N G  copy abort => looped to long! ID: " + id + " TOID: " + toid);
             deferred.reject("You cannot make more than 990 subfolders!");
         } else {
-            console.log("You cannot copy a file into itself! ID: " + id + " TOID: " + toid);
+            //console.log("You cannot copy a file into itself! ID: " + id + " TOID: " + toid);
             deferred.reject("You cannot copy a file into itself!");
         }
     } else {
@@ -395,7 +396,7 @@ m.copyFolder = function (id, toid, deep) { // ==== RECURSIVE ==== !!!!!!!!!!!!!!
 
             m.changedFiles[nid] = true;
             m.changedFiles[toid] = true;
-            console.log("Finish copy of " + name);
+            //console.log("Finish copy of " + name);
             var c = m.dirObject[id].content.length;
             var n = 0;
             var g = 0;
@@ -409,7 +410,7 @@ m.copyFolder = function (id, toid, deep) { // ==== RECURSIVE ==== !!!!!!!!!!!!!!
                             if (n > 0) {
                                 deferred.reject("Something went wrong while copying files!");
                             } else {
-                                console.log("STOP!!!!");
+                                //console.log("STOP!!!!");
                                 deferred.resolve(data);
                             }
                         }
@@ -427,7 +428,7 @@ m.copyFolder = function (id, toid, deep) { // ==== RECURSIVE ==== !!!!!!!!!!!!!!
                             if (n > 0) {
                                 deferred.reject("Something went wrong while copying files!");
                             } else {
-                                console.log("STOP!!!!");
+                                //console.log("STOP!!!!");
                                 deferred.resolve(data);
                             }
                         }
@@ -441,7 +442,7 @@ m.copyFolder = function (id, toid, deep) { // ==== RECURSIVE ==== !!!!!!!!!!!!!!
                 }
             }
             if (c === 0) {
-                console.log("STOP!!!!");
+                //console.log("STOP!!!!");
                 deferred.resolve(true);
             }
         }, function (err) {
@@ -554,6 +555,7 @@ m.init = function () {
     if (m.dirObject == null) {
         db.getFilesInfoWithoutBuffer().then(function (data) {
             m.dirObject = data;
+            //console.log(data);
             deferred.resolve(true);
         }, function (err) {
             console.error("ERROR: Cannot load dirObject pragm file system! " + err);
@@ -582,9 +584,9 @@ m.saveAll = function () {
     var g = 0;
     for (i in m.changedFiles) {
         c++;
-        console.log("Save " + i);
+        //console.log("Save " + i);
         db.setFileInfo(i, m.dirObject[i]).then(function (data) {
-            console.log("Saved " + i);
+            //console.log("Saved " + i);
             n++;
             g++;
             if (n == c) {
@@ -635,7 +637,7 @@ m.init().then(function (data) {
             m.dirObject = null;
             m.init().then(function (data) {
                 console.log("Loading FileSystem Index into Cache Finished!");
-                console.log(m.dirObject);
+                //console.log(m.dirObject);
                 var temp = m.searchMainDir();
                 if (!temp) {
                     console.log("ERROR: Found no Main Dir!" + err);
