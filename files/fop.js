@@ -39,13 +39,13 @@ m.upload = function (req, res) {
 
         db.setFileData(id, buffer, metadata).then(function (data) {
             db.deleteCached(id).then(function (data) {
-                console.log("deleteCached: " + data);
+                //console.log("deleteCached: " + data);
                 res.json({
                     "info": "Upload successful!",
                     "id": data
                 });
             }, function (err) {
-                console.log("deleteCached: ERROR: " + err);
+                console.error("deleteCached: ERROR: " + err);
                 res.json({
                     "info": "Upload successful!",
                     "id": data
@@ -92,7 +92,7 @@ m.fop = function (req, res, ndo) {
     var id = routeParams.id;
     var body = req.body || {};
     var data = JSON.parse(body.data) || {};
-    console.log(data);
+    //console.log(data);
     if (data.op) {
         switch (data.op) {
         case "add":

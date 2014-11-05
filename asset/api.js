@@ -64,6 +64,8 @@ function main (bauhausConfig) {
 	 *	Route to updload data to an asset
 	 */
 	app.post(basePath + '/:id', function (req, res) {
+        req.accepts('*');
+
 		var fileData,		//Holds various information about the uploaded file
 			assetBuffer,	//The image data as buffer
 			routeParams = req.route.params,	//The parameters of the route (:id)
@@ -100,25 +102,28 @@ function main (bauhausConfig) {
 
 				assetDocument.metadata.size = fileData.size; //The size in bytes
 
-				gm(assetBuffer).size(function (err, size) { //Computes the size of the uploaded image
-					var	gcd,
-						height = size.height,
-						width  = size.width;
+                var isImage = /^image\//;
+                if (assetDocument.metadata['content-type'].match(isImage) !== null) { // calculate size for images
+    				gm(assetBuffer).size(function (err, size) { //Computes the size of the uploaded image
+    					var	gcd,
+    						height = size.height,
+    						width  = size.width;
 
-					if (err)  { return next(err); }
+    					if (err)  { return next(err); }
 
-					gcd = utilities.gcd (width,height);
+    					gcd = utilities.gcd (width,height);
 
-					assetDocument.metadata.width       = width;
-					assetDocument.metadata.height      = height;
-					assetDocument.metadata.aspectRatio = {
-															value: width/height,
-															text:	(width/gcd) + ':' + (height/gcd)
-														 };
+    					assetDocument.metadata.width       = width;
+    					assetDocument.metadata.height      = height;
+    					assetDocument.metadata.aspectRatio = {
+    															value: width/height,
+    															text:	(width/gcd) + ':' + (height/gcd)
+    														 };
 
-					removeCachedSubAssets (id); //If we update the data all cached versions need to be removed.
-					saveAsset (assetDocument, res);
-				});
+    					removeCachedSubAssets (id); //If we update the data all cached versions need to be removed.
+    					saveAsset (assetDocument, res);
+    				});
+                }
 
 			} else {
 				saveAsset (assetDocument, res);
