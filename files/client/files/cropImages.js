@@ -145,10 +145,10 @@ var cropImages = function (params) {
                     }(file));
                     reader.readAsDataURL(file);
                 } else {
-                    console.error("loI");
+                    //console.error("loI");
                 }
             } else {
-                console.error("lo");
+                //console.error("lo");
             }
         } else {
             alert('The File APIs are not fully supported in this browser.');
@@ -180,7 +180,7 @@ var cropImages = function (params) {
         indiv.innerHTML = text;
 
         div.appendChild(indiv);
-        console.warn("MAKEDIV");
+        //console.warn("MAKEDIV");
         document.body.appendChild(div);
         return div;
     };
@@ -247,7 +247,7 @@ var cropImages = function (params) {
             }
         }
 
-        console.log("RAD: " + rad);
+        //console.log("RAD: " + rad);
 
         // iCropShow Overlay to view 
         var iCropShow = document.createElement('div');

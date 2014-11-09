@@ -45,11 +45,12 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         // File Edit Handler =============================
 
         $scope.fileedit = false;
+        $scope.filesrcshow = false;
         $scope.filesrc = "";
         $scope.filenamecache = "";
 
         $scope.editopen = function (id) {
-            console.log(id);
+            //console.log(id);
             $scope.fileedit = true;
             $scope.filedata = $scope.dirObject[id];
             $scope.filesrc = "http://localhost:1919/files/" + id + ".jpg";
@@ -471,7 +472,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                     "fromid": $scope.actualDir
                 }
             }, function (e) {
-                console.warn(e);
+                //console.warn(e);
                 if (e.success && e.dirObject) {
                     $scope.dirObject = e.dirObject;
                     $scope.update();
@@ -697,7 +698,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
             data.fop({
                 "op": "list"
             }, function (e) {
-                console.warn(e);
+                //console.warn(e);
                 if (e.success && e.dirObject) {
                     $scope.dirObject = e.dirObject;
                     $scope.update();
@@ -714,7 +715,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         data.fop({
             "op": "list"
         }, function (cb) {
-            console.warn(cb);
+            //console.warn(cb);
             if (cb.success && cb.dirObject) {
                 $scope.dirObject = cb.dirObject;
                 if (!$scope.searchMainDir()) {
@@ -722,14 +723,14 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                     $scope.actualDir = "5412a796861b588f45e9710f";
                     data.actualDir = $scope.actualDir;
                     $scope.mainDir = "5412a796861b588f45e9710f";
-                    console.error("Couldn't find the root dir!");
+                    //console.error("Couldn't find the root dir!");
                 }
                 $scope.update();
                 if (!$scope.$$phase) {
                     $scope.$apply();
                 }
             } else {
-                console.error("Couldn't get dir list!");
+                //console.error("Couldn't get dir list!");
             }
         });
 
