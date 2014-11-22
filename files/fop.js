@@ -298,3 +298,5 @@ m.fop = function (req, res, ndo) {
         });
     }
 };
+
+m.addFile = pfs.addFile;
