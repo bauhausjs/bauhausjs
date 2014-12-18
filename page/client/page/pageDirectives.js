@@ -169,7 +169,7 @@ angular.module('bauhaus.page.directives').directive('bauhausAddress', function (
             },1000);*/
             scope.$watch('value', function (newVal, oldVal) { 
                 if(typeof newVal !== 'object'){
-                    scope.value = {'street':'Straße','streetNo':'12','postcode':'69257','place':'Gammel'};
+                    scope.value = {'street':'','streetNo':'','postcode':'','place':''};
                 }
             });
             scope.showit = true;
