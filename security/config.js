@@ -3,7 +3,7 @@ module.exports = function (bauhausConfig) {
     bauhausConfig.addDocument('Users', {
         name: 'User',
         model: 'User',
-        collection: 'bauhaus-users',
+        collection: 'users',
         icon: 'user',
         query: {},
         useAsLabel: 'username',
