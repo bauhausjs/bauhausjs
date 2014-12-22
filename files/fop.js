@@ -71,7 +71,7 @@ m.getFileByName = function (name, dir) {
         }
         for (i in pfs.dirObject[dir].content) {
             var id = pfs.dirObject[dir].content[i];
-            if (pfs.dirObject[id].name == name) {
+            if (pfs.dirObject[id].name.substr(0,24) == name.substr(0,24)) {
                 aid = id;
                 break;
             }
@@ -298,3 +298,5 @@ m.fop = function (req, res, ndo) {
         });
     }
 };
+
+m.addFile = pfs.addFile;

@@ -41,6 +41,9 @@ angular.module('bauhaus.document.directives').directive('bauhausImage', function
                     if (scope.value.dir) {
                         scope.loadlist();
                     } else {
+                        if(!scope.$parent.doc._id){
+                            return alert('Bitte speichere ein neues Projekt initial bevor du Bilder hinzufügst.');
+                        }
                         data.fop({
                             "op": "getfilebyname",
                             "dir": "*root*",
@@ -48,7 +51,7 @@ angular.module('bauhaus.document.directives').directive('bauhausImage', function
                         }, function (e) {
                             if (e.success) {
                                 var proid = e.id;
-                                var name = scope.$parent.doc._id + " : " + scope.$parent.doc.title;
+                                var name = scope.$parent.doc._id;
                                 data.fop({
                                     "op": "getfilebyname",
                                     "dir": proid,
@@ -60,7 +63,7 @@ angular.module('bauhaus.document.directives').directive('bauhausImage', function
                                     } else {
                                         data.fop({
                                             "op": "add",
-                                            "name": name,
+                                            "name": name + " : " + scope.$parent.doc.title,
                                             "dir": proid,
                                             "type": 1
                                         }, function (data) {

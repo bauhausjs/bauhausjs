@@ -191,15 +191,16 @@ angular.module('bauhaus.page.directives').directive('bauhausAddress', function (
         }
     };
 });
-
 angular.module('bauhaus.page.directives').directive('bauhausDatetime', function ($timeout) {
     return {
         restrict: 'AEC', //AEC
         template: '<div class="page-content-field">' + 
                   '     <label class="page-content-field-label">{{config.label}}</label>' +
                   '     <!--<input class="page-content-field-input input-big" type="text" ng-value="value" />-->' + 
-                  '     <input type="text" ng-value="dateval" id="input1{{config.name}}">' + 
-                  '     <input type="time" name="usr_time" ng-model="time">' + 
+                  '     <input type="text" ng-value="dateval" id="input1{{config.name}}" ng-if="showdate">' + 
+                  '     <input type="time" name="usr_time" ng-model="time" ng-show="showdate">' + 
+                  '     <input type="button" value="Datum setzen" ng-if="!showdate" ng-click="setdate()">' + 
+                  '     <input type="button" value="Datum entfernen" ng-if="showdate && config.options && config.options.canberemoved" ng-click="unsetdate()">' + 
                   '</div>',
         scope: {
             value: '=ngModel',
@@ -207,49 +208,46 @@ angular.module('bauhaus.page.directives').directive('bauhausDatetime', function 
         },
         link: function (scope, el, attr) { 
             
+            scope.showdate = false;
+            
             scope.load = function(newVal){
-                console.log('loaded');
                 scope.dateval= newVal.substr(0,10);
                 scope.time = newVal.substr(11,5);
-                scope.kal = new Kalendae.Input('input1'+scope.config.name, {
-                    months:2,
-                    format:'YYYY-MM-DD'
-                });
-                scope.kal.subscribe('change', function (date, action) {
-                    console.log("UPDATE", date, date._i+scope.value.substr(10));
-                    var temp = date._i+scope.value.substr(10);
-                    scope.$apply(function() {
-                        scope.value = temp;
+                scope.showdate = true;
+
+                $timeout(function(){
+                    scope.kal = new Kalendae.Input('input1'+scope.config.name, {
+                        months:2,
+                        format:'YYYY-MM-DD'
                     });
-                });
+                    scope.kal.subscribe('change', function (date, action) {
+                        var temp = date._i+scope.value.substr(10);
+                        scope.$apply(function() {
+                            scope.value = temp;
+                        });
+                    });
+                },0);
             };
-            scope.numb = 0;
             scope.$watch('value', function (newVal, oldVal) {
-                scope.numb++;
-                console.log("called "+scope.numb);
-                if (scope.numb === 2) {
-                    if(!newVal){ 
-                        newVal = new Date().toJSON();
-                        scope.value = new Date().toJSON();
-                    }
+                if(newVal && newVal != undefined && typeof newVal !== 'undefined'){ 
                     scope.load(newVal);
-                } else {
-                    $timeout(function(){
-                        if(scope.numb < 2){
-                            scope.numb = 3;
-                            scope.value = new Date().toJSON();
-                            scope.load(scope.value);
-                        }
-                    },100)
                 }
             });
             scope.$watch('time', function (newVal, oldVal) {
                 if (newVal) {
-                    console.log("UPDATE", scope.value.substr(0,11)+newVal+':00.000Z');
-                    var temp = scope.value.substr(0,11)+newVal+':00.000Z';
-                    scope.value = temp;
+                    scope.value = scope.value.substr(0,11)+newVal+':00.000Z';
                 }
             });
+            
+            scope.setdate = function(){
+                scope.value = new Date().toJSON();
+                scope.load(scope.value);
+            };
+            
+            scope.unsetdate = function(){
+                scope.showdate = false;
+                scope.value = '';
+            };
         }
     };
 });
