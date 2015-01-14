@@ -27,6 +27,7 @@ var cropImages = function (params) {
     }
 
     this.elem;
+    this.file;
     var that = this;
     //this.img;
     this.data = {
@@ -47,10 +48,29 @@ var cropImages = function (params) {
         lx: 0,
         ly: 0
     };
-    this.onimgset = false;
-    this.oncancel = false;
+
+    this.cropperStarted = false;
 
     this.callCache = {};
+
+    this.events = {};
+
+    this.listen = function (evt, callback) {
+        if (!that.events[evt]) {
+            that.events[evt] = [];
+        }
+        that.events[evt].push(callback);
+    };
+
+    this.trigger = function (evt, data) {
+        if (that.events[evt]) {
+            for (i in that.events[evt]) {
+                if (that.events[evt][i]) {
+                    that.events[evt][i](data);
+                }
+            }
+        }
+    };
 
     this.stastoCache = {};
     this.sta = false;
@@ -78,7 +98,8 @@ var cropImages = function (params) {
         for (var i = 0; i < list.length; i++) {
             //var height = parseInt(list[i].getAttribute('cropHeight'));
             //var width = parseInt(list[i].getAttribute('cropWidth'));
-            list[i].addEventListener("change", this.imgChange);
+            //list[i].addEventListener("change", this.imgChange);
+            list[i].onchange = this.imgChange;
         }
     };
 
@@ -87,6 +108,7 @@ var cropImages = function (params) {
     };
 
     this.loadImageData = function (evt) {
+        that.cropperStarted = false;
         if (window.File && window.FileReader && window.FileList && window.Blob) {
             var elem = evt.target;
             var files = elem.files;
@@ -95,79 +117,84 @@ var cropImages = function (params) {
             if (files.length > 0) {
                 var file = files[0];
                 // if the file is not an image, continue
-                if (file.type.match('image.*')) {
-                    var div = that.makeBlackDiv(that.waitbegin);
-                    var height = parseInt(elem.getAttribute('cropHeight'));
-                    var width = parseInt(elem.getAttribute('cropWidth'));
-                    var uploadURL = elem.getAttribute('uploadUrl');
-                    var max = elem.getAttribute('maxSize');
-                    var circle = elem.getAttribute('circle');
-                    if (max && max != "false") {
-                        max = true;
-                    } else {
-                        max = false;
-                    }
-                    if (circle && circle != "false") {
-                        circle = true;
-                    } else {
-                        circle = false;
-                    }
-                    that.onimgset = elem.getAttribute('onimgset');
-                    that.oncancel = elem.getAttribute('oncancel');
-                    var oWidth = width;
-                    var oHeight = height;
-                    var winw = window.innerWidth;
-                    var winh = window.innerHeight;
-                    var scale = width / height;
-                    if (height > winh - 30) {
-                        height = winh - 30;
-                        width = height * scale;
-                    }
-                    if (width > winw - 30) {
-                        width = winw - 30;
-                        height = width / scale;
-                    }
-                    reader = new FileReader();
-                    reader.onload = (function (tFile) {
-                        return function (evt) {
-                            var dataURL = evt.target.result;
-                            that.callCache.dataURL = dataURL;
-                            that.callCache.width = width;
-                            that.callCache.height = height;
-                            that.callCache.uploadURL = uploadURL;
-                            //that.callCache.div = div;
-                            that.callCache.oWidth = oWidth;
-                            that.callCache.oHeight = oHeight;
-                            that.callCache.max = max;
-                            that.callCache.circle = circle;
-                            that.displayCropper(dataURL, width, height, uploadURL, div, oWidth, oHeight, max, circle);
-                        };
-                    }(file));
-                    reader.readAsDataURL(file);
-                } else {
-                    //console.error("loI");
-                }
+                that.crop(file, elem);
             } else {
                 //console.error("lo");
             }
         } else {
-            alert('The File APIs are not fully supported in this browser.');
+            alert('Leider wird das Hochladen der Bilder in Ihrem Browser (Internet Explorer 7-9) nicht unterstützt. Bitte wechseln Sie auf einen anderen Browser.');
+        }
+    };
+
+    this.crop = function (file, elem) {
+        that.file = file;
+        that.choice(file);
+        if (file.type.match('image.*')) {
+            var div = that.makeBlackDiv(that.waitbegin);
+            var height = parseInt(elem.getAttribute('cropHeight'));
+            var width = parseInt(elem.getAttribute('cropWidth'));
+            //var uploadURL = elem.getAttribute('uploadUrl');
+            var max = elem.getAttribute('maxSize');
+            var circle = elem.getAttribute('circle');
+            if (max && max != "false") {
+                max = true;
+            } else {
+                max = false;
+            }
+            if (circle && circle != "false") {
+                circle = true;
+            } else {
+                circle = false;
+            }
+            var oWidth = width;
+            var oHeight = height;
+            var winw = window.innerWidth;
+            var winh = window.innerHeight;
+            var scale = width / height;
+            if (height > winh - 30) {
+                height = winh - 30;
+                width = height * scale;
+            }
+            if (width > winw - 30) {
+                width = winw - 30;
+                height = width / scale;
+            }
+            reader = new FileReader();
+            reader.onload = (function (tFile) {
+                return function (evt) {
+                    var dataURL = evt.target.result;
+                    that.callCache.dataURL = dataURL;
+                    that.callCache.width = width;
+                    that.callCache.height = height;
+                    //that.callCache.uploadURL = uploadURL;
+                    //that.callCache.div = div;
+                    that.callCache.oWidth = oWidth;
+                    that.callCache.oHeight = oHeight;
+                    that.callCache.max = max;
+                    that.callCache.circle = circle;
+                    that.displayCropper(dataURL, width, height, div, oWidth, oHeight, max, circle);
+                };
+            }(file));
+            reader.readAsDataURL(file);
+        } else {
+            reader = new FileReader();
+            reader.onload = (function (tFile) {
+                return function (evt) {
+                    var dataURL = evt.target.result;
+                    that.export(dataURL, that.file);
+                };
+            }(file));
+            reader.readAsDataURL(file);
+            //console.error("loI");
         }
     };
 
     this.makeBlackDiv = function (text) {
         var div = document.createElement('div');
         div.id = "bauhausCropImageWrapper";
-        div.setAttribute('style', "-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;");
+        var css = "-webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; background: rgba(0, 0, 0, 0.79) !important; position: fixed !important; top: 0px !important; left: 0px !important; right: 0px !important; bottom: 0px !important; overflow: hidden !important; z-Index: " + that.zIndex + " !important";
+        div.setAttribute('style', css);
         div.setAttribute('dragable', "false");
-        div.style.position = "fixed";
-        div.style.top = "0px";
-        div.style.left = "0px";
-        div.style.right = "0px";
-        div.style.bottom = "0px";
-        div.style.overflow = "hidden";
-        div.style.background = "rgba(0, 0, 0, 0.79)";
-        div.style.zIndex = that.zIndex;
 
         var indiv = document.createElement('div');
         indiv.style.position = "absolute";
@@ -185,8 +212,8 @@ var cropImages = function (params) {
         return div;
     };
 
-    this.displayCropper = function (dataURL, width, height, uploadURL, div, oWidth, oHeight, max, circle) {
-
+    this.displayCropper = function (dataURL, width, height, div, oWidth, oHeight, max, circle) {
+        that.cropperStarted = true;
         // BackgroundLeft
         var ileft = document.createElement('div');
         ileft.style.position = "absolute";
@@ -293,7 +320,7 @@ var cropImages = function (params) {
         //menubar.style.left = "5px";
         menubar.style.right = "5px";
         menubar.style.bottom = "14px";
-        menubar.style.zIndex = that.zIndex + 2;
+        menubar.style.zIndex = that.zIndex + 2 + "";
         menubar.style.fontFamily = "Arial";
         menubar.style.fontSize = "16px";
         menubar.style.color = "#ffffff";
@@ -307,6 +334,7 @@ var cropImages = function (params) {
         submit.style.background = "rgba(10, 162, 0, 0.73)";
         submit.innerHTML = that.textsubmit;
         submit.style.cursor = "pointer";
+        submit.style.color = "#ffffff";
         submit.addEventListener('click', that.submit);
 
         var cancel = document.createElement('span');
@@ -317,6 +345,7 @@ var cropImages = function (params) {
         cancel.style.background = "rgba(162, 0, 0, 0.73)";
         cancel.innerHTML = that.textcancel;
         cancel.style.cursor = "pointer";
+        cancel.style.color = "#ffffff";
         cancel.addEventListener('click', that.cancel);
 
         var plus = document.createElement('span');
@@ -327,6 +356,7 @@ var cropImages = function (params) {
         plus.style.background = "rgba(104, 104, 104, 0.729412)";
         plus.innerHTML = that.textplus;
         plus.style.cursor = "pointer";
+        plus.style.color = "#ffffff";
         plus.addEventListener('click', that.resizePlus);
         plus.addEventListener('dblclick', that.resizePlus2x);
 
@@ -338,6 +368,7 @@ var cropImages = function (params) {
         minus.style.background = "rgba(104, 104, 104, 0.729412)";
         minus.innerHTML = that.textminus;
         minus.style.cursor = "pointer";
+        minus.style.color = "#ffffff";
         minus.addEventListener('click', that.resizeMinus);
         minus.addEventListener('dblclick', that.resizeMinus2x);
 
@@ -372,7 +403,6 @@ var cropImages = function (params) {
                 kh: 0,
                 ow: oWidth,
                 oh: oHeight,
-                uploadURL: uploadURL,
                 max: max,
                 circle: circle,
                 change: false
@@ -421,9 +451,9 @@ var cropImages = function (params) {
             size.style.height = height + "px";
             size.style.width = width + "px";
             size.style.border = "0px solid #ff0000";
-            size.style.zIndex = that.zIndex - 1;
+            size.style.zIndex = that.zIndex - 1 + "";
             size.style.padding = "0";
-            size.innerHTML = '<img draggable="false" id="bauhausCropImage" src="' + dataURL + '" style="z-index:' + (that.zIndex - 1) + '; position: absolute; width: ' + iw + 'px; height: ' + ih + 'px; left: ' + that.data.cl + 'px; top: ' + that.data.ct + 'px; padding: 0; margin:0 border: 0px solid black;" />';
+            size.innerHTML = '<img draggable="false" id="bauhausCropImage" src="' + dataURL + '" style="z-index:' + (that.zIndex - 1) + '; position: absolute; width: ' + iw + 'px; height: ' + ih + 'px; left: ' + that.data.cl + 'px; top: ' + that.data.ct + 'px; padding: 0; margin:0; border: 0px solid black; max-width: none;" />';
 
             /*var dbug = document.createElement('div');
             submit.style.position = "absolute";
@@ -650,21 +680,37 @@ var cropImages = function (params) {
 
     this.cancel = function (evt) {
         that.exit();
+        var e = {};
+        e.data = that.data;
+        that.trigger('oncancel', e);
+    };
 
-        if (that.oncancel) {
-            var e = {};
-            e.data = that.data;
-            try {
-                eval(that.oncancel);
-            } catch (e) {
+    this.choice = function (file) {
+        that.trigger('choice', file);
+    };
 
-            }
+    this.export = function (dataUrl, file, data) {
+        var exp = {};
+        exp.dataUrl = dataUrl;
+        exp.file = file;
+
+        if (data) {
+            exp.data = data;
         }
+
+        that.stopOverScrolling(false);
+        if (that.cropperStarted) {
+            that.removeElementById('bauhausCropImageWrapper');
+        }
+        that.trigger('export', exp);
     };
 
     this.exit = function (evt) {
         that.stopOverScrolling(false);
-        that.removeElementById('bauhausCropImageWrapper');
+        if (that.cropperStarted) {
+            that.removeElementById('bauhausCropImageWrapper');
+        }
+        that.trigger('onupload', evt);
     };
 
     this.resizeAndReturn = function (file, kw, kh, ct, cl, nw, nh, max, circle) {
@@ -709,27 +755,21 @@ var cropImages = function (params) {
                 ctx.fillRect(0, 0, nw, nh);
                 var dataURL = canvas.toDataURL("image/png");
             } else {*/
-                var dataURL = canvas.toDataURL("image/jpeg");
+            var dataURL = canvas.toDataURL("image/jpeg");
             //}
 
             //var div = document.createElement('div');
             //div.innerHTML = '<img draggable="false" src="' + dataURL + '" />'; // style="width: 100%;"
             //document.body.appendChild(div);
-
-            if (that.onimgset) {
-                var e = {};
-                e.data = that.data;
-                e.dataURL = dataURL;
-                try {
-                    eval(that.onimgset);
-                } catch (e) {
-
-                }
-            }
+            var e = {};
+            e.data = that.data;
+            e.dataURL = dataURL;
+            that.trigger('onimgset', e);
 
             //that.exit();
 
-            that.upload(dataURL, that.data.uploadURL, that.data);
+            that.export(dataURL, that.file, that.data);
+            //that.upload(dataURL, that.data.uploadURL, that.data);
         }
 
         //}
@@ -770,6 +810,7 @@ var cropImages = function (params) {
             } else {
                 that.uploadERR();
             }
+            that.elem.value = '';
         }
     };
 
@@ -823,7 +864,7 @@ var cropImages = function (params) {
                 height = width / scale;
             }
 
-            that.displayCropper(that.callCache.dataURL, width, height, that.callCache.uploadURL, div, that.data.ow, that.data.oh, that.callCache.max, that.callCache.circle);
+            that.displayCropper(that.callCache.dataURL, width, height, div, that.data.ow, that.data.oh, that.callCache.max, that.callCache.circle);
         }
     }
 
@@ -831,3 +872,5 @@ var cropImages = function (params) {
 
     this.addEventListeners();
 };
+
+//var cropper = new cropImages();

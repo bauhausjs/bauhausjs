@@ -2,7 +2,9 @@ var express = require('express');
 //var db = require('./databaseOperations.js');
 //var pfs = require('./pragmFileSystem.js');
 //var File = require('./model/file');
-var fop = require('./fop.js');
+var pathconfig = require('./pathconfig.js');
+var fsOp = require('./fsOp.js');
+var fileUpload = require('./fileUpload.js');
 
 module.exports = function (bauhausConfig) {
     // Register document for CRUD generation
@@ -20,18 +22,167 @@ module.exports = function (bauhausConfig) {
 
     var app = express();
     var pre = "/files";
-    
-    app.get(pre + '/test', function (req, res) {
-        //req.accepts('*');
 
-        res.json({
-            "lol": "test"
+    app.use(pre + '/fsop', function (req, res, next) {
+        try {
+            req.fsopdata = JSON.parse(req.body.data);
+            next();
+        } catch (err) {
+            res.json({
+                "success": false,
+                "info": "Failed to parse JSON!",
+                "err": err
+            });
+        }
+    });
+
+    app.use(pre + '/upload', fileUpload());
+
+
+    //app.use(express.bodyParser({limit: '900mb'}));
+
+    app.post(pre + '/fsop/upload', function (req, res) {
+        fsOp.uploadFile(req.fsopdata.dir, req.fsopdata.name, req.body.file, function (err) {
+            if (err) {
+                res.writeHead(500);
+                res.json({
+                    "success": false,
+                    "info": "Upload failed!",
+                    "err": err
+                });
+            } else {
+                res.json({
+                    "success": true,
+                    "info": "Upload successful!"
+                });
+            }
         });
     });
 
-    app.post(pre + '/upload/:id', function (req, res) {
-        fop.upload(req, res);
-        /*req.accepts('*');
+    app.post(pre + '/fsop/movefiles', function (req, res) {
+        fsOp.moveFiles(req.fsopdata.files, function (err) {
+            if (err && err.length > 0) {
+                res.json({
+                    "success": false,
+                    "info": "Moving failed partly.",
+                    "err": err
+                });
+            } else {
+                res.json({
+                    "success": true,
+                    "info": "Moving Successful!"
+                });
+            }
+        });
+    });
+
+    app.post(pre + '/fsop/copyfiles', function (req, res) {
+        fsOp.copyFiles(req.fsopdata.files, function (err) {
+            if (err && err.length > 0) {
+                res.json({
+                    "success": false,
+                    "info": "Copying failed partly.",
+                    "err": err
+                });
+            } else {
+                res.json({
+                    "success": true,
+                    "info": "Copying Successful!"
+                });
+            }
+        });
+    });
+
+    app.post(pre + '/fsop/removefiles', function (req, res) {
+        fsOp.removeFiles(req.fsopdata.files, function (err) {
+            if (err && err.length > 0) {
+                res.json({
+                    "success": false,
+                    "info": "Removing failed partly.",
+                    "err": err
+                });
+            } else {
+                res.json({
+                    "success": true,
+                    "info": "Removing Successful!"
+                });
+            }
+        });
+    });
+
+    app.post(pre + '/fsop/createdir', function (req, res) {
+        fsOp.createDir(req.fsopdata.dir, function (err) {
+            if (err && err.length > 0) {
+                res.json({
+                    "success": false,
+                    "info": "Creating failed partly.",
+                    "err": err
+                });
+            } else {
+                res.json({
+                    "success": true,
+                    "info": "Creating Successful!"
+                });
+            }
+        });
+    });
+
+    app.post(pre + '/fsop/readdir', function (req, res) {
+        fsOp.readDir(req.fsopdata.dir, function (err, files) {
+            if (err && err.length > 0) {
+                res.json({
+                    "success": false,
+                    "info": "Reading failed partly.",
+                    "err": err
+                });
+            } else {
+                res.json({
+                    "success": true,
+                    "info": "Reading Successful!",
+                    "files": files
+                });
+            }
+        });
+    });
+
+    app.post(pre + '/fsop/readdirsure', function (req, res) {
+        fsOp.readDirSure(req.fsopdata.dir, function (err, files) {
+            if (err && err.length > 0) {
+                res.json({
+                    "success": false,
+                    "info": "Reading failed partly.",
+                    "err": err
+                });
+            } else {
+                res.json({
+                    "success": true,
+                    "info": "Reading Successful!",
+                    "files": files
+                });
+            }
+        });
+    });
+
+    app.post(pre + '/fsop/rename', function (req, res) {
+        fsOp.rename(req.fsopdata.oldPath, req.fsopdata.newPath, function (err) {
+            if (err && err.length > 0) {
+                res.json({
+                    "success": false,
+                    "info": "Renameing failed partly.",
+                    "err": err
+                });
+            } else {
+                res.json({
+                    "success": true,
+                    "info": "Renameing Successful!"
+                });
+            }
+        });
+    });
+
+    //app.post(pre + '/upload/:id', function (req, res) {
+    //   fop.upload(req, res);
+    /*req.accepts('*');
         try {
             var routeParams = req.route.params;
             var id = routeParams.id;
@@ -77,12 +228,12 @@ module.exports = function (bauhausConfig) {
             res.writeHead(500);
             res.json("May DataURL corrupt!");
         }*/
-    });
+    //});
 
-    app.post(pre + '/fop', function (req, res) {
-        fop.fop(req, res);
-        
-        /*req.accepts('*');
+    //app.post(pre + '/fop', function (req, res) {
+    //    fop.fop(req, res);
+
+    /*req.accepts('*');
         var routeParams = req.route.params;
         var id = routeParams.id;
         var body = req.body || {};
@@ -236,7 +387,7 @@ module.exports = function (bauhausConfig) {
                 "error": "No Operation"
             });
         }*/
-    });
+    //});
 
     /*app.post(pre + '/add', function (req, res) {
         req.accepts('*');
@@ -311,14 +462,14 @@ module.exports = function (bauhausConfig) {
 
     /*app.get('/Filesp', function (req, res) {
         req.accepts('*');*/
-        /*db.addFile("SUPIFOLDER",2).then(function(data){
+    /*db.addFile("SUPIFOLDER",2).then(function(data){
             console.log("MY NEW ID: "+data);
             db.getFilesInfoWithoutBuffer();
         }, function(err){
             console.log('error lol');
             console.log(err);
         });*/
-        /*db.copyFile('542822426127f3c2522ed24f', "neutest").then(function (data) {
+    /*db.copyFile('542822426127f3c2522ed24f', "neutest").then(function (data) {
             console.log(data);
             res.json({
                 "dat": data
@@ -331,12 +482,12 @@ module.exports = function (bauhausConfig) {
         });*/
 
 
-        /*db.getFilesInfoWithoutBuffer().then(function(data){
+    /*db.getFilesInfoWithoutBuffer().then(function(data){
             console.log(data);
         }, function(err){
             console.error(err);
         });*/
-        /*pfs.saveAll().then(function (data) {
+    /*pfs.saveAll().then(function (data) {
             count++;
             res.json({
                 "lol": count,

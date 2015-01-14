@@ -5,7 +5,8 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         $scope.reverse = false;
         $scope.sortby = "";
         $scope.searchText = "";
-        
+        $scope.uploadState = "";
+
         $scope.order = function (predicate) {
             if ($scope.sortby != predicate) {
                 $scope.reverse = false;
@@ -17,6 +18,41 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
 
 
         $scope.c = new cropImages();
+
+
+        $scope.c.listen('choice', function (e) {
+            $scope.uploadState = 'Datei wird eingelesen! Bitte warten...';
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
+        });
+
+        $scope.c.listen('export', function (e) {
+            //console.log('export', e);
+            $scope.uploadState = 'Datei wird hochgeladen! Bitte warten...';
+            if (!$scope.$$phase) {
+                $scope.$apply();
+            }
+            var arr = e.file.name.split('.');
+            arr[arr.length-1] = 'jpg';
+            data.fsOp({
+                "op": "upload",
+                "dir": $scope.actualDir,
+                "name": arr.join('.')
+            }, function (e) {
+                if (e.success) {
+                    $scope.uploadState = 'Datei erfolgreich hochgeladen!';
+                    $scope.refreshDir();
+                } else {
+                    $scope.uploadState = 'Hochladen fehlgeschlagen! Datei möglicherweise zu groß?';
+                    $scope.refreshDir();
+                    //alert("Upload Fehlgeschlagen!");
+                }
+                if (!$scope.$$phase) {
+                    $scope.$apply();
+                }
+            }, e.dataUrl);
+        });
 
         $scope.lan = 'cool';
 
@@ -49,12 +85,17 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         $scope.filesrc = "";
         $scope.filenamecache = "";
 
-        $scope.editopen = function (id) {
+        $scope.editopen = function () {
             //console.log(id);
             $scope.fileedit = true;
-            $scope.filedata = $scope.dirObject[id];
-            $scope.filesrc = "http://localhost:1919/files/" + id + ".jpg";
-            $scope.filenamecache = $scope.filedata.name;
+            $scope.uploadState = "Um eine Datei hochzuladen bitte auswählen.";
+            //$scope.filedata = $scope.dirObject[id];
+            //$scope.filesrc = "http://localhost:1919/files/" + id + ".jpg";
+            //$scope.filenamecache = $scope.filedata.name;
+            var temp = {};
+            temp.dir = $scope.actualDir;
+            //temp.
+            $scope.param = JSON.stringify(temp);
             if (!$scope.$$phase) {
                 $scope.$apply();
             }
@@ -63,27 +104,6 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         $scope.editclose = function () {
             $scope.fileedit = false;
             $scope.filesrc = "";
-
-            var cb = function (e) {
-                if (e.success && e.dirObject) {
-                    $scope.dirObject = e.dirObject;
-                    $scope.update();
-                    if (!$scope.$$phase) {
-                        $scope.$apply();
-                    }
-                } else {
-                    alert("Error: " + e.error);
-                }
-                //console.log(e);
-            };
-
-            if ($scope.filenamecache != $scope.filedata.name) {
-                data.fop({
-                    "op": "changename",
-                    "id": $scope.filedata._id,
-                    "name": $scope.filedata.name
-                }, cb);
-            }
 
             if (!$scope.$$phase) {
                 $scope.$apply();
@@ -285,28 +305,71 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
             }
         };
 
+        $scope.moveFiles = function (arr, from, to) {
+            console.log(arr, from, to);
+            var files = [];
+            for (var i in arr) {
+                if (arr[i] != to) {
+                    var t = to + arr[i].substr(from.length);
+                    files.push({
+                        'src': arr[i],
+                        'dest': t
+                    });
+                } else {
+                    alert('Ordner kann nicht in sich selbst verschoben werden.');
+                }
+            }
+            console.log('move to', files);
+            if (files.length > 0) {
+                data.fsOp({
+                    "op": "movefiles",
+                    "files": files
+                }, function (e) {
+                    if (e.success) {
+                        $scope.refreshDir();
+                    } else {
+                        $scope.refreshDir();
+                        alert("Verschieben Fehlgeschlagen!");
+                    }
+                });
+            }
+        };
+
+        $scope.copyFiles = function (arr, from, to) {
+            console.log(arr, from, to);
+            var files = [];
+            for (var i in arr) {
+                var t = to + arr[i].substr(from.length);
+                if (t.substr(0, arr[i].length) != arr[i]) {
+                    files.push({
+                        'src': arr[i],
+                        'dest': t
+                    });
+                } else {
+                    alert('Ordner darf nicht in sich selbst kopiert werden!');
+                }
+            }
+            console.log('copy to', files);
+
+            if (files.length > 0) {
+                data.fsOp({
+                    "op": "copyfiles",
+                    "files": files
+                }, function (e) {
+                    if (e.success) {
+                        $scope.refreshDir();
+                    } else {
+                        $scope.refreshDir();
+                        alert("Kopieren Fehlgeschlagen!");
+                    }
+                });
+            }
+        };
+
         $scope.mouseup = function () {
             if ($scope.draganddrop == true && $scope.movetofile != "" && $scope.movetofile != $scope.actualDir) {
                 //console.log("Move files " + JSON.stringify(data.selectionarray) + " to " + $scope.movetofile);
-                data.fop({
-                    "op": "move",
-                    "moveobject": {
-                        "files": data.selectionarray,
-                        "fromid": $scope.actualDir,
-                        "toid": $scope.movetofile
-                    }
-                }, function (e) {
-                    if (e.success && e.dirObject) {
-                        $scope.dirObject = e.dirObject;
-                        $scope.update();
-                        if (!$scope.$$phase) {
-                            $scope.$apply();
-                        }
-                    } else {
-                        alert("Error: " + e.error);
-                    }
-                });
-                //L3.moveFileList(data.selectionarray, $scope.movetofile, $scope.actualDir);
+                $scope.moveFiles(data.selectionarray, $scope.actualDir, $scope.movetofile);
             }
             $scope.draganddrop = false;
             $scope.elmdisplay = "none";
@@ -336,7 +399,20 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         };
 
         $scope.mouseover = function (key) {
-            if ($scope.activeArray[key] == true || ($scope.dirObject[key] && $scope.dirObject[key].type == 2)) {
+            //console.log($scope.activeArray);
+            if ($scope.activeArray[key] == true) {
+                $scope.moveto = "...";
+                $scope.movetofile = "";
+            } else {
+                if (key.search(/\./) < 0) {
+                    $scope.moveto = key;
+                    $scope.movetofile = key;
+                } else {
+                    $scope.moveto = "...";
+                    $scope.movetofile = "";
+                }
+            }
+            /*if ($scope.activeArray[key] == true || ($scope.dirObject[key] && $scope.dirObject[key].type == 2)) {
                 $scope.moveto = "...";
                 $scope.movetofile = "";
             } else {
@@ -350,7 +426,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                     }
                 }
                 $scope.movetofile = key;
-            }
+            }*/
 
             if (!$scope.$$phase) {
                 $scope.$apply();
@@ -397,47 +473,11 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
             //console.log("CRTL+V");
             if ($scope.cilpboardaction == 'move') {
                 //console.log("Move files " + JSON.stringify($scope.moveclipboard) + " to " + $scope.actualDir);
-                data.fop({
-                    "op": "move",
-                    "moveobject": {
-                        "files": $scope.moveclipboard,
-                        "fromid": $scope.movefromdir,
-                        "toid": $scope.actualDir
-                    }
-                }, function (e) {
-                    if (e.success && e.dirObject) {
-                        $scope.dirObject = e.dirObject;
-                        $scope.update();
-                        if (!$scope.$$phase) {
-                            $scope.$apply();
-                        }
-                    } else {
-                        alert("Error: " + e.error);
-                    }
-                });
-                //L3.moveFileList($scope.moveclipboard, $scope.actualDir, $scope.movefromdir);
+                $scope.moveFiles($scope.moveclipboard, $scope.movefromdir, $scope.actualDir);
             }
             if ($scope.cilpboardaction == 'copy') {
                 //console.log("Copy files " + JSON.stringify($scope.moveclipboard) + " to " + $scope.actualDir);
-                data.fop({
-                    "op": "copy",
-                    "copyobject": {
-                        "files": $scope.moveclipboard,
-                        "toid": $scope.actualDir,
-                        "fromid": $scope.movefromdir
-                    }
-                }, function (e) {
-                    if (e.success && e.dirObject) {
-                        $scope.dirObject = e.dirObject;
-                        $scope.update();
-                        if (!$scope.$$phase) {
-                            $scope.$apply();
-                        }
-                    } else {
-                        alert("Error: " + e.error);
-                    }
-                });
-                //L3.copyFileList($scope.moveclipboard, $scope.actualDir, $scope.movefromdir);
+                $scope.copyFiles($scope.moveclipboard, $scope.movefromdir, $scope.actualDir);
             }
             $scope.cilpboardaction = '';
             //}
@@ -465,35 +505,27 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         });
 
         $scope.deleteSelection = function () {
-            data.fop({
-                "op": "delete",
-                "deleteobject": {
-                    "deletelist": data.selectionarray,
-                    "fromid": $scope.actualDir
-                }
+            data.fsOp({
+                "op": "removefiles",
+                "files": data.selectionarray
             }, function (e) {
-                //console.warn(e);
-                if (e.success && e.dirObject) {
-                    $scope.dirObject = e.dirObject;
-                    $scope.update();
-                    if (!$scope.$$phase) {
-                        $scope.$apply();
-                    }
+                if (e.success) {
+                    $scope.refreshDir();
                 } else {
-                    alert("Error: " + e.error);
+                    $scope.refreshDir();
+                    alert("Löschen Fehlgeschlagen!");
                 }
             });
-            //L3.moveFileList(data.selectionarray, data.deleteDir, $scope.actualDir);
         };
 
 
         // Filelist creation --------------------------------------------
         $scope.update = function () {
             $scope.forceinactiv();
-            for(i in $scope.dirObject){
-                $scope.dirObject[i].name_cache = $scope.dirObject[i].type+$scope.dirObject[i].name;
+            for (i in $scope.dirObject) {
+                $scope.dirObject[i].name_cache = $scope.dirObject[i].type + $scope.dirObject[i].name;
             }
-            
+
             var id = $scope.actualDir;
             var tempdir = $scope.dirObject[id].content;
             if (tempdir[0] == "") {
@@ -543,6 +575,16 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         $scope.openFileAngu = function (id) {
             //console.log("Openfile: " + id);
             //console.log($scope.dirObject[id].type);
+            if (id.search(/\./) < 0) {
+                $scope.forceinactiv();
+                $scope.refreshDir(id);
+                return "fa fa-folder";
+            } else {
+                $scope.OpenInNewTab("/files/files" + id);
+                return "fa fa-file";
+            }
+
+
             switch ($scope.dirObject[id].type) {
             case 2:
                 //console.log("Openfile: = = = > FILE");
@@ -589,18 +631,11 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         };
 
         $scope.getIconClass = function (key) {
-
-            switch ($scope.dirObject[key].type) {
-            case 2:
-                return "fa fa-file-text";
-                break;
-            case 1:
+            if (key.search(/\./) < 0) {
                 return "fa fa-folder";
-                break;
-            case 0:
-                return "fa fa-folder";
-                break;
-            };
+            } else {
+                return "fa fa-file";
+            }
         };
 
         // Change FileName handler =============================================
@@ -678,72 +713,142 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
             $scope.imagereload(e);
         });
 
-        $scope.searchMainDir = function () {
-            for (i in $scope.dirObject) {
-                if ($scope.dirObject[i].type === 0) {
-                    $scope.fileinfoid = i;
-                    $scope.actualDir = i;
-                    data.actualDir = i;
-                    $scope.mainDir = i;
-                    return true;
-                }
-            }
-            return false;
-        };
+
 
         // Tab Handler
         //tab.deactivateAll();
 
-        $scope.refreshDir = function () {
-            data.fop({
-                "op": "list"
+        $scope.refreshDir = function (dir) {
+            if (dir) {
+                $scope.actualDir = dir;
+                $scope.path = [
+                    {
+                        id: '/',
+                        'show': '/'
+                    }
+                ];
+                var t = $scope.actualDir.split('/');
+                var be = '/';
+                for (var i in t) {
+                    if (t[i] != '') {
+                        be += t[i] + '/';
+                        //$scope.path[t[i]] = be;
+                        $scope.path.push({
+                            id: be,
+                            'show': t[i]
+                        });
+                    }
+                }
+            }
+            data.fsOp({
+                "op": "readdir",
+                "dir": $scope.actualDir
             }, function (e) {
-                //console.warn(e);
-                if (e.success && e.dirObject) {
-                    $scope.dirObject = e.dirObject;
-                    $scope.update();
+                if (e.success) {
+                    var temp = {};
+                    for (var i in e.files) {
+                        if (e.files[i].search(/\./) < 0) {
+                            temp[e.files[i]] = $scope.actualDir + e.files[i] + "/";
+                        } else {
+                            temp[e.files[i]] = $scope.actualDir + e.files[i];
+                        }
+                    }
+                    $scope.flist = temp;
                     if (!$scope.$$phase) {
                         $scope.$apply();
                     }
                 } else {
-                    alert("Error: " + e.error);
+                    alert("Error: " + e.err);
                 }
             });
         };
 
+        // Addfile
+        $scope.addFileClass = 'dirButtonsLi';
 
-        data.fop({
-            "op": "list"
-        }, function (cb) {
-            //console.warn(cb);
-            if (cb.success && cb.dirObject) {
-                $scope.dirObject = cb.dirObject;
-                if (!$scope.searchMainDir()) {
-                    $scope.fileinfoid = "5412a796861b588f45e9710f";
-                    $scope.actualDir = "5412a796861b588f45e9710f";
-                    data.actualDir = $scope.actualDir;
-                    $scope.mainDir = "5412a796861b588f45e9710f";
-                    //console.error("Couldn't find the root dir!");
-                }
-                $scope.update();
-                if (!$scope.$$phase) {
-                    $scope.$apply();
-                }
+        $scope.toggleAddFile = function () {
+            if ($scope.addFileClass == 'dirButtonsLiAdd') {
+                $scope.addFileClass = 'dirButtonsLi';
             } else {
-                //console.error("Couldn't get dir list!");
+                $scope.addFileClass = 'dirButtonsLiAdd';
             }
-        });
+        };
 
-        data.binducb(function (e) {
-            $scope.dirObject = e;
-            $scope.update();
-            if (!$scope.$$phase) {
-                $scope.$apply();
+        $scope.addFileCheckEnter = function (e) {
+            if (e.keyCode == 13) {
+
+                var name = e.srcElement.value;
+
+                if (name.search(/\./) < 0) {
+                    data.fsOp({
+                        "op": "createdir",
+                        "dir": $scope.actualDir + name + "/"
+                    }, function (e) {
+                        if (e.success) {
+                            $scope.refreshDir();
+                        } else {
+                            $scope.refreshDir();
+                            alert("Erstellen eines Ordners fehlgeschlagen!");
+                        }
+                        $scope.addFileClass = 'dirButtonsLi';
+                    });
+                } else {
+                    alert('In Ordnernamen sind keine Punkte erlaubt!');
+                }
             }
-        });
+        };
+
+        $scope.OpenInNewTab = function (url) {
+            var win = window.open(url, '_blank');
+            win.focus();
+        }
+
 
         //$scope.fileinfoid = "5412a796861b588f45e9710f";
-        //$scope.actualDir = "5412a796861b588f45e9710f";
+        $scope.actualDir = "/";
+        $scope.path = {
+            '/': '/'
+        };
+        $scope.flist = {};
+
+        $scope.refreshDir("/");
+
+        $scope.uploadState = "Bitte Datei Auswählen";
+
+        $scope.uploadFile = function () {
+            if (document.getElementById('fileupload').files[0].type.split('/')[0] == 'image') {
+                $scope.c.crop(document.getElementById('fileupload').files[0], document.getElementById('fileupload'));
+            } else {
+                $scope.uploadState = "Datei wird hochgeladen...";
+                data.uploadFileById('fileupload', {
+                    'path': $scope.actualDir
+                }, function (err, data) {
+                    if (err) {
+                        $scope.uploadState = "Upload fehlgeschlagen!";
+                    } else {
+                        try {
+                            var json = JSON.parse(data.responseText);
+                        } catch (e) {
+                            $scope.uploadState = "Upload fehlgeschlagen!";
+                        }
+                        if (json.success) {
+                            $scope.uploadState = "Datei wurde erfolgreich hochgeladen!";
+                            $scope.refreshDir();
+                        } else {
+                            $scope.uploadState = "Upload fehlgeschlagen!";
+                        }
+                    }
+
+                    if (!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                }, 'fileuploadprogress');
+            }
+        };
+
+
+
+
         //$scope.mainDir = "5412a796861b588f45e9710f";
         //$scope.dirObject = testfs.data;
         //$scope.update();
