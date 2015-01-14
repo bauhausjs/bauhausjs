@@ -31,33 +31,41 @@ function getHTTPObject() {
     }
 }
 
-var data_typ = function data_typ(){
-    
-	this.fileList;
-	this.files = { }; //Struktur: files[fileID][contentID] = content;
-	this.users;
+var data_typ = function data_typ() {
+
+    this.fileList;
+    this.files = {}; //Struktur: files[fileID][contentID] = content;
+    this.users;
     this.legitimationID = "";
     this.dirObject;
     this.userDir = "";
     this.acutalDir = "";
-    this.callbacks = { };
-    this.callbacksHard = { };
+    this.callbacks = {};
+    this.callbacksHard = {};
     this.loadinginfo = "";
     this.alertinfo = "";
     this.crashinfo = "";
-    this.selectionarray = [ ];
+    this.selectionarray = [];
     this.shareshow = false;
     this.deleteDir = "4DELETED00";
     this.guestUser = "5GUESTUSER";
     this.systemUsr = "5SYSTEMUSR";
-    this.userDir   = "4ROOTFOLDR";
-    this.dirFile   = "DirIndexFile";
-    this.nameCache = {"5GUESTUSER": "Guest"};
-    this.idCache = {"Guest": "5GUESTUSER"};
+    this.userDir = "4ROOTFOLDR";
+    this.dirFile = "DirIndexFile";
+    this.nameCache = {
+        "5GUESTUSER": "Guest"
+    };
+    this.idCache = {
+        "Guest": "5GUESTUSER"
+    };
     this.readonlycb = false;
     this.fileUserList = [];
     this.readonly = true;
-    this.fileRights = {"read": false,"write": false,"perm": false};
+    this.fileRights = {
+        "read": false,
+        "write": false,
+        "perm": false
+    };
     this.serveraddress = "No Server Found!";
     this.serverfound = false;
     this.userEdit = "";
@@ -68,107 +76,107 @@ var data_typ = function data_typ(){
     this.ecoModeTimer = false;
     this.ecoModeLongTimer = false;
     this.showTabs = {}; //"3m2oijsq1e":true,"35ragxwaz9":false
-    
+
     var that = this;
-    
-    this.unbindCallbacks = function(){
+
+    this.unbindCallbacks = function () {
         this.callbacks = null;
-        this.callbacks = { };
+        this.callbacks = {};
         globalEvent.unbindAll();
     }
-    
-    this.databind = function(object, callback){
+
+    this.databind = function (object, callback) {
         this.callbacks[object] = callback;
         callback(this[object]);
     };
-    
-    this.databindHard = function(object, callback){
+
+    this.databindHard = function (object, callback) {
         this.callbacksHard[object] = callback;
         callback(this[object]);
     };
-    
-    this.updatebind = function(object, callback){
+
+    this.updatebind = function (object, callback) {
         this.callbacks[object] = callback;
         callback();
     };
-    
-    this.set = function(object, value){
+
+    this.set = function (object, value) {
         this[object] = value;
-        if(this.callbacks[object]){
+        if (this.callbacks[object]) {
             this.callbacks[object](value);
         }
-        if(this.callbacksHard[object]){
+        if (this.callbacksHard[object]) {
             this.callbacksHard[object](value);
         }
     };
-    
-    this.update = function(object){
-        if(this.callbacks[object]){
+
+    this.update = function (object) {
+        if (this.callbacks[object]) {
             this.callbacks[object](data[object]);
         }
-        if(this.callbacksHard[object]){
+        if (this.callbacksHard[object]) {
             this.callbacksHard[object](data[object]);
         }
     };
-    
-    this.readonlyinfo = function(cb){
+
+    this.readonlyinfo = function (cb) {
         this.readonlycb = cb;
     };
-    
-    this.edited_sync = function(fileID, contentID){
-        if(fileID == uiControl.file){
-            var type = contentID.substr(0,3);
-            switch(type){
-                case '100':
-                    //textbox.setid(contentID, data.files[fileID][contentID]);
-                    break;
-                case '103':
-                    //staticItems.setid(contentID, data.files[fileID][contentID]);
-                    break;
+
+    this.edited_sync = function (fileID, contentID) {
+        if (fileID == uiControl.file) {
+            var type = contentID.substr(0, 3);
+            switch (type) {
+            case '100':
+                //textbox.setid(contentID, data.files[fileID][contentID]);
+                break;
+            case '103':
+                //staticItems.setid(contentID, data.files[fileID][contentID]);
+                break;
             }
         } else {
             //console.log("Error: UI is not in sync with L3");
         }
     };
-    
-    this.edited_UI = function(contentID, data){
+
+    this.edited_UI = function (contentID, data) {
         //L3.send(contentID);
         var tempfile = L3.file;
-        if(this.fileRights.write){
+        if (this.fileRights.write) {
             this.files[tempfile][contentID] = data;
             //L3.uiEdit(uiControl.file, contentID);
         } else {
             this.edited_sync(tempfile, contentID);
-            if(this.readonlycb){
+            if (this.readonlycb) {
                 this.readonlycb();
             }
         }
     };
-    
-    this.reset = function(){
+
+    this.reset = function () {
         this.fileList = "";
-	    this.files = { };
-	    this.users = "";
+        this.files = {};
+        this.users = "";
         this.legitimationID = "";
         this.shareshow = false;
     }
-        
-    this.delete_UI = function(id){
+
+    this.delete_UI = function (id) {
         delete data.files[L3.file][id];
         //L3.delete(id);
     }
-        
-    this.delete_sync = function(id){
+
+    this.delete_sync = function (id) {
         delete data.files[L3.file][id];
-        textbox.removeElement("editarea"+id);
+        textbox.removeElement("editarea" + id);
     }
-    
-    this.showCache = function(){
-        if(uiControl.file){
-            if(!data.files[uiControl.file]) {
-                data.files[uiControl.file] =  { };
+
+    this.showCache = function () {
+        if (uiControl.file) {
+            if (!data.files[uiControl.file]) {
+                data.files[uiControl.file] = {};
             } else {
-                for(key in data.files[uiControl.file]){
+                for (key in data.files[uiControl.file]) {
                     data.edited_sync(uiControl.file, key);
                 }
             }
@@ -176,15 +184,14 @@ var data_typ = function data_typ(){
             //console.log("Error: uiControl.file needs to be prepared before switching UI!");
         }
     };
-    
-    this.getUserName = function(id){
-        if(id.length != 10 || id[0] != "5"){
+
+    this.getUserName = function (id) {
+        if (id.length != 10 || id[0] != "5") {
             return "-";
         } else {
-            if(id in this.nameCache){
-            } else {
-                if(id in this.dirObject){
-                    this.nameCache[id] = this.dirObject[id].name;       
+            if (id in this.nameCache) {} else {
+                if (id in this.dirObject) {
+                    this.nameCache[id] = this.dirObject[id].name;
                 } else {
                     //L3.loadUserName(id);
                     this.nameCache[id] = "resolving name...";
@@ -193,22 +200,21 @@ var data_typ = function data_typ(){
             return this.nameCache[id];
         }
     };
-    
-    this.getUserId = function(name){
-        if(name.length < 3){
+
+    this.getUserId = function (name) {
+        if (name.length < 3) {
             return "-";
         } else {
-            if(name in this.idCache){
-            } else {
+            if (name in this.idCache) {} else {
                 var id = "";
-                for(i in this.dirObject){
-                    if(name == this.dirObject[i].name && i[0] == "5"){
+                for (i in this.dirObject) {
+                    if (name == this.dirObject[i].name && i[0] == "5") {
                         id = i;
                         break;
                     }
                 }
-                if(id != ""){
-                    this.idCache[name] = id;       
+                if (id != "") {
+                    this.idCache[name] = id;
                 } else {
                     //L2.send(sID.getUserId, name);
                     this.idCache[name] = "resolving name...";
@@ -217,20 +223,24 @@ var data_typ = function data_typ(){
             return this.idCache[name];
         }
     };
-    
-    this.getUrl = function(){
+
+    this.getUrl = function () {
         return location.href.split("#")[0];
     };
-    
+
     // NEW FOR BETTERVEST
-    
+
     this.fopCB = function (fopReq, callback) {
         if (fopReq.readyState == 4) {
-            if(callback){
-                try{
+            if (callback) {
+                try {
                     callback(JSON.parse(fopReq.responseText));
-                } catch (e){
-                    console.error({"error": "Invalid JSON!", e: e});
+                } catch (e) {
+                    console.error({
+                        "error": "Invalid JSON!",
+                        e: e,
+                        fopReq: fopReq
+                    });
                 }
             }
         }
@@ -239,27 +249,86 @@ var data_typ = function data_typ(){
     this.fop = function (data, callback) {
         var fopReq = getHTTPObject();
         if (fopReq != null) {
-            fopReq.onreadystatechange = function(){
+            fopReq.onreadystatechange = function () {
                 that.fopCB(fopReq, callback);
             };
             fopReq.open("POST", "api/files/fop", true);
             fopReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            fopReq.send("data="+JSON.stringify(data));
+            fopReq.send("data=" + JSON.stringify(data));
         }
     };
-    
+
+    this.fsOpCB = function (fopReq, callback) {
+        if (fopReq.readyState == 4 && fopReq.status == 200) {
+            if (callback) {
+                try {
+                    callback(JSON.parse(fopReq.responseText));
+                } catch (e) {
+                    console.error({
+                        "error": "Invalid JSON!",
+                        e: e
+                    });
+                }
+            }
+        }
+    };
+
+    this.fsOp = function (data, callback, dataUrl) {
+        var fopReq = getHTTPObject();
+        if (fopReq != null) {
+            fopReq.onreadystatechange = function () {
+                that.fsOpCB(fopReq, callback);
+            };
+            fopReq.open("POST", "api/files/fsop/" + data.op, true);
+            fopReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            var temp = '';
+            if (dataUrl) {
+                temp = '&file=' + encodeURIComponent(dataUrl);
+            }
+            fopReq.send("data=" + JSON.stringify(data) + temp);
+        }
+    };
+
+    this.uploadFileById = function (id, data, callback, progress) {
+        var formData = new FormData();
+        formData.append("file", document.getElementById(id).files[0]);
+        formData.append("data", JSON.stringify(data));
+
+        var xhr = getHTTPObject();
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                callback(false, xhr);
+            }
+        };
+        
+        xhr.onerror = callback;
+
+        if (progress && document.getElementById(progress)) {
+            var progressBar = document.getElementById(progress);
+            xhr.upload.onprogress = function (e) {
+                if (e.lengthComputable) {
+                    progressBar.value = (e.loaded / e.total) * 100;
+                    progressBar.textContent = progressBar.value; // Fallback for unsupported browsers.
+                }
+            };
+        };
+        xhr.open("POST", "api/files/upload", true);
+        xhr.send(formData);
+    };
+
     this.updateCallback;
     this.actualDir;
-    
-    this.binducb = function(cb){
+
+    this.binducb = function (cb) {
         this.updateCallback = cb;
     };
-    
-    this.updateDirObject = function(e){
-        if(this.updateCallback){
+
+    this.updateDirObject = function (e) {
+        if (this.updateCallback) {
             this.updateCallback(e);
         }
     };
-    
+
 };
 var data = new data_typ();

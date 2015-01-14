@@ -25,7 +25,7 @@
 var addFile_typ = function addFile_typ() {
 
     this.AddFile = false;
-    this.AddFileChoice = false;
+    this.AddFileChoice = true;
 
     this.toggleAddFile = function () {
         if (this.AddFile) {
@@ -49,6 +49,10 @@ var addFile_typ = function addFile_typ() {
     } //
 
     this.toggleAddFileChoice = function () {
+        document.getElementById('awsomefilechoice').className = "fa fa-folder addFileIcon";
+        this.AddFileChoice = true;
+        document.getElementById('AddFileInput').focus();
+        return;
         if (this.AddFileChoice) {
             /*document.getElementById('AddFileChoice').src = 'img/doc/file.png';
             document.getElementById('AddFileChoice').style.bottom = '0px';*/
@@ -90,7 +94,7 @@ var addFile_typ = function addFile_typ() {
             if (e.success && e.dirObject) {
                 data.updateDirObject(e.dirObject);
             } else {
-                alert("Error: "+e.error);
+                alert("Error: " + e.error);
             }
         });
     }

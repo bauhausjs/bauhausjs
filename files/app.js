@@ -1,5 +1,6 @@
 var express = require('express');
 var noimage = require('./noimage.js');
+var provider = require('./provider.js');
 var db = require('./databaseOperations.js');
 var File = require('./model/file');
 var gm = require('gm').subClass({
@@ -10,6 +11,8 @@ module.exports = function (bauhausConfig) {
     'use strict';
 
     var app = express();
+    
+    app.use('/files', provider());
 
 
     /*app.param('id', function (req, res, next, id) {;
