@@ -23,7 +23,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             '        </tr>' +
             '      </tbody>' +
             '    </table>' +
-            '    <br>Datei hinzuf&uuml;gen: <input type="file" name="file" id="fileupload" cropWidth="800" cropHeight="600" maxSize="false" circle="false"/><input type="button" value="Upload" ng-click="uploadFile()"><br><br><br><progress min="0" max="100" value="0" id="fileuploadprogress">0% complete</progress><span>{{uploadState}}</span>' +
+            '    <br>Datei hinzuf&uuml;gen: <input type="file" name="file" id="fileupload{{config.name}}" cropWidth="800" cropHeight="600" maxSize="false" circle="false"/><input type="button" value="Upload" ng-click="uploadFile()"><br><br><br><progress min="0" max="100" value="0" id="fileuploadprogress{{config.name}}">0% complete</progress><span>{{uploadState}}</span>' +
             '</div>',
         scope: {
             value: '=ngModel',
@@ -36,6 +36,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             }
 
             scope.limit = (scope.config.options.limit !== undefined && typeof scope.config.options.limit === 'number') ? scope.config.options.limit : 1;
+            scope.projectId = scope.$parent.$parent.documentId;
             var t = scope.config.options.typeRegEx || '[.]*';
             scope.regex = new RegExp(t);
             scope.cropping = scope.config.options.cropping || {
@@ -44,7 +45,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 maxSize: false,
                 circle: false
             };
-            scope.dir = '/projects/' + scope.$parent.$parent.documentId + '/' + scope.config.options.dirname + '/';
+            scope.dir = '/projects/' + scope.projectId + '/' + scope.config.options.dirname + '/';
             scope.reloadnumber = ((new Date()).getTime());
             scope.imageQuery = 'transform=resize&width=80&height=50';
             scope.images = {};
@@ -236,7 +237,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                         "id": id
                     }, function (data) {
                         if (!data.success) {
-                            for (i in scope.images) {
+                            for (var i in scope.images) {
                                 if (scope.images[i]._id == id) {
                                     scope.images[i].name = oldname;
                                     break;
@@ -286,19 +287,22 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
 
             scope.uploadFile = function () {
                 //console.log('test', document.getElementById('fileupload').files[0].type);
-                if (scope.regex.test(document.getElementById('fileupload').files[0].type)) {
-                    if (document.getElementById('fileupload').files[0].type.split('/')[0] == 'image') {
-                        scope.c.crop(document.getElementById('fileupload').files[0], document.getElementById('fileupload'), scope.cropping);
+                var uploadId = 'fileupload'+scope.config.name;
+                var uploadProgressId = 'fileuploadprogress'+scope.config.name;
+                if (scope.regex.test(document.getElementById(uploadId).files[0].type)) {
+                    if (document.getElementById(uploadId).files[0].type.split('/')[0] == 'image') {
+                        scope.c.crop(document.getElementById(uploadId).files[0], document.getElementById(uploadId), scope.cropping);
                     } else {
                         scope.uploadState = "Datei wird hochgeladen...";
-                        data.uploadFileById('fileupload', {
+                        data.uploadFileById(uploadId, {
                             'path': scope.dir
                         }, function (err, data) {
                             if (err) {
                                 scope.uploadState = "Upload fehlgeschlagen!";
                             } else {
+                                var json;
                                 try {
-                                    var json = JSON.parse(data.responseText);
+                                    json = JSON.parse(data.responseText);
                                 } catch (e) {
                                     scope.uploadState = "Upload fehlgeschlagen!";
                                 }
@@ -313,7 +317,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                             if (!scope.$$phase) {
                                 scope.$apply();
                             }
-                        }, 'fileuploadprogress');
+                        }, uploadProgressId);
                     }
                 } else {
                     scope.uploadState = "Dateityp nicht erlaubt!";
