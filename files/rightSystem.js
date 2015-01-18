@@ -13,11 +13,11 @@ var cache = {};
 m.getPathRights = function (path, done) {
     path = m.unifyPath(path);
     if (cache[path]) {
-        //console.log('load cached');
+        console.log('load cached');
         cache[path].lastused = Date.now();
         done(cache[path].right);
     } else {
-        //console.log('load DB');
+        console.log('load DB');
         loadPathRights(path, function () {
             done(cache[path].right);
         });
@@ -51,7 +51,8 @@ var getDBPathRights = function (path, done) {
         if (err) {
             done({
                 right: {
-                    'visible': false
+                    'user': false,
+                    'err': err
                 },
                 lastused: Date.now()
             });
@@ -59,7 +60,8 @@ var getDBPathRights = function (path, done) {
             if (!right) {
                 done({
                     right: {
-                        'visible': false
+                        'user': false,
+                        'no': 'rights'
                     },
                     lastused: Date.now()
                 });
@@ -74,7 +76,7 @@ var getDBPathRights = function (path, done) {
 };
 
 m.unifyPath = function (path) {
-    var a = path.split('/');
+    var a = path.split('/'); // a is the splitted path like a/b/c/d => ['a','b','c','d']
     if (a[a.length - 1].search(/\./) < 0) {
         if (path[path.length - 1] != "/") {
             path += '/';
@@ -90,7 +92,7 @@ m.unifyPath = function (path) {
     return path;
 };
 
-m.setFileRights = function (path, visible, done) {
+m.setFileRights = function (path, user, done) {
     path = m.unifyPath(path);
     FileRight.findOne({
         path: path
@@ -101,10 +103,10 @@ m.setFileRights = function (path, visible, done) {
             if (!fileright) {
                 var fileright = new FileRight({
                     path: path,
-                    visible: visible
+                    user: user
                 });
             } else {
-                fileright.visible = visible;
+                fileright.user = user;
             }
             if (cache[path]) {
                 cache[path].right = fileright;

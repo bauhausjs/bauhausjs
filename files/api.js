@@ -42,21 +42,30 @@ module.exports = function (bauhausConfig) {
     //app.use(express.bodyParser({limit: '900mb'}));
 
     app.post(pre + '/fsop/upload', function (req, res) {
-        fsOp.uploadFile(req.fsopdata.dir, req.fsopdata.name, req.body.file, function (err) {
-            if (err) {
-                res.writeHead(500);
-                res.json({
-                    "success": false,
-                    "info": "Upload failed!",
-                    "err": err
-                });
-            } else {
-                res.json({
-                    "success": true,
-                    "info": "Upload successful!"
-                });
-            }
-        });
+        if (req.session != null && req.session.user != null && req.session.user.id != null) {
+            fsOp.uploadFile(req.fsopdata.dir, req.fsopdata.name, req.body.file, req.session.user.id, function (err) {
+                if (err) {
+                    res.writeHead(500);
+                    res.json({
+                        "success": false,
+                        "info": "Upload failed!",
+                        "err": err
+                    });
+                } else {
+                    res.json({
+                        "success": true,
+                        "info": "Upload successful!"
+                    });
+                }
+            });
+        } else {
+            res.writeHead(403);
+            res.json({
+                "success": false,
+                "info": "Upload failed!",
+                "err": "NO LOGIN"
+            });
+        }
     });
 
     app.post(pre + '/fsop/movefiles', function (req, res) {

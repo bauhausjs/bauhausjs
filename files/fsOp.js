@@ -201,7 +201,7 @@ m.upload = function (req, res) {
     }
 };
 
-m.uploadFile = function (dir, filename, dataUrl, done) {
+m.uploadFile = function (dir, filename, dataUrl, user, done) {
     try { //data:image/jpeg;base64,
         var dataString = dataUrl.split(",");
         var data = dataString[0].split(":")[1];
@@ -214,9 +214,21 @@ m.uploadFile = function (dir, filename, dataUrl, done) {
         if (dir[dir.length - 1] != '/') {
             dir += '/';
         }
+        var splittedFileName = filename.split('.');
+        var extension = splittedFileName.pop().toLowerCase();
+        var name = splittedFileName.join('.');
+
+        filename = pathconfig.changeFileName(name) + '.' + extension;
 
         fs.writeFile(pathconfig.filesDir + dir + filename, buffer, function (err) {
             if (err) return done(err);
+            rightSystem.setFileRights(dir + filename, user, function (err) {
+                if (err) {
+                    done(err);
+                } else {
+                    done();
+                }
+            });
             done();
         });
     } catch (err) {

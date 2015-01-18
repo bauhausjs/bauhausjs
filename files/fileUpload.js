@@ -2,6 +2,7 @@ var pathconfig = require('./pathconfig.js');
 var multer = require('multer');
 var fsOp = require('./fsOp.js');
 var express = require('express');
+var rightSystem = require('./rightSystem.js');
 
 module.exports = function (req, res, next) {
     'use strict';
@@ -16,8 +17,7 @@ module.exports = function (req, res, next) {
     app.use(multer({
         dest: pathconfig.uploadDir,
         rename: function (fieldname, filename) {
-            filename = filename.split('.').join('_');
-            return filename + '_' + Date.now();
+            return pathconfig.changeFileName(filename);
         },
         onFileUploadStart: function (file) {
             //console.log(file.originalname + ' is starting ...')
@@ -30,7 +30,7 @@ module.exports = function (req, res, next) {
 
     app.post('/', function (req, res, next) {
 
-        if (req.body && req.body.data && req.files && req.files.file && req.files.file.path) {
+        if (req.body && req.body.data && req.files && req.files.file && req.files.file.path && req.session != null && req.session.user != null && req.session.user.id != null) {
             try {
                 var data = JSON.parse(req.body.data);
             } catch (err) {
@@ -56,9 +56,19 @@ module.exports = function (req, res, next) {
                         "err": err
                     });
                 } else {
-                    res.json({
-                        "success": true,
-                        "info": "Upload Successful!"
+                    rightSystem.setFileRights(files[0].dest, req.session.user.id, function (err) {
+                        if (err) {
+                            res.json({
+                                "success": false,
+                                "info": "Upload failed! Setting Uploader failed.",
+                                "err": err
+                            });
+                        } else {
+                            res.json({
+                                "success": true,
+                                "info": "Upload Successful!"
+                            });
+                        }
                     });
                 }
             });

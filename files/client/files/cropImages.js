@@ -21,7 +21,7 @@ var cropImages = function (params) {
     //this.inputs = [];
 
     if (params) {
-        for (i in params) {
+        for (var i in params) {
             this[i] = params[i];
         }
     }
@@ -126,7 +126,7 @@ var cropImages = function (params) {
         }
     };
 
-    this.crop = function (file, elem) {
+    this.crop = function (file, elem, cropping) {
         that.file = file;
         that.choice(file);
         if (file.type.match('image.*')) {
@@ -136,6 +136,23 @@ var cropImages = function (params) {
             //var uploadURL = elem.getAttribute('uploadUrl');
             var max = elem.getAttribute('maxSize');
             var circle = elem.getAttribute('circle');
+            
+            if(typeof cropping === "object"){
+                if(cropping.height != null){
+                    height = cropping.height;
+                }
+                if(cropping.width != null){
+                    width = cropping.width;
+                }
+                if(cropping.max != null){
+                    max = cropping.max;
+                }
+                if(cropping.circle != null){
+                    circle = cropping.circle;
+                }
+            }
+            
+            
             if (max && max != "false") {
                 max = true;
             } else {
