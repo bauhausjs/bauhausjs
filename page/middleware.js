@@ -153,14 +153,16 @@ middleware.loadNavigation = function (req, res, next) {
                 }
             }
 
-            var userRoles = req.session.user.roles;
+            if(req.session.user != null){
+                var userRolesIds = (req.session.user.roleIds != null)? req.session.user.roleIds: [];
 
-            // compare required roles and user roles
-            for (var r in pageRoles) {
-                var pageRoleId = pageRoles[r].toString();
-                if (userRoles.indexOf(pageRoleId) !== -1) {
-                    // user has role, let pass
-                    return true;
+                // compare required roles and user roles
+                for (var r in pageRoles) {
+                    var pageRoleId = pageRoles[r].toString();
+                    if (userRolesIds.indexOf(pageRoleId) !== -1) {
+                        // user has role, let pass
+                        return true;
+                    }
                 }
             }
         }
