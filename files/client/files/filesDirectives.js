@@ -3,11 +3,11 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
         restrict: 'AEC',
         template: '<div class="page-content-field" ng-blur="showSelect = false">' +
             '     <label class="page-content-field-label">{{config.label}}</label><br><br>' +
-            '     <span>Es sind maximal {{limit}} Bilder aktivierbar.</span>' +
+            '     <span>Es sind maximal {{limit}} Datei/en aktivierbar.</span>' +
             '     <table class="table">' +
             ' <thead>' +
             '     <tr>' +
-            '         <th>Bild</th>' +
+            '         <th>Datei</th>' +
             '         <th>Name</th>' +
             '         <th>Aktiv</th>' +
             '         <th>L&ouml;schen</th>' +
@@ -130,7 +130,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                         scope.value.files.push(id);
                         return true;
                     } else {
-                        alert("Maximal " + scope.limit + " Bilder dürfen aktiviert werden!");
+                        alert("Es dürfen maximal " + scope.limit + " Dateien aktiviert werden!");
                         if (!scope.$$phase) {
                             scope.$apply();
                         }
@@ -285,7 +285,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             scope.deleteFile = function (id) {
 
                 //console.log('komisch', scope.$parent.$parent.documentId);
-                var ret = confirm("Bist du sicher dass du dieses Bild löschen willst?");
+                var ret = confirm("Soll diese Datei wirklich gelöscht werden?");
                 if (ret) {
                     data.fsOp({
                         "op": "removefiles",
