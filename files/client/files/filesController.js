@@ -34,7 +34,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                 $scope.$apply();
             }
             var arr = e.file.name.split('.');
-            arr[arr.length-1] = 'jpg';
+            arr[arr.length - 1] = 'jpg';
             data.fsOp({
                 "op": "upload",
                 "dir": $scope.actualDir,
@@ -718,42 +718,103 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         // Tab Handler
         //tab.deactivateAll();
 
+        $scope.projectNameCache = {};
+
+        $scope.getProjectNameById = function (id, done) {
+            if ($scope.projectNameCache[id] != null) {
+                done($scope.projectNameCache[id]);
+            } else {
+                data.fsOp({
+                    "op": "getProjectNameById",
+                    "id": id
+                }, function (e) {
+                    if (e.success) {
+                        $scope.projectNameCache[id] = e.name;
+                        done(e.name);
+                    }
+                });
+            }
+        };
+
+        $scope.updatePath = function () {
+            $scope.path = [
+                {
+                    id: '/',
+                    'show': '/'
+                    }
+                ];
+            var t = $scope.actualDir.split('/');
+            var be = '/';
+            for (var i in t) {
+                if (t[i] != '') {
+                    be += t[i] + '/';
+                    //$scope.path[t[i]] = be;
+                    var show = t[i];
+                    if ($scope.projectNameCache[t[i]] != null) {
+                        show = $scope.projectNameCache[t[i]];
+                    }
+
+                    $scope.path.push({
+                        id: be,
+                        'show': show
+                    });
+                }
+            }
+        };
+
         $scope.refreshDir = function (dir) {
             if (dir) {
                 $scope.actualDir = dir;
-                $scope.path = [
-                    {
-                        id: '/',
-                        'show': '/'
-                    }
-                ];
-                var t = $scope.actualDir.split('/');
-                var be = '/';
-                for (var i in t) {
-                    if (t[i] != '') {
-                        be += t[i] + '/';
-                        //$scope.path[t[i]] = be;
-                        $scope.path.push({
-                            id: be,
-                            'show': t[i]
-                        });
-                    }
-                }
             }
             data.fsOp({
                 "op": "readdir",
                 "dir": $scope.actualDir
             }, function (e) {
                 if (e.success) {
-                    var temp = {};
+                    $scope.flist = [];
+                    var j = 0;
                     for (var i in e.files) {
-                        if (e.files[i].search(/\./) < 0) {
-                            temp[e.files[i]] = $scope.actualDir + e.files[i] + "/";
-                        } else {
-                            temp[e.files[i]] = $scope.actualDir + e.files[i];
+                        if ($scope.actualDir !== "/" || e.files[i] !== 'tempuploads') {
+                            if (e.files[i].search(/\./) < 0) {
+                                if ($scope.actualDir === "/projects/") {
+                                    j++;
+                                    $scope.getProjectNameById(e.files[i], function (name) {
+                                        j--;
+                                        $scope.flist.push({
+                                            "id": $scope.actualDir + e.files[i] + "/",
+                                            "name": e.files[i],
+                                            "show": name
+                                        });
+                                        if (j < 1) {
+                                            $scope.updatePath();
+                                            if (!$scope.$$phase) {
+                                                $scope.$apply();
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    $scope.flist.push({
+                                        "id": $scope.actualDir + e.files[i] + "/",
+                                        "name": e.files[i],
+                                        "show": e.files[i]
+                                    });
+                                }
+
+                            } else {
+                                $scope.flist.push({
+                                    "id": $scope.actualDir + e.files[i],
+                                    "name": e.files[i],
+                                    "show": e.files[i]
+                                });
+                            }
                         }
                     }
-                    $scope.flist = temp;
+
+                    if (j < 1) {
+                        $scope.updatePath();
+                    }
+                    //console.log($scope.flist);
+                    //$scope.flist = $scope.flist;
                     if (!$scope.$$phase) {
                         $scope.$apply();
                     }
@@ -809,7 +870,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         $scope.path = {
             '/': '/'
         };
-        $scope.flist = {};
+        $scope.flist = [];
 
         $scope.refreshDir("/");
 
@@ -860,4 +921,4 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         //}
         //}
 
-            }]);
+}]);

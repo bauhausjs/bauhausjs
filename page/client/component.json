@@ -4,11 +4,15 @@
         "page/page.js",
         "page/pageController.js",
         "page/pageDirectives.js",
-        "page/pageServices.js"
+        "page/pageServices.js",
+        "jquery.min.js",
+        "modernizr-latest.js",
+        "time-polyfill.min.js"
     ],
     "styles": [
         "kalendae.css",
-        "page/page.less"
+        "page/page.less",
+        "time-polyfill.css"
     ],
     "templates": [
         "page/pageTree.html",

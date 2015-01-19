@@ -5,6 +5,7 @@ var express = require('express');
 var pathconfig = require('./pathconfig.js');
 var fsOp = require('./fsOp.js');
 var fileUpload = require('./fileUpload.js');
+var Project = require('../../../lib/project/model/project.js');
 
 module.exports = function (bauhausConfig) {
     // Register document for CRUD generation
@@ -185,6 +186,30 @@ module.exports = function (bauhausConfig) {
                     "success": true,
                     "info": "Renameing Successful!"
                 });
+            }
+        });
+    });
+
+    app.post(pre + '/fsop/getProjectNameById', function (req, res) {
+        Project.findById(req.fsopdata.id, function (err, project) {
+            if (err) {
+                res.json({
+                    "success": false,
+                    "info": "Failed",
+                    "err": err
+                });
+            } else {
+                if (!project) {
+                    res.json({
+                        "success": false,
+                        "info": "Failed"
+                    });
+                } else {
+                    res.json({
+                        "success": true,
+                        "name": project.title
+                    });
+                }
             }
         });
     });

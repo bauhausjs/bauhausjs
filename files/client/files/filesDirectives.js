@@ -60,9 +60,9 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
 
             scope.c.listen('choice', function (e) {
                 scope.uploadState = 'Datei wird eingelesen! Bitte warten...';
-                if (!scope.$$phase) {
-                    scope.$apply();
-                }
+                //if (!scope.$$phase) {
+                //    scope.$apply();
+                //}
             });
 
             scope.c.listen('export', function (e) {
@@ -79,6 +79,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 }, function (e) {
                     if (e.success) {
                         scope.uploadState = 'Datei erfolgreich hochgeladen!';
+                        scope.activateAllReminder = true;
                         scope.loadlist();
                     } else {
                         scope.uploadState = 'Hochladen fehlgeschlagen! Datei möglicherweise zu groß?';
@@ -100,6 +101,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             };
 
             scope.isActive = function (id) {
+                scope.checkValue();
                 if (scope.value.files.indexOf(id) >= 0) {
                     return true;
                 } else {
@@ -108,6 +110,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             };
 
             scope.isDisabled = function (id) {
+                scope.checkValue();
                 if (scope.value.files.indexOf(id) < 0 && scope.value.files.length == scope.limit) {
                     return true;
                 } else {
@@ -116,6 +119,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             };
 
             scope.toggleActive = function (id) {
+                scope.checkValue();
                 var ret = scope.value.files.indexOf(id);
                 if (ret >= 0) {
                     scope.value.files.splice(ret, 1);
@@ -131,6 +135,26 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                             scope.$apply();
                         }
                         return false;
+                    }
+                }
+            };
+
+            scope.activateAllReminder = false;
+
+            scope.activateAllWhenNeeded = function () {
+                if (scope.activateAllReminder) {
+                    scope.activateAllReminder = false;
+                    scope.activateAll();
+                }
+            };
+
+            scope.activateAll = function () {
+                if (scope.value.files.length < scope.limit) {
+                    for (var i in scope.images) {
+                        var id = scope.images[i];
+                        if (scope.value.files.length < scope.limit && scope.value.files.indexOf(id) < 0) {
+                            scope.value.files.push(id);
+                        }
                     }
                 }
             };
@@ -164,7 +188,15 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 return 'unhighlight';
             }
 
+            scope.checkValue = function () {
+                if (scope.value == null || scope.value.files == null) {
+                    scope.value = {};
+                    scope.value.files = [];
+                }
+            };
+
             scope.removeFromlist = function (id) {
+                scope.checkValue();
                 var ret = scope.value.files.indexOf(id);
                 if (ret >= 0) {
                     scope.value.files.splice(ret, 1);
@@ -173,6 +205,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             };
 
             scope.checkLostFiles = function () {
+                scope.checkValue();
                 //console.log('checkLostFiles', scope.images);
                 var rem = [];
                 for (var i in scope.value.files) {
@@ -208,6 +241,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                         }
                         //console.log('fin');
                         scope.checkLostFiles();
+                        scope.activateAllWhenNeeded();
                         //console.log('fin end');
                         //scope.images = temp;
 
@@ -287,8 +321,8 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
 
             scope.uploadFile = function () {
                 //console.log('test', document.getElementById('fileupload').files[0].type);
-                var uploadId = 'fileupload'+scope.config.name;
-                var uploadProgressId = 'fileuploadprogress'+scope.config.name;
+                var uploadId = 'fileupload' + scope.config.name;
+                var uploadProgressId = 'fileuploadprogress' + scope.config.name;
                 if (scope.regex.test(document.getElementById(uploadId).files[0].type)) {
                     if (document.getElementById(uploadId).files[0].type.split('/')[0] == 'image') {
                         scope.c.crop(document.getElementById(uploadId).files[0], document.getElementById(uploadId), scope.cropping);
@@ -308,6 +342,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                                 }
                                 if (json.success) {
                                     scope.uploadState = "Datei wurde erfolgreich hochgeladen!";
+                                    scope.activateAllReminder = true;
                                     scope.loadlist();
                                 } else {
                                     scope.uploadState = "Upload fehlgeschlagen!";

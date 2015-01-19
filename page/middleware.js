@@ -18,12 +18,32 @@ middleware.loadPage = function loadPage (req, res, next) {
 
     var route = req.path;
 
+    var pathArray = route.split("/");
+    var lastPositionIndex = pathArray.length-1;
+    var lastPosition = pathArray[lastPositionIndex];
+    var alternativeRoute = route.replace(lastPosition, ":id");
+    
     Page.findOne({ 'route': route  }, "title label isSecure roles _type _model", function (err, page) {
-        if (err || page === null) return next(new PageNotFoundError(route));
+        if (err || page === null){
+            // page not found. Try to find with parameter
+            Page.findOne({ 'route': alternativeRoute  }, "title label isSecure roles _type _model", function (err, page) {
+                if (err || page === null){
+                    
+                    return next(new PageNotFoundError(route)); // page not found 404
+                } else {
+                    req.params.id = lastPosition; // foward last position as parameter id
+                    req.bauhaus.page = page;
+                    debug('Loaded "' +  page.title + '" (' + page._id + ') for route ' + route);
+                    next();        
+                }
+            });
+        } else{
+            req.bauhaus.page = page;
+            debug('Loaded "' +  page.title + '" (' + page._id + ') for route ' + route);
+            next();
+        }
 
-        req.bauhaus.page = page;
-        debug('Loaded "' +  page.title + '" (' + page._id + ') for route ' + route);
-        next();
+        
     });
 };
 

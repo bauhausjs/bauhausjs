@@ -11,7 +11,7 @@ var userSchema = new Schema({
     emailConfirmed: Boolean,
     roles: [Schema.Types.ObjectId],
     fields: {}
-}, {collection: 'bauhaus-users'});
+}, {collection: 'users'});
 
 
 userSchema.methods.setResetPasswordToken = function () {

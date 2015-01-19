@@ -74,10 +74,10 @@
                 <div class="ownerFile">CONTENT TYPE</div>
                 <div class="lastChange">LAST MODIFIED</div>
             </li>
-            <li ng-repeat="(key, id) in flist" class="{{getactive(id)}}" ng-mouseup="setactive($event, id);" ng-mousedown="mousedown(id, $event);" ng-mouseover="mouseover(id);" ng-dblclick="configFile(id);" dragable="false">
+            <li ng-repeat="(key, elem) in flist" class="{{getactive(elem.id)}}" ng-mouseup="setactive($event, elem.id);" ng-mousedown="mousedown(elem.id, $event);" ng-mouseover="mouseover(elem.id);" ng-dblclick="configFile(elem.id);" dragable="false">
                 <!--<div class="ico{{key.substr(0,1);}}"></div>-->
-                <i class="{{getIconClass(key)}} fileexplorericon"></i>
-                <font class="filenameDir" style="position: relative; left: 30px;" ng-click="openFileAngu(id);">{{key}}
+                <i class="{{getIconClass(elem.name)}} fileexplorericon"></i>
+                <font class="filenameDir" style="position: relative; left: 30px;" ng-click="openFileAngu(elem.id);">{{elem.show}}
                 </font>
                 <div class="ownerFile" style="top:10px;">-</div>
                 <div class="lastChange" style="top:10px;">-</div>
