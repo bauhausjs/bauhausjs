@@ -40,10 +40,17 @@ module.exports = function (req, res, next) {
                     "err": err
                 });
             }
+            
+            var name = req.files.file.name;
+            if(data.filename){
+                var a = name.split('.');
+                name = pathconfig.changeFileName(data.filename);
+                name = name+"."+a.pop().toLowerCase();
+            }
 
             var files = [{
                 'src': pathconfig.uploadSubDir + '/' + req.files.file.name,
-                'dest': data.path + req.files.file.name
+                'dest': data.path + name
             }];
 
             //console.log('fief', files);

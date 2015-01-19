@@ -505,17 +505,20 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         });
 
         $scope.deleteSelection = function () {
-            data.fsOp({
-                "op": "removefiles",
-                "files": data.selectionarray
-            }, function (e) {
-                if (e.success) {
-                    $scope.refreshDir();
-                } else {
-                    $scope.refreshDir();
-                    alert("Löschen Fehlgeschlagen!");
-                }
-            });
+            var ret = confirm("Bist du sicher dass du diese Datei/en löschen willst?");
+            if (ret) {
+                data.fsOp({
+                    "op": "removefiles",
+                    "files": data.selectionarray
+                }, function (e) {
+                    if (e.success) {
+                        $scope.refreshDir();
+                    } else {
+                        $scope.refreshDir();
+                        alert("Löschen Fehlgeschlagen!");
+                    }
+                });
+            }
         };
 
 
@@ -580,7 +583,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                 $scope.refreshDir(id);
                 return "fa fa-folder";
             } else {
-                $scope.OpenInNewTab("/files/files" + id);
+                $scope.OpenInNewTab("/files" + id);
                 return "fa fa-file";
             }
 
@@ -731,6 +734,9 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                     if (e.success) {
                         $scope.projectNameCache[id] = e.name;
                         done(e.name);
+                    } else {
+                        $scope.projectNameCache[id] = id;
+                        done(id);
                     }
                 });
             }
