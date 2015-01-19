@@ -15,9 +15,9 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             ' </thead>' +
             ' <tbody>' +
             '     <tr ng-repeat="(key, id) in images" ng-class="getClass(key)">' +
-            '         <td ng-if="isTypeimage(key)" style="cursor: pointer;"><img ng-click="OpenInNewTab(id)" ng-src="/files/files{{id}}?reload={{reloadnumber}}" title="{{key}}" style="max-height: 40px; max-width: 100px;"></td>' +
+            '         <td ng-if="isTypeimage(key)" style="cursor: pointer;"><img ng-click="OpenInNewTab(id)" ng-src="/files{{id}}?reload={{reloadnumber}}" title="{{key}}" style="max-height: 40px; max-width: 100px;"></td>' +
             '         <td ng-if="!isTypeimage(key)" style="cursor: pointer;"><span ng-click="OpenInNewTab(id)" title="{{key}}"><i class="fa fa-download"></i></span></td>' +
-            '         <td ng-click="key = changeName(id, key)"><i class="icon-pencil"></i>{{key}}</td>' +
+            '         <td><i class="icon-pencil"></i>{{key}}</td>' +
             '         <td><input type="checkbox" style="opacity: 1;" ng-checked="isActive(id);" ng-click="toggleActive(id)" ng-disabled="isDisabled(id)"></td>' +
             '         <td><input type="button" value="L&ouml;schen" ng-click="deleteFile(id)"></td>' +
             '        </tr>' +
@@ -36,6 +36,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             }
 
             scope.limit = (scope.config.options.limit !== undefined && typeof scope.config.options.limit === 'number') ? scope.config.options.limit : 1;
+            scope.filename = scope.config.options.filename || false;
             scope.projectId = scope.$parent.$parent.documentId;
             var t = scope.config.options.typeRegEx || '[.]*';
             scope.regex = new RegExp(t);
@@ -49,7 +50,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             scope.reloadnumber = ((new Date()).getTime());
             scope.imageQuery = 'transform=resize&width=80&height=50';
             scope.images = {};
-            scope.projectidjson = '{"projectid": "' + scope.$parent.$parent.projectId + '"}';
+            scope.projectidjson = '{"projectid": "' + scope.$parent.$parent.documentId + '"}';
 
             scope.test = function (e) {
                 //console.error("TOLLL");
@@ -70,12 +71,19 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 if (!scope.$$phase) {
                     scope.$apply();
                 }
-                var arr = e.file.name.split('.');
-                arr[arr.length - 1] = 'jpg';
+                var extension = 'jpg';
+                var name = "";
+                if (scope.filename) {
+                    name = scope.filename + "." + extension;
+                } else {
+                    var arr = e.file.name.split('.');
+                    arr[arr.length - 1] = 'jpg';
+                    name = arr.join('.');
+                }
                 data.fsOp({
                     "op": "upload",
                     "dir": scope.dir,
-                    "name": arr.join('.')
+                    "name": name
                 }, function (e) {
                     if (e.success) {
                         scope.uploadState = 'Datei erfolgreich hochgeladen!';
@@ -257,35 +265,9 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 });
             };
 
-            scope.changeName = function (id, oldname) {
-                var name = prompt("Bitte gib einen neuen Namen ein.", oldname);
-                if (name) {
-                    data.fop({
-                        "op": "changenameinfolder",
-                        "projectid": scope.$parent.$parent.projectId,
-                        "name": name,
-                        "id": id
-                    }, function (data) {
-                        if (!data.success) {
-                            for (var i in scope.images) {
-                                if (scope.images[i]._id == id) {
-                                    scope.images[i].name = oldname;
-                                    break;
-                                }
-                            }
-                            alert("Fehlgeschlagen: " + data.err);
-                        }
-                    });
-                } else {
-                    var name = oldname;
-                }
-                return name;
-            };
-
             scope.deleteFile = function (id) {
-
                 //console.log('komisch', scope.$parent.$parent.documentId);
-                var ret = confirm("Bist du sicher dass du dieses Bild löschen willst?");
+                var ret = confirm("Bist du sicher dass du diese Datei löschen willst?");
                 if (ret) {
                     data.fsOp({
                         "op": "removefiles",
@@ -311,7 +293,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             };
 
             scope.OpenInNewTab = function (url) {
-                var win = window.open('/files/files' + url, '_blank');
+                var win = window.open('/files' + url, '_blank');
                 win.focus();
             }
 
@@ -324,7 +306,8 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                     } else {
                         scope.uploadState = "Datei wird hochgeladen...";
                         data.uploadFileById(uploadId, {
-                            'path': scope.dir
+                            'path': scope.dir,
+                            'filename': scope.filename
                         }, function (err, data) {
                             if (err) {
                                 scope.uploadState = "Upload fehlgeschlagen!";
