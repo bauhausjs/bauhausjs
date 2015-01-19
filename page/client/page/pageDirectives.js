@@ -251,3 +251,57 @@ angular.module('bauhaus.page.directives').directive('bauhausDatetime', function 
         }
     };
 });
+angular.module('bauhaus.page.directives').directive('bauhausDate', function ($timeout) {
+    return {
+        restrict: 'AEC', //AEC
+        template: '<div class="page-content-field">' + 
+                  '     <label class="page-content-field-label">{{config.label}}</label>' +
+                  '     <!--<input class="page-content-field-input input-big" type="text" ng-value="value" />-->' + 
+                  '     <input type="text" ng-value="dateval" id="input1{{config.name}}" ng-if="showdate">' + 
+                  '     <input type="button" value="Datum setzen" ng-if="!showdate" ng-click="setdate()">' + 
+                  '     <input type="button" value="Datum entfernen" ng-if="showdate && config.options && config.options.canberemoved" ng-click="unsetdate()">' + 
+                  '</div>',
+        scope: {
+            value: '=ngModel',
+            config: '=fieldConfig'
+        },
+        link: function (scope, el, attr) { 
+            
+            scope.showdate = false;
+            
+            scope.load = function(newVal){
+                scope.dateval= newVal.substr(0,10);
+                scope.showdate = true;
+
+                $timeout(function(){
+                    scope.kal = new Kalendae.Input('input1'+scope.config.name, {
+                        months:2,
+                        format:'YYYY-MM-DD'
+                    });
+                    scope.kal.subscribe('change', function (date, action) {
+                        var temp = new Date(date).toJSON();
+                        scope.$apply(function() {
+                            scope.value = temp;
+                        });
+                    });
+                },0);
+            };
+            scope.$watch('value', function (newVal, oldVal) {
+                if(newVal && newVal != null && typeof newVal !== 'undefined'){ 
+                    scope.load(newVal);
+                }
+            });
+            
+            scope.setdate = function(){
+                scope.value = new Date().toJSON();
+                scope.load(scope.value);
+            };
+            
+            scope.unsetdate = function(){
+                scope.showdate = false;
+                scope.value = '';
+            };
+        }
+    };
+});
+

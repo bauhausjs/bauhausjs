@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 
 var filerightSchema = new Schema({
     path: String,
-    visible: Boolean
+    user: String
 });
 
 module.exports = mongoose.model('FileRight', filerightSchema);

@@ -5,6 +5,7 @@ var express = require('express');
 var pathconfig = require('./pathconfig.js');
 var fsOp = require('./fsOp.js');
 var fileUpload = require('./fileUpload.js');
+var Project = require('../../../lib/project/model/project.js');
 
 module.exports = function (bauhausConfig) {
     // Register document for CRUD generation
@@ -42,21 +43,30 @@ module.exports = function (bauhausConfig) {
     //app.use(express.bodyParser({limit: '900mb'}));
 
     app.post(pre + '/fsop/upload', function (req, res) {
-        fsOp.uploadFile(req.fsopdata.dir, req.fsopdata.name, req.body.file, function (err) {
-            if (err) {
-                res.writeHead(500);
-                res.json({
-                    "success": false,
-                    "info": "Upload failed!",
-                    "err": err
-                });
-            } else {
-                res.json({
-                    "success": true,
-                    "info": "Upload successful!"
-                });
-            }
-        });
+        if (req.session != null && req.session.user != null && req.session.user.id != null) {
+            fsOp.uploadFile(req.fsopdata.dir, req.fsopdata.name, req.body.file, req.session.user.id, function (err) {
+                if (err) {
+                    res.writeHead(500);
+                    res.json({
+                        "success": false,
+                        "info": "Upload failed!",
+                        "err": err
+                    });
+                } else {
+                    res.json({
+                        "success": true,
+                        "info": "Upload successful!"
+                    });
+                }
+            });
+        } else {
+            res.writeHead(403);
+            res.json({
+                "success": false,
+                "info": "Upload failed!",
+                "err": "NO LOGIN"
+            });
+        }
     });
 
     app.post(pre + '/fsop/movefiles', function (req, res) {
@@ -176,6 +186,30 @@ module.exports = function (bauhausConfig) {
                     "success": true,
                     "info": "Renameing Successful!"
                 });
+            }
+        });
+    });
+
+    app.post(pre + '/fsop/getProjectNameById', function (req, res) {
+        Project.findById(req.fsopdata.id, function (err, project) {
+            if (err) {
+                res.json({
+                    "success": false,
+                    "info": "Failed",
+                    "err": err
+                });
+            } else {
+                if (!project) {
+                    res.json({
+                        "success": false,
+                        "info": "Failed"
+                    });
+                } else {
+                    res.json({
+                        "success": true,
+                        "name": project.title
+                    });
+                }
             }
         });
     });

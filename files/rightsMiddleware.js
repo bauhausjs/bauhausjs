@@ -1,7 +1,7 @@
 var rightSystem = require('./rightSystem.js');
 
 var deny = function (req, res) {
-    /*if (req.cpPath == last) {
+    if (req.cpPath == last) {
         count--;
     } else {
         count = 4;
@@ -16,10 +16,21 @@ var deny = function (req, res) {
             }
         });
         return true;
-    }*/
+    }
 
     res.writeHead(403);
     res.end('403 Forbidden');
+};
+
+var isPathPrivate = function (path) {
+    var a = path.split('/');
+    var check = false;
+    for (var i in a) {
+        if (a[i].toLowerCase() === 'private') {
+            check = true;
+        }
+    }
+    return check;
 };
 
 var count = 4;
@@ -29,25 +40,35 @@ module.exports = function (bauhausConfig) {
     'use strict';
 
     return function (req, res, next) {
-        if (req.session && req.session.user && req.session.user.roles && req.session.user.roles.indexOf('Admin') >= 0) {
+
+        if (req.session != null && req.session.user != null && req.session.user.roles != null && req.session.user.roles.indexOf('Admin') >= 0) {
             //console.log('Allowed Admin to view File');
             next();
         } else {
             req.cpPath = rightSystem.unifyPath(req.path);
+            console.log('path', req.cpPath);
+            if (isPathPrivate(req.cpPath)) {
+                if (req.session != null && req.session.user != null && req.session.user.id != null) {
 
-            //console.log('path', req.path, req.cpPath);
-            rightSystem.getPathRights(req.cpPath, function (rights) {
-                if (rights) {
-                    if (rights.visible) {
-                        next();
-                    } else {
-                        deny(req, res);
-                    }
+                    //console.log('path', req.path, req.cpPath);
+                    rightSystem.getPathRights(req.cpPath, function (rights) {
+                        console.log('filerights', JSON.stringify(rights));
+                        if (rights) {
+                            if (rights.user !== false && rights.user === req.session.user.id) {
+                                next();
+                            } else {
+                                deny(req, res);
+                            }
+                        } else {
+                            deny(req, res);
+                        }
+                    });
                 } else {
-                    console.log('rights object is undefined => should not be possible');
                     deny(req, res);
                 }
-            });
+            } else {
+                next();
+            }
         }
     }
 

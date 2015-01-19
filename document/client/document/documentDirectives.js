@@ -238,7 +238,7 @@ angular.module('bauhaus.document.directives').directive('bauhausObject', functio
     };
 });
 
-angular.module('bauhaus.document.directives').directive('bauhausDate', function (DocumentService, $timeout) {
+angular.module('bauhaus.document.directives').directive('bauhausOlddate', function (DocumentService, $timeout) {
     return {
         restrict: 'AEC',
         template: '<div class="page-content-field">' +
