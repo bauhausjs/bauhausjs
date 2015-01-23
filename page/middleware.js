@@ -134,41 +134,50 @@ middleware.loadNavigation = function (req, res, next) {
     }
 
     // Returns true if user is allowed to see page
-    function userHasAccess (item) {
-        if (typeof item.isSecure !== 'boolean' || item.isSecure === false) {
-            // page has no security settings or false, let user pass
-            return true;
-        } else {
-            // page is secured, check if user has access
-            var pageRoles = item.roles;
+       function userHasAccess (item) {
+       if (typeof item.isSecure !== 'boolean' || item.isSecure === false) {
+           // page has no security settings or false, let user pass
+           return true;
+       } else {
+           // page is secured, check if user has access
+           var pageRoles = item.roles;
+           debug('pageRoles', item.title, pageRoles)
 
-            if (Array.isArray(pageRoles) && pageRoles.length === 0) {
-                // page is secured, but requires no specific role
-                if (req.session.user) {
-                    // user is authenticated, let pass
-                    return true;
-                } else {
-                    // user is not authenticated, reject
-                    return false
-                }
-            }
+           if (Array.isArray(pageRoles) && pageRoles.length === 0) {
+               // page is secured, but requires no specific role
+               if (req.session.user) {
+                   // user is authenticated, let pass
+                   return true;
+               } else {
+                   // user is not authenticated, reject
+                   return false
+               }
+           }
 
-            if(req.session.user != null){
-                var userRolesIds = (req.session.user.roleIds != null)? req.session.user.roleIds: [];
+           if (!req.session.user || !req.session.user.roleIds) {
+               // user session does not exist, skip
+               return false;
+           }
 
-                // compare required roles and user roles
-                for (var r in pageRoles) {
-                    var pageRoleId = pageRoles[r].toString();
-                    if (userRolesIds.indexOf(pageRoleId) !== -1) {
-                        // user has role, let pass
-                        return true;
-                    }
-                }
-            }
-        }
-        // all pass rules failed, reject user
-        return false;
-    }
+           // make sure roleIds are strings (on first request they are objects)
+           var userRoles = [];
+           var sessionRoleIds = req.session.user.roleIds;
+           for (var r in sessionRoleIds) {
+               userRoles.push(sessionRoleIds[r].toString());
+           }
+
+           // compare required roles and user roles
+           for (var r in pageRoles) {
+               var pageRoleId = pageRoles[r].toString();
+               if (userRoles.indexOf(pageRoleId) !== -1) {
+                   // user has role, let pass
+                   return true;
+               }
+           }
+       }
+       // all pass rules failed, reject user
+       return false;
+   }
 
     Page.findOne(query, function (err, doc) {
         doc.getTree({

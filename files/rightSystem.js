@@ -13,11 +13,11 @@ var cache = {};
 m.getPathRights = function (path, done) {
     path = m.unifyPath(path);
     if (cache[path]) {
-        console.log('load cached');
+        //console.log('load cached');
         cache[path].lastused = Date.now();
         done(cache[path].right);
     } else {
-        console.log('load DB');
+        //console.log('load DB');
         loadPathRights(path, function () {
             done(cache[path].right);
         });
