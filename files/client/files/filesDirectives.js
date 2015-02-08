@@ -3,23 +3,24 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
         restrict: 'AEC',
         template: '<div class="page-content-field" ng-blur="showSelect = false">' +
             '     <label class="page-content-field-label">{{config.label}}</label><br><br>' +
-            '     <span>Es sind maximal {{limit}} Bilder aktivierbar.</span>' +
+            '     <span>Es sind maximal {{limit}} Datei/en aktivierbar.</span>' +
             '     <table class="table">' +
             ' <thead>' +
             '     <tr>' +
-            '         <th>Bild</th>' +
+            '         <th>Datei</th>' +
             '         <th>Name</th>' +
-            '         <th>Aktiv</th>' +
-            '         <th>L&ouml;schen</th>' +
+            '         <th ng-if="!config.options.singlefile">Aktiv</th>' +
+            '         <th ng-if="!config.options.singlefile">L&ouml;schen</th>' +
             '     </tr>' +
             ' </thead>' +
             ' <tbody>' +
             '     <tr ng-repeat="(key, id) in images" ng-class="getClass(key)">' +
-            '         <td ng-if="isTypeimage(key)" style="cursor: pointer;"><img ng-click="OpenInNewTab(id)" ng-src="/files{{id}}?reload={{reloadnumber}}" title="{{key}}" style="max-height: 40px; max-width: 100px;"></td>' +
+            '         <td ng-if="isTypeimage(key) && !cropping.circle" style="cursor: pointer;"><img ng-click="OpenInNewTab(id)" ng-src="/files{{id}}?reload={{reloadnumber}}" title="{{key}}" style="max-height: 40px; max-width: 100px;"></td>' +
+            '         <td ng-if="isTypeimage(key) && cropping.circle" style="cursor: pointer;"><img ng-click="OpenInNewTab(id)" ng-src="/files{{id}}?reload={{reloadnumber}}" title="{{key}}" style="max-height: 50px; max-width: 100px; border-radius: 50%;"></td>' +
             '         <td ng-if="!isTypeimage(key)" style="cursor: pointer;"><span ng-click="OpenInNewTab(id)" title="{{key}}"><i class="fa fa-download"></i></span></td>' +
             '         <td><i class="icon-pencil"></i>{{key}}</td>' +
-            '         <td><input type="checkbox" style="opacity: 1;" ng-checked="isActive(id);" ng-click="toggleActive(id)" ng-disabled="isDisabled(id)"></td>' +
-            '         <td><input type="button" value="L&ouml;schen" ng-click="deleteFile(id)"></td>' +
+            '         <td ng-if="!config.options.singlefile"><input type="checkbox" style="opacity: 1;" ng-checked="isActive(id);" ng-click="toggleActive(id)" ng-disabled="isDisabled(id)"></td>' +
+            '         <td ng-if="!config.options.singlefile"><input type="button" value="L&ouml;schen" ng-click="deleteFile(key)"></td>' +
             '        </tr>' +
             '      </tbody>' +
             '    </table>' +
@@ -37,7 +38,24 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
 
             scope.limit = (scope.config.options.limit !== undefined && typeof scope.config.options.limit === 'number') ? scope.config.options.limit : 1;
             scope.filename = scope.config.options.filename || false;
-            scope.projectId = scope.$parent.$parent.documentId;
+
+            scope.loadId = function () {
+                if (scope.config._idName != null) {
+                    scope._id = scope.$parent.$parent[scope.config._idName];
+                    scope.dir = scope.config.options.dirname.replace(':id', scope._id);
+                } else {
+                    if (scope.$parent.$parent.documentId != null) {
+                        scope._id = scope.$parent.$parent.documentId;
+                        scope.dir = scope.config.options.dirname.replace(':id', scope._id);
+                    } else {
+                        scope._id = "loadingError **** AngularJS";
+                        scope.dir = scope.config.options.dirname.replace(':id', scope._id);
+                    }
+                }
+                //console.log('dir', scope.dir);
+            }
+            scope.loadId();
+
             var t = scope.config.options.typeRegEx || '[.]*';
             scope.regex = new RegExp(t);
             scope.cropping = scope.config.options.cropping || {
@@ -46,11 +64,10 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 maxSize: false,
                 circle: false
             };
-            scope.dir = '/projects/' + scope.projectId + '/' + scope.config.options.dirname + '/';
-            scope.reloadnumber = ((new Date()).getTime());
+            scope.reloadnumber = Date.now();
             scope.imageQuery = 'transform=resize&width=80&height=50';
             scope.images = {};
-            scope.projectidjson = '{"projectid": "' + scope.$parent.$parent.documentId + '"}';
+            scope.projectidjson = '{"projectid": "' + scope._id + '"}';
 
             scope.test = function (e) {
                 //console.error("TOLLL");
@@ -80,10 +97,8 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                     arr[arr.length - 1] = 'jpg';
                     name = arr.join('.');
                 }
-                data.fsOp({
-                    "op": "upload",
-                    "dir": scope.dir,
-                    "name": name
+                scope.fsOp({
+                    "op": "upload"
                 }, function (e) {
                     if (e.success) {
                         scope.uploadState = 'Datei erfolgreich hochgeladen!';
@@ -99,6 +114,77 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                     }
                 }, e.dataUrl);
             });
+
+            scope.getHTTPObject = function () {
+                if (window.ActiveXObject) return new ActiveXObject("Microsoft.XMLHTTP");
+                else if (window.XMLHttpRequest) return new XMLHttpRequest();
+                else {
+                    alert("Dein Browser unterstuetzt kein AJAX!");
+                    return null;
+                }
+            }
+
+            scope.fsOp = function (data, callback, dataUrl) {
+                scope.loadId();
+                var fopReq = scope.getHTTPObject();
+                if (fopReq != null) {
+                    fopReq.onreadystatechange = function () {
+                        if (fopReq.readyState == 4 && fopReq.status == 200) {
+                            if (callback) {
+                                try {
+                                    callback(JSON.parse(fopReq.responseText));
+                                } catch (e) {
+                                    console.error({
+                                        "error": "Invalid JSON!",
+                                        e: e
+                                    });
+                                }
+                            }
+                        }
+                    };
+                    fopReq.open("POST", "/files/.operations/fsop/" + data.op, true);
+                    fopReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    data.field = scope.config.name;
+                    data.config = scope.config.configPath;
+                    data._id = scope._id;
+                    var temp = '';
+                    if (dataUrl) {
+                        temp = '&file=' + encodeURIComponent(dataUrl);
+                    }
+                    fopReq.send("data=" + JSON.stringify(data) + temp);
+                }
+            };
+
+            scope.uploadFileById = function (id, data, callback, progress) {
+                scope.loadId();
+                var formData = new FormData();
+                data.field = scope.config.name;
+                data.config = scope.config.configPath;
+                formData.append("file", document.getElementById(id).files[0]);
+                formData.append("data", JSON.stringify(data));
+
+                var xhr = scope.getHTTPObject();
+
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        callback(false, xhr);
+                    }
+                };
+
+                xhr.onerror = callback;
+
+                if (progress && document.getElementById(progress)) {
+                    var progressBar = document.getElementById(progress);
+                    xhr.upload.onprogress = function (e) {
+                        if (e.lengthComputable) {
+                            progressBar.value = (e.loaded / e.total) * 100;
+                            progressBar.textContent = progressBar.value; // Fallback for unsupported browsers.
+                        }
+                    };
+                };
+                xhr.open("POST", "/files/.operations/upload", true);
+                xhr.send(formData);
+            };
 
             scope.isTypeimage = function (key) {
                 var a = key.split('.');
@@ -138,7 +224,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                         scope.value.files.push(id);
                         return true;
                     } else {
-                        alert("Maximal " + scope.limit + " Bilder dürfen aktiviert werden!");
+                        alert("Es dürfen maximal " + scope.limit + " Dateien aktiviert werden!");
                         if (!scope.$$phase) {
                             scope.$apply();
                         }
@@ -168,19 +254,18 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             };
 
             scope.load = function () {
-                //console.log('load dad');
                 var k = 0;
                 for (var i in scope.images) {
                     k++;
                     break;
                 }
                 if (k < 1) {
-                    if (!(scope.$parent.$parent.documentId)) {
+                    if (!(scope._id)) {
                         $timeout(function () {
                             scope.load();
                         }, 200);
                     } else {
-                        scope.dir = '/projects/' + scope.$parent.$parent.documentId + '/' + scope.config.options.dirname + '/';
+                        scope.loadId();
                         //console.log('dir', scope.dir);
                         scope.initValue();
                         scope.loadlist();
@@ -228,9 +313,8 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             };
 
             scope.loadlist = function (startCrop) {
-                data.fsOp({
-                    "op": "readdirsure",
-                    "dir": scope.dir
+                scope.fsOp({
+                    "op": "readdirsure"
                 }, function (e) {
                     if (e.success) {
                         //console.log('sta');
@@ -256,20 +340,21 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                                 scope.highlightkey = '';
                             }, 1500);
                         }
+                        scope.reloadnumber = Date.now();
+                        
                         if (!scope.$$phase) {
                             scope.$apply();
                         }
                     } else {
-                        alert("Error: " + e.err);
+                        alert("Error: " + e.info);
                     }
                 });
             };
 
             scope.deleteFile = function (id) {
-                //console.log('komisch', scope.$parent.$parent.documentId);
-                var ret = confirm("Bist du sicher dass du diese Datei löschen willst?");
+                var ret = confirm("Soll diese Datei wirklich gelöscht werden?");
                 if (ret) {
-                    data.fsOp({
+                    scope.fsOp({
                         "op": "removefiles",
                         "files": [id]
                     }, function (e) {
@@ -305,10 +390,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                         scope.c.crop(document.getElementById(uploadId).files[0], document.getElementById(uploadId), scope.cropping);
                     } else {
                         scope.uploadState = "Datei wird hochgeladen...";
-                        data.uploadFileById(uploadId, {
-                            'path': scope.dir,
-                            'filename': scope.filename
-                        }, function (err, data) {
+                        scope.uploadFileById(uploadId, {}, function (err, data) {
                             if (err) {
                                 scope.uploadState = "Upload fehlgeschlagen!";
                             } else {
@@ -337,9 +419,14 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 }
             };
 
-            $timeout(function () {
+            /*$timeout(function () {
                 scope.load();
-            }, 200);
+            }, 1000);*/
+            
+            scope.$watch('value', function(newValue, oldValue) {
+                if (newValue)
+                    scope.load();
+            }, true);
 
         }
     };

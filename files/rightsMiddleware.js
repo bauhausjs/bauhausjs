@@ -46,7 +46,7 @@ module.exports = function (bauhausConfig) {
             next();
         } else {
             req.cpPath = rightSystem.unifyPath(req.path);
-            console.log('path', req.cpPath);
+            //console.log('path', req.cpPath);
             if (isPathPrivate(req.cpPath)) {
                 if (req.session != null && req.session.user != null && req.session.user.id != null) {
 

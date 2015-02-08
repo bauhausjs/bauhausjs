@@ -9,5 +9,5 @@ m.uploadDir = m.filesDir + '/tempuploads';
 
 m.changeFileName = function (filename) {
     filename = filename.split('.').join('_');
-    return filename + '_' + Date.now();
+    return 'tempfile_timestamp_' + Date.now();
 };

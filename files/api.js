@@ -44,7 +44,17 @@ module.exports = function (bauhausConfig) {
 
     app.post(pre + '/fsop/upload', function (req, res) {
         if (req.session != null && req.session.user != null && req.session.user.id != null) {
-            fsOp.uploadFile(req.fsopdata.dir, req.fsopdata.name, req.body.file, req.session.user.id, function (err) {
+            var dir = req.fsopdata.dir;
+            var filename = req.fsopdata.name;
+            if (dir[dir.length - 1] != '/') {
+                dir += '/';
+            }
+            var splittedFileName = filename.split('.');
+            var extension = splittedFileName.pop().toLowerCase();
+            var name = splittedFileName.join('.');
+
+            filename = pathconfig.changeFileName(name) + '.' + extension;
+            fsOp.uploadFile(filename, req.body.file, req.session.user.id, function (err) {
                 if (err) {
                     res.writeHead(500);
                     res.json({

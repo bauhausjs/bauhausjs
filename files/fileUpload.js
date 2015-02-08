@@ -40,17 +40,18 @@ module.exports = function (req, res, next) {
                     "err": err
                 });
             }
-            
-            var name = req.files.file.name;
-            if(data.filename){
-                var a = name.split('.');
-                name = pathconfig.changeFileName(data.filename);
-                name = name+"."+a.pop().toLowerCase();
+
+            var extension = req.files.file.name.split('.').pop().toLowerCase();
+            var destName = req.operationConfig.options.dirname+req.operationConfig.options.filename;
+            destName = destName.replace(':id', req.jsonData._id);
+            if (!req.operationConfig.options.singleFile) {
+                destName = destName.replace(':timestamp', Date.now());
             }
+            destName = destName + '.' + extension;
 
             var files = [{
                 'src': pathconfig.uploadSubDir + '/' + req.files.file.name,
-                'dest': data.path + name
+                'dest': destName
             }];
 
             //console.log('fief', files);

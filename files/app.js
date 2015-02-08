@@ -1,6 +1,7 @@
 var express = require('express');
 //var noimage = require('./noimage.js');
 var provider = require('./provider.js');
+var operations = require('./operations.js');
 //var db = require('./databaseOperations.js');
 //var File = require('./model/file');
 /*var gm = require('gm').subClass({
@@ -9,8 +10,13 @@ var provider = require('./provider.js');
 
 module.exports = function (bauhausConfig) {
     'use strict';
+    
+    //console.log('==== BAUHAUS CONFIG ====');
+    //console.log(bauhausConfig.documents.Projects.fields);
 
     var app = express();
+    
+    app.use('/.operations', operations(bauhausConfig));
     
     app.use('/', provider());
 
