@@ -2,14 +2,14 @@ var express = require('express');
 //var db = require('./databaseOperations.js');
 //var pfs = require('./pragmFileSystem.js');
 //var File = require('./model/file');
-var pathconfig = require('./pathconfig.js');
+/*var pathconfig = require('./pathconfig.js');
 var fsOp = require('./fsOp.js');
 var fileUpload = require('./fileUpload.js');
-var Project = require('../../../lib/project/model/project.js');
+var Project = require('../../../lib/project/model/project.js');*/
 
 module.exports = function (bauhausConfig) {
     // Register document for CRUD generation
-    bauhausConfig.addDocument('Files', {
+    /*bauhausConfig.addDocument('Files', {
         name: 'File',
         model: 'File',
         collection: 'files',
@@ -19,10 +19,10 @@ module.exports = function (bauhausConfig) {
                 parentId: null
             }
         }
-    });
+    });*/
 
     var app = express();
-    var pre = "/files";
+    /*var pre = "/files";
 
     app.use(pre + '/fsop', function (req, res, next) {
         try {
@@ -37,7 +37,7 @@ module.exports = function (bauhausConfig) {
         }
     });
 
-    app.use(pre + '/upload', fileUpload());
+    app.use(pre + '/upload', fileUpload(bauhausConfig));
 
 
     //app.use(express.bodyParser({limit: '900mb'}));
@@ -223,6 +223,7 @@ module.exports = function (bauhausConfig) {
             }
         });
     });
+    //*/
 
     //app.post(pre + '/upload/:id', function (req, res) {
     //   fop.upload(req, res);

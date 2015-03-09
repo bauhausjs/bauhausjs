@@ -1,25 +1,13 @@
 var rightsMiddleware = require('./rightsMiddleware.js');
 var fileUpload = require('./fileUpload.js');
-var pathconfig = require('./pathconfig.js');
-var path = require('path');
-var fsOp = require('./fsOp.js');
+var pkgcloudClient = require('./pkgCloudClient.js');
+var rightSystem = require('./rightSystem.js');
 var express = require('express');
 
 module.exports = function (bauhausConfig) {
     'use strict';
     var app = express();
-
-    /*var test = 'documents.Projects.fields';
-
-    var arr = test.split('.');
-    var bauhausConfigByDeep = [bauhausConfig];
-    for (var i in arr) {
-        var key = arr[i];
-        if (bauhausConfigByDeep[i] != null && bauhausConfigByDeep[i][key] != null) {
-            bauhausConfigByDeep.push(bauhausConfigByDeep[i][key]);
-        }
-    }
-    //consol.log('bauhausConfigByDeep', bauhausConfigByDeep[bauhausConfigByDeep.length - 1]);*/
+    var pkgclient = pkgcloudClient(bauhausConfig);
 
     app.use(function (req, res, next) {
         if (req.session != null && req.session.user != null && req.session.user.id != null) {
@@ -35,9 +23,10 @@ module.exports = function (bauhausConfig) {
     });
 
     app.use(function (req, res, next) {
-        if (req != null && req.body != null && req.body.data != null && typeof req.body.data === 'string') {
+        if (req != null && req.query != null && req.query.data != null && typeof req.query.data === 'string') {
             try {
-                req.jsonData = JSON.parse(req.body.data);
+                req.jsonData = JSON.parse(req.query.data);
+                //console.log(req.jsonData);
                 next();
             } catch (err) {
                 res.json({
@@ -110,80 +99,72 @@ module.exports = function (bauhausConfig) {
         }
     });
 
-    app.use('/upload', fileUpload());
+    app.use('/upload', fileUpload(bauhausConfig));
 
-    app.post('/fsop/upload', function (req, res) {
+    app.post('/fsop/removefile', function (req, res) {
+        if (req.jsonData.file != null) {
+            var container = req.operationConfig.options.container.replace(':id', req.jsonData._id);
+            var file = req.jsonData.file;
+            //console.log('del', container, file);
 
-        var extension = 'jpg';
-        var destName = req.operationConfig.options.dirname + req.operationConfig.options.filename;
-        destName = destName.replace(':id', req.jsonData._id);
-        if (!req.operationConfig.options.singlefile) {
-            destName = destName.replace(':timestamp', Date.now());
+            pkgclient.removeFile(container, file, function (err) {
+                if (err && err.length > 0) {
+                    res.json({
+                        "success": false,
+                        "info": "Removing from cloud failed.",
+                        "err": err
+                    });
+                } else {
+                    rightSystem.removeFiles([container + '/' + file], function (err) {
+                        if (err) {
+                            res.json({
+                                "success": false,
+                                "info": "Removing from rightSystem failed.",
+                                "err": err
+                            });
+                        } else {
+                            res.json({
+                                "success": true,
+                                "info": "Removing Successful!"
+                            });
+                        }
+                    });
+                }
+            });
         }
-        destName = destName + '.' + extension;
-        fsOp.uploadFile(destName, req.body.file, req.session.user.id, function (err) {
+    });
+
+    app.post('/fsop/readcontainersure', function (req, res) {
+        //consol.log('rere', req.operationConfig);
+        var container = req.operationConfig.options.container;
+        container = container.replace(':id', req.jsonData._id);
+        if (!req.operationConfig.options.singlefile) {
+            container = container.replace(':timestamp', Date.now());
+        }
+        pkgclient.createContainer({
+            'name': container
+        }, function (err, containerRet) {
             if (err) {
-                res.writeHead(500);
                 res.json({
                     "success": false,
-                    "info": "Upload failed!",
+                    "info": "Reading/Creating container failed.",
                     "err": err
                 });
             } else {
-                res.json({
-                    "success": true,
-                    "info": "Upload successful!"
-                });
-            }
-        });
-    });
-
-    app.post('/fsop/removefiles', function (req, res) {
-        if (req.jsonData.files != null) {
-            var destDir = req.operationConfig.options.dirname.replace(':id', req.jsonData._id);
-            var counter = 0;
-            for (var i in req.jsonData.files)  {
-                counter++;
-                req.jsonData.files[i] = destDir + req.jsonData.files[i];
-            }
-            if (counter > 0) {
-                fsOp.removeFiles(req.jsonData.files, function (err) {
-                    if (err && err.length > 0) {
+                pkgclient.getFiles(container, function (err, files) {
+                    if (err) {
                         res.json({
                             "success": false,
-                            "info": "Removing failed partly.",
+                            "info": "Reading files failed.",
                             "err": err
                         });
                     } else {
                         res.json({
                             "success": true,
-                            "info": "Removing Successful!"
+                            "info": "Reading Successful!",
+                            "files": files
                         });
-                    }
-                });
-            }
-        }
-    });
-
-    app.post('/fsop/readdirsure', function (req, res) {
-        //consol.log('rere', req.operationConfig);
-        var destName = req.operationConfig.options.dirname;
-        destName = destName.replace(':id', req.jsonData._id);
-        if (!req.operationConfig.options.singlefile) {
-            destName = destName.replace(':timestamp', Date.now());
-        }
-        fsOp.readDirSure(destName, function (err, files) {
-            if (err && err.length > 0) {
-                res.json({
-                    "success": false,
-                    "info": "Reading failed partly.",
-                    "err": err
-                });
-            } else {
-                res.json({
-                    "success": true,
-                    "info": "Reading Successful!",
-                    "files": files
+                    };
                 });
             }
         });

@@ -9,7 +9,7 @@ var deny = function (req, res) {
     last = req.cpPath;
     if (count <= 0) {
         rightSystem.setFileRights(req.cpPath, true, function (err) {
-            if (err) {
+            if (err != null) {
                 res.end('Failed to Create File Right');
             } else  {
                 res.end('Created File Right');
@@ -23,14 +23,16 @@ var deny = function (req, res) {
 };
 
 var isPathPrivate = function (path) {
-    var a = path.split('/');
+    /*var a = path.split('/');
     var check = false;
     for (var i in a) {
         if (a[i].toLowerCase() === 'private') {
             check = true;
         }
     }
-    return check;
+    return check;*/
+    var privateTest = RegExp(/_private|private_/g);
+    return privateTest.test(path);
 };
 
 var count = 4;
@@ -52,8 +54,8 @@ module.exports = function (bauhausConfig) {
 
                     //console.log('path', req.path, req.cpPath);
                     rightSystem.getPathRights(req.cpPath, function (rights) {
-                        console.log('filerights', JSON.stringify(rights));
-                        if (rights) {
+                        //console.log('filerights', JSON.stringify(rights));
+                        if (rights != null) {
                             if (rights.user !== false && rights.user === req.session.user.id) {
                                 next();
                             } else {

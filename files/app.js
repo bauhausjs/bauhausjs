@@ -18,7 +18,7 @@ module.exports = function (bauhausConfig) {
     
     app.use('/.operations', operations(bauhausConfig));
     
-    app.use('/', provider());
+    app.use('/', provider(bauhausConfig));
 
 
     /*app.param('id', function (req, res, next, id) {;

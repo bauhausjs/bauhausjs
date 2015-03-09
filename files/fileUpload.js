@@ -1,82 +1,67 @@
-var pathconfig = require('./pathconfig.js');
-var multer = require('multer');
-var fsOp = require('./fsOp.js');
+//var multer = require('multer');
+var multer = require('multer-pkgcloud');
+var pkgcloudClient = require('./pkgCloudClient.js');
 var express = require('express');
 var rightSystem = require('./rightSystem.js');
 
-module.exports = function (req, res, next) {
+module.exports = function (bauhausConfig) {
     'use strict';
 
     var app = express();
+    var pkgclient = pkgcloudClient(bauhausConfig);
 
     app.use(function (req, res, next) {
+        req.multerErrors = 0;
         req.accepts('*');
         next();
     });
 
     app.use(multer({
-        dest: pathconfig.uploadDir,
-        rename: function (fieldname, filename) {
-            return pathconfig.changeFileName(filename);
+        pkgCloud: true,
+        pkgCloudClient: pkgclient,
+        changePkgOptions: function (options, filename, req, res) {
+
+            var remote = req.operationConfig.options.filename;
+            remote = remote.replace(':id', req.jsonData._id);
+            if (!req.operationConfig.options.singlefile) {
+                remote = remote.replace(':timestamp', Date.now());
+            }
+            var container = req.operationConfig.options.container;
+            container = container.replace(':id', req.jsonData._id);
+            if (!req.operationConfig.options.singlefile) {
+                container = container.replace(':timestamp', Date.now());
+            }
+            options.container = container;
+            options.remote = remote;
+            return options;
         },
-        onFileUploadStart: function (file) {
-            //console.log(file.originalname + ' is starting ...')
+        onFileUploadStart: function(file, req, res){
+            var regex = new RegExp(req.operationConfig.options.typeRegEx);
+            return regex.test(file.mimetype);
         },
-        onFileUploadComplete: function (file) {
-            //console.log(file.fieldname + ' uploaded to  ' + file.path)
-            //done = true;
+        onFileUploadComplete: function (file, req, res) {
+            req.multerUpload = true;
+            
+        },
+        onError: function (err, req, res) {
+            req.multerUpload = true;
+            req.multerErrors++;
         }
     }));
 
     app.post('/', function (req, res, next) {
-
-        if (req.body && req.body.data && req.files && req.files.file && req.files.file.path && req.session != null && req.session.user != null && req.session.user.id != null) {
-            try {
-                var data = JSON.parse(req.body.data);
-            } catch (err) {
-                return res.json({
-                    "success": false,
-                    "info": "Upload failed! Path invalid! JSON.parse failed!",
-                    "err": err
-                });
-            }
-
-            var extension = req.files.file.name.split('.').pop().toLowerCase();
-            var destName = req.operationConfig.options.dirname+req.operationConfig.options.filename;
-            destName = destName.replace(':id', req.jsonData._id);
-            if (!req.operationConfig.options.singleFile) {
-                destName = destName.replace(':timestamp', Date.now());
-            }
-            destName = destName + '.' + extension;
-
-            var files = [{
-                'src': pathconfig.uploadSubDir + '/' + req.files.file.name,
-                'dest': destName
-            }];
-
-            //console.log('fief', files);
-
-            fsOp.moveFiles(files, function (err) {
-                if (err && err.length > 0) {
+        if (req.files != null && req.files.file != null && req.multerUpload && req.multerErrors < 1) {
+            rightSystem.setFileRights(req.files.file.container + '/' + req.files.file.remote, req.session.user.id, function (err) {
+                if (err != null) {
                     res.json({
                         "success": false,
-                        "info": "Upload failed! Moving file failed.",
+                        "info": "Upload failed!",
                         "err": err
                     });
                 } else {
-                    rightSystem.setFileRights(files[0].dest, req.session.user.id, function (err) {
-                        if (err) {
-                            res.json({
-                                "success": false,
-                                "info": "Upload failed! Setting Uploader failed.",
-                                "err": err
-                            });
-                        } else {
-                            res.json({
-                                "success": true,
-                                "info": "Upload Successful!"
-                            });
-                        }
+                    res.json({
+                        "success": true,
+                        "info": "Upload Successful!"
                     });
                 }
             });

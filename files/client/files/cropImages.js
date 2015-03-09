@@ -773,6 +773,7 @@ var cropImages = function (params) {
                 var dataURL = canvas.toDataURL("image/png");
             } else {*/
             var dataURL = canvas.toDataURL("image/jpeg");
+            
             //}
 
             //var div = document.createElement('div');
