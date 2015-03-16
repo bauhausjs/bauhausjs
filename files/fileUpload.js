@@ -4,6 +4,7 @@ var pkgcloudClient = require('./pkgCloudClient.js');
 var express = require('express');
 var rightSystem = require('./rightSystem.js');
 
+
 module.exports = function (bauhausConfig) {
     'use strict';
 
@@ -16,6 +17,7 @@ module.exports = function (bauhausConfig) {
         next();
     });
 
+
     app.use(multer({
         pkgCloud: true,
         pkgCloudClient: pkgclient,
@@ -24,7 +26,7 @@ module.exports = function (bauhausConfig) {
             if (req.uploadFileName != null) {
                 remote = req.uploadFileName;
             } else {
-                remote = filename + "_:timestamp";
+                remote = filename + "_"+Date.now();
             }
             if (req.uploadDir != null) {
                 var containerArray = req.uploadDir.split('/');

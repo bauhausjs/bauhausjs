@@ -255,7 +255,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
 
             scope.load = function () {
                 scope.loadId();
-                console.log('try load', scope._id, scope.$parent.$parent);
+                //console.log('try load', scope._id, scope.$parent.$parent);
                 var k = 0;
                 for (var i in scope.images) {
                     k++;

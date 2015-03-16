@@ -25,7 +25,6 @@ module.exports = function (bauhausConfig) {
                 }
                 if (modelWithS != null) {
                     var searchRegEx = "documents." + modelWithS + "." + doc._id + "[.]*";
-                    console.log('searchRegEx', searchRegEx);
 
                     rightSystem.removeAllSubFiles('/documents/' + modelWithS + '/' + doc._id, function (err) {
                         if (err) {
@@ -56,7 +55,7 @@ module.exports = function (bauhausConfig) {
     }
 
     // Add Post Remove Middleware to all models to check if files needed to get deleted
-    console.log(mongoose.modelSchemas);
+    //console.log(mongoose.modelSchemas);
     for (var model in mongoose.models) {
         addMiddleware(model);
     }
@@ -84,7 +83,6 @@ module.exports = function (bauhausConfig) {
                 res.json({
                     "success": false,
                     "info": "Failed to parse JSON!",
-                    "err": err
                 });
             }
         } else {
@@ -217,16 +215,14 @@ module.exports = function (bauhausConfig) {
                 if (err && err.length > 0) {
                     res.json({
                         "success": false,
-                        "info": "Removing from cloud failed.",
-                        "err": err
+                        "info": "Removing from cloud failed."
                     });
                 } else {
                     rightSystem.removeFiles([req.containerPath + file], function (err) {
                         if (err) {
                             res.json({
                                 "success": false,
-                                "info": "Removing from rightSystem failed.",
-                                "err": err
+                                "info": "Removing from rightSystem failed."
                             });
                         } else {
                             res.json({
@@ -248,23 +244,23 @@ module.exports = function (bauhausConfig) {
         if (!req.operationConfig.options.singlefile) {
             container = container.replace(':timestamp', Date.now());
         }*/
+        console.log(container);
         pkgclient.createContainer({
             'name': container
         }, function (err, containerRet) {
             //console.log('container', containerRet);
             if (err) {
+                console.log('err', err);
                 res.json({
                     "success": false,
-                    "info": "Reading/Creating container failed.",
-                    "err": err
+                    "info": "Reading/Creating container failed."
                 });
             } else {
                 pkgclient.getFiles(container, function (err, files) {
                     if (err) {
                         res.json({
                             "success": false,
-                            "info": "Reading files failed.",
-                            "err": err
+                            "info": "Reading files failed."
                         });
                     } else {
                         res.json({

@@ -38,8 +38,7 @@ module.exports = function (bauhausConfig) {
             } catch (err) {
                 res.json({
                     "success": false,
-                    "info": "Failed to parse JSON!",
-                    "err": err
+                    "info": "Failed to parse JSON!"
                 });
             }
         } else {
@@ -106,7 +105,7 @@ module.exports = function (bauhausConfig) {
     });
 
     app.post(pre + '/dirop/readdir', function (req, res) {
-        console.log('container', req.container);
+        //console.log('container', req.container);
         var con = req.container;
         if (con === '') {
             con = 'namedoesnotexist1234not';
@@ -121,7 +120,7 @@ module.exports = function (bauhausConfig) {
                 }
             }
             pkgclient.getContainers(function (err, containers) {
-                console.log('files:', containers.length);
+                //console.log('files:', containers.length);
                 var searchRegEx = req.container + "[.]*";
                 var deep = req.container.split('.').length;
                 if (req.container === '') {
@@ -139,12 +138,11 @@ module.exports = function (bauhausConfig) {
                 for (var i in collect) {
                     files.push('/' + i + '/');
                 }
-                console.log('files:', files.length);
+                //console.log('files:', files.length);
                 if (err) {
                     res.json({
                         "success": false,
-                        "info": "Reading dir failed.",
-                        "err": err
+                        "info": "Reading dir failed."
                     });
                 } else {
                     res.json({
@@ -167,8 +165,7 @@ module.exports = function (bauhausConfig) {
             if (err) {
                 res.json({
                     "success": false,
-                    "info": "Creating dir failed.",
-                    "err": err
+                    "info": "Creating dir failed."
                 });
             } else {
                 res.json({
@@ -181,13 +178,11 @@ module.exports = function (bauhausConfig) {
 
     app.post(pre + '/dirop/removefile', function (req, res) {
         if (req.jsonData.file != null) {
-
             pkgclient.removeFile(req.container, req.jsonData.file, function (err) {
                 if (err && err.length > 0) {
                     res.json({
                         "success": false,
-                        "info": "Removing from cloud failed.",
-                        "err": err
+                        "info": "Removing from cloud failed."
                     });
                 } else {
                     rightSystem.removeFiles([req.dir + req.jsonData.file], function (err) {
@@ -229,8 +224,8 @@ module.exports = function (bauhausConfig) {
                         var k = 0;
                         var errors = [];
                         for (var i in containers) {
-                            k++;
                             if (RegExp(searchRegEx).test(containers[i].name)) {
+                                k++;
                                 pkgclient.destroyContainer(containers[i].name, function (err, result) {
                                     k--;
                                     if (err != null || result === false) {
@@ -250,6 +245,20 @@ module.exports = function (bauhausConfig) {
                                             });
                                         }
                                     }
+                                });
+                            }
+                        }
+                        if (k < 1) {
+                            if (errors.length > 0) {
+                                console.error('Failed to load containers for delete', errors);
+                                res.json({
+                                    "success": false,
+                                    "info": "Failed to delete containers"
+                                });
+                            } else {
+                                res.json({
+                                    "success": true,
+                                    "info": "Successfully deleted folders"
                                 });
                             }
                         }

@@ -59,7 +59,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                         if (callback != null) {
                             try {
                                 var data = JSON.parse(fopReq.responseText);
-                                console.log('data', data);
+                                //console.log('data', data);
                                 callback(data);
                             } catch (e) {
                                 console.error({
@@ -73,7 +73,9 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                 //data.field = $scope.config.name;
                 //data.config = $scope.config.configPath;
                 //data._id = $scope._id;
-                data.dir = $scope.actualDir;
+                if (data.dir == null) {
+                    data.dir = $scope.actualDir;
+                }
                 fopReq.open("POST", "api/files/" + data.op + "?data=" + encodeURIComponent(JSON.stringify(data)), true);
                 fopReq.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
                 var temp = '';
@@ -90,7 +92,9 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
             //data.field = $scope.config.name;
             //data.config = $scope.config.configPath;
             //data._id = $scope._id;
-            data.dir = $scope.actualDir;
+            if (data.dir == null) {
+                data.dir = $scope.actualDir;
+            }
             formData.append("data", JSON.stringify(data));
             formData.append("file", blob, data.name);
 
@@ -126,7 +130,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         });
 
         $scope.c.listen('export', function (e) {
-            console.log('export', e);
+            //console.log('export', e);
             $scope.uploadState = 'Datei wird hochgeladen! Bitte warten...';
             if (!$scope.$$phase) {
                 $scope.$apply();
@@ -387,7 +391,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         };
 
         $scope.moveFiles = function (arr, from, to) {
-            console.log(arr, from, to);
+            //console.log(arr, from, to);
             var files = [];
             for (var i in arr) {
                 if (arr[i] != to) {
@@ -400,7 +404,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                     alert('Ordner kann nicht in sich selbst verschoben werden.');
                 }
             }
-            console.log('move to', files);
+            //console.log('move to', files);
             if (files.length > 0) {
                 $scope.fsOp({
                     "op": "movefiles",
@@ -417,7 +421,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         };
 
         $scope.copyFiles = function (arr, from, to) {
-            console.log(arr, from, to);
+            //console.log(arr, from, to);
             var files = [];
             for (var i in arr) {
                 var t = to + arr[i].substr(from.length);
@@ -430,7 +434,7 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                     alert('Ordner darf nicht in sich selbst kopiert werden!');
                 }
             }
-            console.log('copy to', files);
+            //console.log('copy to', files);
 
             if (files.length > 0) {
                 $scope.fsOp({
@@ -589,10 +593,15 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
             var ret = confirm("Bist du sicher dass du diese Datei/en löschen willst?");
             if (ret) {
                 for (var i in data.selectionarray) {
-                    $scope.fsOp({
+                    var op = {
                         "op": "dirop/removefile",
                         "file": data.selectionarray[i]
-                    }, function (e) {
+                    };
+                    if (data.selectionarray[i][0] === '/') {
+                        op.op = "dirop/removefolder";
+                        op.dir = data.selectionarray[i];
+                    }
+                    $scope.fsOp(op, function (e) {
                         if (e.success) {
                             $scope.refreshDir();
                         } else {
@@ -806,9 +815,9 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
 
         $scope.projectNameCache = {};
 
-        $scope.getProjectNameById = function (id, done) {
+        $scope.getProjectNameById = function (id, key, done) {
             if ($scope.projectNameCache[id] != null) {
-                done($scope.projectNameCache[id]);
+                done($scope.projectNameCache[id], key);
             } else {
                 $scope.fsOp({
                     "op": "getProjectNameById",
@@ -816,10 +825,10 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                 }, function (e) {
                     if (e.success) {
                         $scope.projectNameCache[id] = e.name;
-                        done(e.name);
+                        done(e.name, key);
                     } else {
                         $scope.projectNameCache[id] = id;
-                        done(id);
+                        done(id, key);
                     }
                 });
             }
@@ -851,6 +860,10 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
             }
         };
 
+        function test(pa) {
+
+        }
+
         $scope.refreshDir = function (dir) {
             if (dir) {
                 $scope.actualDir = dir;
@@ -868,11 +881,12 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
                                 if ($scope.actualDir === "/documents/Projects/") {
                                     j++;
                                     var namearr = e.files[i].split('/');
-                                    $scope.getProjectNameById(namearr[namearr.length - 2], function (name) {
+                                    var id = e.files[i];
+                                    $scope.getProjectNameById(namearr[namearr.length - 2], id, function (name, id) {
                                         j--;
                                         $scope.flist.push({
-                                            "id": e.files[i],
-                                            "name": e.files[i],
+                                            "id": id,
+                                            "name": id,
                                             "show": name
                                         });
                                         if (j < 1) {
@@ -987,7 +1001,9 @@ angular.module('bauhaus.files.controllers').controller('filesController', ['$sco
         };
 
         $scope.uploadHandler = function (blob, name) {
-            $scope.uploadFileBlob(blob, {name: name}, function (err, data) {
+            $scope.uploadFileBlob(blob, {
+                name: name
+            }, function (err, data) {
                 if (err) {
                     $scope.uploadState = "Upload fehlgeschlagen!";
                 } else {
