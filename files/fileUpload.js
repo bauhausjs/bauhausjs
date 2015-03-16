@@ -20,28 +20,37 @@ module.exports = function (bauhausConfig) {
         pkgCloud: true,
         pkgCloudClient: pkgclient,
         changePkgOptions: function (options, filename, req, res) {
+            var remote = "file";
+            if (req.uploadFileName != null) {
+                remote = req.uploadFileName;
+            } else {
+                remote = filename + "_:timestamp";
+            }
+            if (req.uploadDir != null) {
+                var containerArray = req.uploadDir.split('/');
+                if (containerArray[0] === '') {
+                    containerArray.shift();
+                }
+                if (containerArray[containerArray.length - 1] === '') {
+                    containerArray.pop();
+                }
+                options.container = containerArray.join('.');
+            }
 
-            var remote = req.operationConfig.options.filename;
-            remote = remote.replace(':id', req.jsonData._id);
-            if (!req.operationConfig.options.singlefile) {
-                remote = remote.replace(':timestamp', Date.now());
-            }
-            var container = req.operationConfig.options.container;
-            container = container.replace(':id', req.jsonData._id);
-            if (!req.operationConfig.options.singlefile) {
-                container = container.replace(':timestamp', Date.now());
-            }
-            options.container = container;
             options.remote = remote;
             return options;
         },
-        onFileUploadStart: function(file, req, res){
-            var regex = new RegExp(req.operationConfig.options.typeRegEx);
-            return regex.test(file.mimetype);
+        onFileUploadStart: function (file, req, res) {
+            if (req.uploadTypeRegExp != null) {
+                var regex = new RegExp(req.uploadTypeRegExp);
+                return regex.test(file.mimetype);
+            } else {
+                return true;
+            }
         },
         onFileUploadComplete: function (file, req, res) {
             req.multerUpload = true;
-            
+
         },
         onError: function (err, req, res) {
             req.multerUpload = true;
@@ -51,7 +60,8 @@ module.exports = function (bauhausConfig) {
 
     app.post('/', function (req, res, next) {
         if (req.files != null && req.files.file != null && req.multerUpload && req.multerErrors < 1) {
-            rightSystem.setFileRights(req.files.file.container + '/' + req.files.file.remote, req.session.user.id, function (err) {
+
+            rightSystem.setFileRights(req.uploadDir + req.files.file.remote, req.session.user.id, function (err) {
                 if (err != null) {
                     res.json({
                         "success": false,

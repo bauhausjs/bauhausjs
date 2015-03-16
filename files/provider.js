@@ -14,9 +14,17 @@ module.exports = function (bauhausConfig) {
 
     app.use(rightsMiddleware());
 
-    app.get('/:container/:remote', function (req, res) {
+    app.use(function (req, res, next) {
+        var splittedPath = req.path.split('/');
+        if (req.path[0] === "/") {
+            splittedPath.shift();
+        }
+        var remote = decodeURI(splittedPath.pop());
+        var container = decodeURI(splittedPath.join('.'));
+        console.log('remote', remote);
+        console.log('container', container);
 
-        pkgclient.getFile(req.params.container, req.params.remote, function (err, file) {
+        pkgclient.getFile(container, remote, function (err, file) {
             if (err != null || file == null) {
                 res.status(404).send('Error 404: Not found!');
             } else {
@@ -27,8 +35,8 @@ module.exports = function (bauhausConfig) {
                     res.setHeader("content-type", file.contentType);
 
                     pkgclient.download({
-                        container: req.params.container, //'testcontainer',
-                        remote: req.params.remote //'remote-test1-double.jpg'
+                        container: container, //'testcontainer',
+                        remote: remote //'remote-test1-double.jpg'
                     }).pipe(res);
                 }
             }

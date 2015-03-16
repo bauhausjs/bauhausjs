@@ -1,7 +1,11 @@
 var express = require('express');
 //var db = require('./databaseOperations.js');
 //var pfs = require('./pragmFileSystem.js');
-//var File = require('./model/file');
+var File = require('./model/file');
+var fileUpload = require('./fileUpload.js');
+var rightSystem = require('./rightSystem.js');
+var pkgcloudClient = require('./pkgCloudClient.js');
+var Project = require('../../../lib/project/model/project.js');
 /*var pathconfig = require('./pathconfig.js');
 var fsOp = require('./fsOp.js');
 var fileUpload = require('./fileUpload.js');
@@ -9,7 +13,7 @@ var Project = require('../../../lib/project/model/project.js');*/
 
 module.exports = function (bauhausConfig) {
     // Register document for CRUD generation
-    /*bauhausConfig.addDocument('Files', {
+    bauhausConfig.addDocument('Files', {
         name: 'File',
         model: 'File',
         collection: 'files',
@@ -19,12 +23,244 @@ module.exports = function (bauhausConfig) {
                 parentId: null
             }
         }
-    });*/
+    });
 
     var app = express();
-    /*var pre = "/files";
+    var pkgclient = pkgcloudClient(bauhausConfig);
+    var pre = "/files";
 
-    app.use(pre + '/fsop', function (req, res, next) {
+    app.use(pre, function (req, res, next) {
+        if (req != null && req.query != null && req.query.data != null && typeof req.query.data === 'string') {
+            try {
+                req.jsonData = JSON.parse(req.query.data);
+                //console.log(req.jsonData);
+                next();
+            } catch (err) {
+                res.json({
+                    "success": false,
+                    "info": "Failed to parse JSON!",
+                    "err": err
+                });
+            }
+        } else {
+            res.json({
+                "success": false,
+                "info": "Invalid request data!"
+            });
+        }
+    });
+
+    app.use(pre + '/upload', function (req, res, next) {
+        if (req.jsonData.dir != null) {
+            req.uploadDir = req.jsonData.dir;
+            if (req.jsonData.filename) {
+                req.uploadFileName = req.jsonData.filename;
+            }
+            next();
+        } else {
+            res.json({
+                "success": false,
+                "info": "Invalid request data!"
+            });
+        }
+    });
+
+    app.use(pre + '/upload', fileUpload(bauhausConfig));
+
+    app.use(pre + '/dirop', function (req, res, next) {
+        if (req.jsonData.dir != null && typeof req.jsonData.dir === 'string' && req.jsonData.dir !== '') {
+            req.dir = req.jsonData.dir;
+            var containerArray = req.dir.split('/');
+            if (containerArray[0] === '') {
+                containerArray.shift();
+            }
+            if (containerArray[containerArray.length - 1] === '') {
+                containerArray.pop();
+            }
+            req.container = containerArray.join('.');
+            next();
+        } else {
+            res.json({
+                "success": false,
+                "info": "Invalid request data!"
+            });
+        }
+    }); // getProjectNameById
+
+    app.post(pre + '/getProjectNameById', function (req, res) {
+        if (req.jsonData.id != null) {
+            Project.findById(req.jsonData.id, function (err, project) {
+                if (err != null || project == null) {
+                    res.json({
+                        "success": false,
+                        "info": "Failed"
+                    });
+                } else {
+                    res.json({
+                        "success": true,
+                        "name": project.title
+                    });
+                }
+            });
+        }
+    });
+
+    app.post(pre + '/dirop/readdir', function (req, res) {
+        console.log('container', req.container);
+        var con = req.container;
+        if (con === '') {
+            con = 'namedoesnotexist1234not';
+        }
+        pkgclient.getFiles(con, function (err, filesBack) {
+            var files = [];
+            if (filesBack == null || typeof filesBack != "object" || filesBack.length < 1) {
+
+            } else {
+                for (var i in filesBack) {
+                    files.push(filesBack[i].name);
+                }
+            }
+            pkgclient.getContainers(function (err, containers) {
+                console.log('files:', containers.length);
+                var searchRegEx = req.container + "[.]*";
+                var deep = req.container.split('.').length;
+                if (req.container === '') {
+                    deep--;
+                }
+                var collect = {};
+                for (var i in containers) {
+                    var nameArr = containers[i].name.split('.');
+                    if (RegExp(searchRegEx).test(containers[i].name) && nameArr.length > deep) {
+                        var str = nameArr.slice(0, deep + 1);
+                        collect[str.join('/')] = true;
+                        //files.push('/' + str.join('/') + '/');
+                    }
+                }
+                for (var i in collect) {
+                    files.push('/' + i + '/');
+                }
+                console.log('files:', files.length);
+                if (err) {
+                    res.json({
+                        "success": false,
+                        "info": "Reading dir failed.",
+                        "err": err
+                    });
+                } else {
+                    res.json({
+                        "success": true,
+                        "info": "Reading Successful!",
+                        "files": files
+                    });
+                }
+            });
+
+
+        });
+    });
+
+    app.post(pre + '/dirop/createdir', function (req, res) {
+        pkgclient.createContainer({
+            'name': req.container
+        }, function (err, containerRet) {
+            //console.log('container', containerRet);
+            if (err) {
+                res.json({
+                    "success": false,
+                    "info": "Creating dir failed.",
+                    "err": err
+                });
+            } else {
+                res.json({
+                    "success": true,
+                    "info": "Creating dir Successful!"
+                });
+            }
+        });
+    });
+
+    app.post(pre + '/dirop/removefile', function (req, res) {
+        if (req.jsonData.file != null) {
+
+            pkgclient.removeFile(req.container, req.jsonData.file, function (err) {
+                if (err && err.length > 0) {
+                    res.json({
+                        "success": false,
+                        "info": "Removing from cloud failed.",
+                        "err": err
+                    });
+                } else {
+                    rightSystem.removeFiles([req.dir + req.jsonData.file], function (err) {
+                        if (err) {
+                            res.json({
+                                "success": false,
+                                "info": "Removing from rightSystem failed."
+                            });
+                        } else {
+                            res.json({
+                                "success": true,
+                                "info": "Removing Successful!"
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+
+    app.post(pre + '/dirop/removefolder', function (req, res) {
+        rightSystem.removeAllSubFiles(req.dir, function (err) {
+            if (err) {
+                console.error('Failed to remove Filerights for ' + req.dir, err);
+                res.json({
+                    "success": false,
+                    "info": "Removing from rightSystem failed."
+                });
+            } else {
+                pkgclient.getContainers(function (err, containers) {
+                    if (err) {
+                        console.error('Failed to load containers for delete');
+                        res.json({
+                            "success": false,
+                            "info": "Failed to load containers for delete"
+                        });
+                    } else {
+                        var searchRegEx = req.container + "[.]*";
+                        var k = 0;
+                        var errors = [];
+                        for (var i in containers) {
+                            k++;
+                            if (RegExp(searchRegEx).test(containers[i].name)) {
+                                pkgclient.destroyContainer(containers[i].name, function (err, result) {
+                                    k--;
+                                    if (err != null || result === false) {
+                                        errors.push(['Failed to destroy Container: ', err, result]);
+                                    }
+                                    if (k < 1) {
+                                        if (errors.length > 0) {
+                                            console.error('Failed to load containers for delete', errors);
+                                            res.json({
+                                                "success": false,
+                                                "info": "Failed to delete containers"
+                                            });
+                                        } else {
+                                            res.json({
+                                                "success": true,
+                                                "info": "Successfully deleted folders"
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    };
+                });
+
+            }
+        });
+
+    });
+    /*app.use(pre + '/fsop', function (req, res, next) {
         try {
             req.fsopdata = JSON.parse(req.body.data);
             next();

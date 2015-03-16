@@ -89,6 +89,9 @@ m.unifyPath = function (path) {
         a[a.length - 1] = b.join('.');
         path = a.join('/');
     }
+    if (path[0] != '/') {
+        path = '/' + path;
+    }
     return path;
 };
 

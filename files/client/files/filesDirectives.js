@@ -3,8 +3,8 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
         restrict: 'AEC',
         template: '<div class="page-content-field" ng-blur="showSelect = false">' +
             '     <label class="page-content-field-label">{{config.label}}</label><br><br>' +
-            '     <span>Es sind maximal {{limit}} Datei/en aktivierbar.</span>' +
-            '     <table class="table">' +
+            '     <span ng-if="!config.options.singlefile">Es sind maximal {{limit}} Datei/en aktivierbar.</span>' +
+            '     <table class="table" ng-if="!loading">' +
             ' <thead>' +
             '     <tr>' +
             '         <th>Datei</th>' +
@@ -24,7 +24,8 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             '        </tr>' +
             '      </tbody>' +
             '    </table>' +
-            '    <br>Datei hinzuf&uuml;gen: <input type="file" name="file" id="fileupload{{config.name}}" cropWidth="800" cropHeight="600" maxSize="false" circle="false"/><input type="button" value="Upload" ng-click="uploadFile()"><br><br><br><progress min="0" max="100" value="0" id="fileuploadprogress{{config.name}}">0% complete</progress><span>{{uploadState}}</span>' +
+            '    <div ng-if="loading"><br><br>Dateiliste wird geladen...<br><br></div>' +
+            '    <br>Datei hinzuf&uuml;gen: <input type="file" name="file" id="fileupload{{config.name}}" cropWidth="800" cropHeight="600" maxSize="false" circle="false"/><input type="button" value="Upload" ng-click="uploadFile()"><br><br><br><progress min="0" max="100" value="0" id="fileuploadprogress{{config.name}}">0% complete</progress> <span> {{uploadState}} </span>' +
             '</div>',
         scope: {
             value: '=ngModel',
@@ -38,6 +39,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
 
             scope.limit = (scope.config.options.limit !== undefined && typeof scope.config.options.limit === 'number') ? scope.config.options.limit : 1;
             scope.filename = scope.config.options.filename || false;
+            scope.loading = true;
 
             scope.loadId = function () {
                 if (scope.$parent.$parent[scope.config._idName] != null) {
@@ -46,10 +48,9 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                     if (scope.$parent.$parent.documentId != null) {
                         scope._id = scope.$parent.$parent.documentId;
                     } else {
-                        scope._id = "loadingError **** AngularJS";
+                        scope._id = null;
                     }
                 }
-                scope.container = scope.config.options.container.replace(':id', scope._id);
                 //console.log('dir', scope.dir);
             }
             scope.loadId();
@@ -253,13 +254,15 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             };
 
             scope.load = function () {
+                scope.loadId();
+                console.log('try load', scope._id, scope.$parent.$parent);
                 var k = 0;
                 for (var i in scope.images) {
                     k++;
                     break;
                 }
                 if (k < 1) {
-                    if (!(scope._id)) {
+                    if (scope._id == null) {
                         $timeout(function () {
                             scope.load();
                         }, 200);
@@ -312,6 +315,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             };
 
             scope.loadlist = function (startCrop) {
+                scope.loading = true;
                 scope.fsOp({
                     "op": "readcontainersure"
                 }, function (e) {
@@ -322,7 +326,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                         }
 
                         for (var i in e.files) {
-                            scope.images[e.files[i].name] = e.files[i].container + "/" + e.files[i].name;
+                            scope.images[e.files[i].name] = e.files[i].container.replace(/\./g, '/') + "/" + e.files[i].name;
                         }
                         scope.checkLostFiles();
                         scope.activateAllWhenNeeded();
@@ -336,6 +340,8 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                             }, 1500);
                         }
                         scope.reloadnumber = Date.now();
+                        
+                        scope.loading = false;
 
                         if (!scope.$$phase) {
                             scope.$apply();
@@ -420,14 +426,17 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 }, uploadProgressId);
             };
 
-            /*$timeout(function () {
+            $timeout(function () {
                 scope.load();
-            }, 1000);*/
+            }, 1000);
 
             scope.$watch('value', function (newValue, oldValue) {
-                if (newValue)
+                if (newValue) {
                     scope.load();
+                }
             }, true);
+            
+            
 
         }
     };

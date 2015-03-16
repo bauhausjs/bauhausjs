@@ -23,16 +23,16 @@ var deny = function (req, res) {
 };
 
 var isPathPrivate = function (path) {
-    /*var a = path.split('/');
+    var a = path.split('/');
     var check = false;
     for (var i in a) {
         if (a[i].toLowerCase() === 'private') {
             check = true;
         }
     }
-    return check;*/
-    var privateTest = RegExp(/_private|private_/g);
-    return privateTest.test(path);
+    return check;
+    //var privateTest = RegExp(/_private|private_/g);
+    //return privateTest.test(path);
 };
 
 var count = 4;
@@ -56,7 +56,9 @@ module.exports = function (bauhausConfig) {
                     rightSystem.getPathRights(req.cpPath, function (rights) {
                         //console.log('filerights', JSON.stringify(rights));
                         if (rights != null) {
+                            //console.log('rights', rights);
                             if (rights.user !== false && rights.user === req.session.user.id) {
+                                //console.log('Allowed USER to view File');
                                 next();
                             } else {
                                 deny(req, res);
