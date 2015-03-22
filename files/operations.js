@@ -244,13 +244,13 @@ module.exports = function (bauhausConfig) {
         if (!req.operationConfig.options.singlefile) {
             container = container.replace(':timestamp', Date.now());
         }*/
-        console.log(container);
+        //console.log(container);
         pkgclient.createContainer({
             'name': container
         }, function (err, containerRet) {
             //console.log('container', containerRet);
             if (err) {
-                console.log('err', err);
+                console.error('err', err);
                 res.json({
                     "success": false,
                     "info": "Reading/Creating container failed."

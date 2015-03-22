@@ -1,7 +1,9 @@
 var rightsMiddleware = require('./rightsMiddleware.js');
-var pkgcloud = require('pkgcloud');
+//var pkgcloud = require('pkgcloud');
 var pkgcloudClient = require('./pkgCloudClient.js');
+//var pkgCache = require('./pkgCache.js');
 var express = require('express');
+var fs = require('fs-extra');
 
 
 
@@ -21,8 +23,8 @@ module.exports = function (bauhausConfig) {
         }
         var remote = decodeURI(splittedPath.pop());
         var container = decodeURI(splittedPath.join('.'));
-        console.log('remote', remote);
-        console.log('container', container);
+        //console.log('remote', remote);
+        //console.log('container', container);
 
         pkgclient.getFile(container, remote, function (err, file) {
             if (err != null || file == null) {
@@ -34,10 +36,17 @@ module.exports = function (bauhausConfig) {
                 } else {
                     res.setHeader("content-type", file.contentType);
 
-                    pkgclient.download({
+                    var rs = pkgclient.download({
                         container: container, //'testcontainer',
                         remote: remote //'remote-test1-double.jpg'
-                    }).pipe(res);
+                    });
+                    rs.pipe(res);
+
+                    /*pkgCache.writeStreamToCache(rs);
+
+                    if(bauhausConfig.pkgCache.active === true){
+                        var ws = fs.createWriteStream();
+                    }*/
                 }
             }
         });
