@@ -41,44 +41,17 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             scope.filename = scope.config.options.filename || false;
             scope.loading = true;
 
-            scope.deepFind = function(obj, path) {
-                var paths = path.split('.');
-                var current = obj;
-
-                for (var i = 0; i < paths.length; ++i) {
-                    if (current[paths[i]] == undefined) {
-                        return undefined;
-                    } else {
-                        current = current[paths[i]];
-                    }
-                }
-                return current;
-            }
-
-            scope.searchId = function (idname){
-                var first = scope.deepFind(scope, idname);
-                if(first == null){
-                    first = scope.deepFind(scope, '$parent.'+idname);
-                    if(first == null){
-                        first = scope.deepFind(scope, '$parent.$parent.'+idname);
-                        if(first == null){
-                            first = scope.deepFind(scope, '$parent.$parent.$parent.'+idname);
-                            if(first == null){
-                                return null;
-                            }
-                        }
-                    }
-                }
-                return first;
-            };
-
+            
             scope.loadId = function () {
-                var test = scope.searchId('documentId');
-                if(test == null){
-                    test = scope.searchId(scope.config._idName);
+                if(scope.$parent != null && scope.$parent.doc != null && scope.$parent.doc._id != null){
+                    scope._id = scope.$parent.doc._id;
+                } else {
+                    console.error('could not find ID');
+                    scope._id = null;
                 }
-                scope._id = test;
             };
+            
+            scope.loadId();
 
             var t = scope.config.options.typeRegEx || '[.]*';
             scope.regex = new RegExp(t);
