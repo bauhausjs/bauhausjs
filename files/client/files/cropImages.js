@@ -9,7 +9,7 @@ function getHTTPObject() {
 
 var cropImages = function (params) {
     this.zIndex = 100;
-    this.waitbegin = "einen Moment bitte";
+    this.waitbegin = "...";
     this.waitupload = "Einen Moment bitte. Dein Bild wird hochgeladen!";
     this.textsubmit = "Hochladen";
     this.textcancel = "Abbrechen";

@@ -41,18 +41,16 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             scope.filename = scope.config.options.filename || false;
             scope.loading = true;
 
+            
             scope.loadId = function () {
-                if (scope.$parent.$parent[scope.config._idName] != null) {
-                    scope._id = scope.$parent.$parent[scope.config._idName];
+                if(scope.$parent != null && scope.$parent.doc != null && scope.$parent.doc._id != null){
+                    scope._id = scope.$parent.doc._id;
                 } else {
-                    if (scope.$parent.$parent.documentId != null) {
-                        scope._id = scope.$parent.$parent.documentId;
-                    } else {
-                        scope._id = null;
-                    }
+                    console.error('could not find ID');
+                    scope._id = null;
                 }
-                //console.log('dir', scope.dir);
-            }
+            };
+            
             scope.loadId();
 
             var t = scope.config.options.typeRegEx || '[.]*';
@@ -264,7 +262,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 if (k < 1) {
                     if (scope._id == null) {
                         $timeout(function () {
-                            scope.load();
+                            //scope.load();
                         }, 200);
                     } else {
                         scope.loadId();
@@ -340,7 +338,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                             }, 1500);
                         }
                         scope.reloadnumber = Date.now();
-                        
+
                         scope.loading = false;
 
                         if (!scope.$$phase) {
@@ -435,6 +433,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                     scope.load();
                 }
             }, true);
+
         }
     };
 });
