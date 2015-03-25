@@ -41,19 +41,44 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             scope.filename = scope.config.options.filename || false;
             scope.loading = true;
 
-            scope.loadId = function () {
-                if (scope.$parent.$parent[scope.config._idName] != null) {
-                    scope._id = scope.$parent.$parent[scope.config._idName];
-                } else {
-                    if (scope.$parent.$parent.documentId != null) {
-                        scope._id = scope.$parent.$parent.documentId;
+            scope.deepFind = function(obj, path) {
+                var paths = path.split('.');
+                var current = obj;
+
+                for (var i = 0; i < paths.length; ++i) {
+                    if (current[paths[i]] == undefined) {
+                        return undefined;
                     } else {
-                        scope._id = null;
+                        current = current[paths[i]];
                     }
                 }
-                //console.log('dir', scope.dir);
+                return current;
             }
-            scope.loadId();
+
+            scope.searchId = function (idname){
+                var first = scope.deepFind(scope, idname);
+                if(first == null){
+                    first = scope.deepFind(scope, '$parent.'+idname);
+                    if(first == null){
+                        first = scope.deepFind(scope, '$parent.$parent.'+idname);
+                        if(first == null){
+                            first = scope.deepFind(scope, '$parent.$parent.$parent.'+idname);
+                            if(first == null){
+                                return null;
+                            }
+                        }
+                    }
+                }
+                return first;
+            };
+
+            scope.loadId = function () {
+                var test = scope.searchId('documentId');
+                if(test == null){
+                    test = scope.searchId(scope.config._idName);
+                }
+                scope._id = test;
+            };
 
             var t = scope.config.options.typeRegEx || '[.]*';
             scope.regex = new RegExp(t);
@@ -264,7 +289,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 if (k < 1) {
                     if (scope._id == null) {
                         $timeout(function () {
-                            scope.load();
+                            //scope.load();
                         }, 200);
                     } else {
                         scope.loadId();
@@ -340,7 +365,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                             }, 1500);
                         }
                         scope.reloadnumber = Date.now();
-                        
+
                         scope.loading = false;
 
                         if (!scope.$$phase) {
@@ -435,8 +460,8 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                     scope.load();
                 }
             }, true);
-            
-            
+
+
 
         }
     };
