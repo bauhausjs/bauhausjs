@@ -136,7 +136,7 @@ var cropImages = function (params) {
             //var uploadURL = elem.getAttribute('uploadUrl');
             var max = elem.getAttribute('maxSize');
             var circle = elem.getAttribute('circle');
-            
+
             if(typeof cropping === "object"){
                 if(cropping.height != null){
                     height = cropping.height;
@@ -151,8 +151,8 @@ var cropImages = function (params) {
                     circle = cropping.circle;
                 }
             }
-            
-            
+
+
             if (max && max != "false") {
                 max = true;
             } else {
@@ -293,7 +293,7 @@ var cropImages = function (params) {
 
         //console.log("RAD: " + rad);
 
-        // iCropShow Overlay to view 
+        // iCropShow Overlay to view
         var iCropShow = document.createElement('div');
         iCropShow.style.position = "absolute";
         iCropShow.style.top = "50%";
@@ -693,6 +693,8 @@ var cropImages = function (params) {
         that.removeElementById('bauhausCropImageWrapper');
         var div = that.makeBlackDiv(that.waitupload);
         that.resizeAndReturn(src, that.data.kw, that.data.kh, that.data.ct, that.data.cl, that.data.nw, that.data.nh, that.data.max, that.data.circle);
+        console.log('test PRO');
+        return false;
     };
 
     this.cancel = function (evt) {
@@ -700,10 +702,12 @@ var cropImages = function (params) {
         var e = {};
         e.data = that.data;
         that.trigger('oncancel', e);
+        return false;
     };
 
     this.choice = function (file) {
         that.trigger('choice', file);
+        return false;
     };
 
     this.export = function (dataUrl, file, data) {
@@ -773,7 +777,7 @@ var cropImages = function (params) {
                 var dataURL = canvas.toDataURL("image/png");
             } else {*/
             var dataURL = canvas.toDataURL("image/jpeg");
-            
+
             //}
 
             //var div = document.createElement('div');

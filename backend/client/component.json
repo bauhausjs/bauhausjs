@@ -7,8 +7,9 @@
         "components/textAngular/src/textAngular-sanitize.js",
         "components/textAngular/src/textAngularSetup.js",
         "components/textAngular/src/textAngular.js",
-        "js/dashboard/dashboard.js", 
-        "js/dashboard/dashboardController.js", 
+        "components/textAngular/dist/textAngular-rangy.min.js",
+        "js/dashboard/dashboard.js",
+        "js/dashboard/dashboardController.js",
         "js/general/general.js",
         "js/general/generalDirectives.js",
         "js/general/generalServices.js"
@@ -18,6 +19,7 @@
         "js/general/navigation.html"
     ],
     "styles": [
-        "css/all.less"
+        "css/all.less",
+        "components/textAngular/src/textAngular.css"
     ]
 }

@@ -73,7 +73,8 @@ module.exports = function (bauhausConfig) {
                 } else {
                     res.json({
                         "success": true,
-                        "info": "Upload Successful!"
+                        "info": "Upload Successful!",
+                        "file": req.uploadDir + req.files.file.remote
                     });
                 }
             });
