@@ -13,6 +13,7 @@ module.exports = function (bauhausConfig) {
     var pkgclient = pkgcloudClient(bauhausConfig);
 
 
+
     var addMiddleware = function (modelName) {
         mongoose.models[modelName].schema.post('remove', function (doc) {
             if (doc._id) {

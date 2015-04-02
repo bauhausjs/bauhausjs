@@ -41,7 +41,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
             scope.filename = scope.config.options.filename || false;
             scope.loading = true;
 
-            
+
             scope.loadId = function () {
                 if(scope.$parent != null && scope.$parent.doc != null && scope.$parent.doc._id != null){
                     scope._id = scope.$parent.doc._id;
@@ -50,14 +50,14 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                     scope._id = null;
                 }
             };
-            
+
             scope.loadId();
 
             var t = scope.config.options.typeRegEx || '[.]*';
             scope.regex = new RegExp(t);
             scope.cropping = scope.config.options.cropping || {
-                cropWidth: 600,
-                cropHeight: 600,
+                width: 600,
+                height: 600,
                 maxSize: false,
                 circle: false
             };
@@ -312,6 +312,8 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 }
             };
 
+            scope.loadfailconter = 5;
+
             scope.loadlist = function (startCrop) {
                 scope.loading = true;
                 scope.fsOp({
@@ -345,7 +347,11 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                             scope.$apply();
                         }
                     } else {
-                        alert("Error: " + e.info);
+                        console.error("Error: " + e.info);
+                        if(scope.loadfailconter > 0){
+                           scope.loadfailconter--;
+                           scope.loadlist();
+                        }
                     }
                 });
             };
@@ -433,8 +439,6 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                     scope.load();
                 }
             }, true);
-
-
 
         }
     };

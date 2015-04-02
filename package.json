@@ -1,6 +1,6 @@
 {
   "name": "bauhausjs",
-  "version": "0.2.24-1",
+  "version": "0.2.25-4",
   "description": "A modular CMS for Node.js",
   "scripts": {
     "test": "env NODE_ENV=test mocha page/test/ content/test/",
@@ -66,8 +66,8 @@
     "ejs": "1.0.x"
   },
   "homepage": "https://github.com/bauhausjs/bauhausjs",
-  "_id": "bauhausjs@0.2.24-1",
-  "_shasum": "8b3b6dc545331a1fa656e204dcffce1f825be85d",
+  "_id": "bauhausjs@0.2.25-4",
+  "_shasum": "13023993e21a1c7ea4181209750ab26286b95e65",
   "_from": "bauhausjs@latest",
   "_npmVersion": "1.4.28",
   "_npmUser": {
@@ -85,10 +85,10 @@
     }
   ],
   "dist": {
-    "shasum": "8b3b6dc545331a1fa656e204dcffce1f825be85d",
-    "tarball": "http://registry.npmjs.org/bauhausjs/-/bauhausjs-0.2.24-1.tgz"
+    "shasum": "13023993e21a1c7ea4181209750ab26286b95e65",
+    "tarball": "http://registry.npmjs.org/bauhausjs/-/bauhausjs-0.2.25-4.tgz"
   },
   "directories": {},
-  "_resolved": "https://registry.npmjs.org/bauhausjs/-/bauhausjs-0.2.24-1.tgz",
+  "_resolved": "https://registry.npmjs.org/bauhausjs/-/bauhausjs-0.2.25-4.tgz",
   "gitHead": "e21e82507faa9509d499011da24f7aaf8c552133"
 }
