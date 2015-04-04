@@ -543,14 +543,16 @@ angular.module('textAngularSetup', [])
 	};
 
 	taRegisterTool('insertImage', {
-		display: '<div id="toolbarII" style="display:block; min-width:100px;" unselectable="on"><span unselectable="on">Upload Image: </span><input type="file" accept="image/*" onchange="angular.element(this).scope().fileChange(this)" unselectable="on"></div>',
+		display: '<div id="toolbarII" style="display:block; min-width:100px;" unselectable="on"><span unselectable="on">Upload Image: </span><input type="file" accept="image/*" onchange="angular.element(this).scope().fileChange(this)" unselectable="on" ng-disabled="checkDisabled()"></div>',
 		disabled: true,
 		data: {},
 		iconclass: 'fa fa-picture-o',
 		tooltiptext: taTranslations.insertImage.tooltip,
 		elem: {},
+		checkDisabled: function(){
+			return !this.$editor().focussed;
+		},
 		fileChange: function(e){
-			//debugger;
 			var cropOptions = {
 				width: 600,
 				height: 600,
@@ -565,6 +567,11 @@ angular.module('textAngularSetup', [])
 				return alert('Da ist was schief gegangen. Bitte lade neu!');
 			}
 			var _id = hashArr[2];
+			var model = hashArr[1];
+			var splittedModel = model.split('');
+			splittedModel[0] = splittedModel[0].toUpperCase()
+			splittedModel.push('s');
+			model = splittedModel.join('');
 
 			var that = this;
 			var cropSize = $window.prompt(taTranslations.insertImageUpload.dialogPrompt, '600x400');
@@ -617,7 +624,7 @@ angular.module('textAngularSetup', [])
 							var uploadFileBlob = function (blob, data, evt, callback, progress) {
 								var formData = new FormData();
 								data.field = 'fields.wysiwyg';
-								data.config = 'documents.Pages';
+								data.config = 'documents.'+model;
 								data._id = evt.file._id;
 								formData.append("data", JSON.stringify(data));
 								formData.append("file", blob, data.name);
@@ -667,7 +674,7 @@ angular.module('textAngularSetup', [])
 								var elements = evt.file.bg.getElementsByTagName('img');
 								for(var i in elements){
 									if(elements[i] && elements[i].src && elements[i].src.search(evt.file.imageUrl) >= 0){
-										console.log('overflow', elements[i]);
+										//console.log('overflow', elements[i]);
 										//elements[i].src = evt.dataUrl;
 										elements[i].src = '/files'+ret.file;
 									}
@@ -691,7 +698,7 @@ angular.module('textAngularSetup', [])
 						file.bg = bg;
 						file.imageUrl = imageUrl;
 						c.crop(file, e, opts);
-						console.log('Läuft bei mir', e.files[0]);
+						//console.log('Läuft bei mir', e.files[0]);
 					}
 
 					var file = e.files[0];
@@ -739,7 +746,8 @@ angular.module('textAngularSetup', [])
 					// create the HTML
 					// for all options see: http://stackoverflow.com/questions/2068344/how-do-i-get-a-youtube-video-thumbnail-from-the-youtube-api
 					// maxresdefault.jpg seems to be undefined on some.
-					var embed = '<img class="ta-insert-video" src="https://img.youtube.com/vi/' + ids[0].substring(3) + '/hqdefault.jpg" ta-insert-video="' + urlLink + '" contenteditable="false" src="" allowfullscreen="true" frameborder="0" />';
+					//var embed = '<img class="ta-insert-video" src="https://img.youtube.com/vi/' + ids[0].substring(3) + '/hqdefault.jpg" ta-insert-video="' + urlLink + '" contenteditable="false" src="" allowfullscreen="true" frameborder="0" />';
+					var embed = '<iframe width="640" height="360" frameborder="0" allowfullscreen="" src="'+urlLink+'" class="hidden-phone"></iframe>';
 					// insert
 					return this.$editor().wrapSelection('insertHTML', embed, true);
 				}
