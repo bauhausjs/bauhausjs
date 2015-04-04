@@ -561,10 +561,10 @@ angular.module('textAngularSetup', [])
 			};
 			var hashArr = $window.location.hash.split('/');
 			if(hashArr.length !== 3){
-				return alert('Da ist was schief gegangen. Bitte lade neu!');
+				return alert('ID konnte nicht geladen werden! Bitte klicken Sie die Seite im Menü erneut an.');
 			}
 			if(hashArr[2].length !== 24){
-				return alert('Da ist was schief gegangen. Bitte lade neu!');
+				return alert('ID konnte nicht geladen werden! Bitte klicken Sie die Seite im Menü erneut an.');
 			}
 			var _id = hashArr[2];
 			var model = hashArr[1];
