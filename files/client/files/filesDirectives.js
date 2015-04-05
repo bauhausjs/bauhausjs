@@ -86,7 +86,9 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                     scope.$apply();
                 }
                 var blob = scope.dataURItoBlob(e.dataUrl);
-                scope.uploadHandler(blob);
+                var name = evt.file.name.split('.');
+                name.pop();
+                scope.uploadHandler(blob, name.join('_'));
             });
 
             scope.dataURItoBlob = function (dataURI) {
@@ -158,7 +160,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 data.config = scope.config.configPath;
                 data._id = scope._id;
                 formData.append("data", JSON.stringify(data));
-                formData.append("file", blob);
+                formData.append("file", blob, data.name);
 
                 var xhr = scope.getHTTPObject();
 
@@ -402,9 +404,9 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 }
             };
 
-            scope.uploadHandler = function (blob) {
+            scope.uploadHandler = function (blob, name) {
                 var uploadProgressId = 'fileuploadprogress' + scope.config.name;
-                scope.uploadFileBlob(blob, {}, function (err, data) {
+                scope.uploadFileBlob(blob, {'name': name}, function (err, data) {
                     if (err) {
                         scope.uploadState = "Upload fehlgeschlagen!";
                     } else {

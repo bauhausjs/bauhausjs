@@ -66,8 +66,8 @@
     "ejs": "1.0.x"
   },
   "homepage": "https://github.com/bauhausjs/bauhausjs",
-  "_id": "bauhausjs@0.2.25-4",
-  "_shasum": "13023993e21a1c7ea4181209750ab26286b95e65",
+  "_id": "bauhausjs@0.2.26",
+  "_shasum": "fc147201f7e310ddfc0ed5547de5bded7daeaeb4",
   "_from": "bauhausjs@latest",
   "_npmVersion": "1.4.28",
   "_npmUser": {
@@ -85,10 +85,10 @@
     }
   ],
   "dist": {
-    "shasum": "13023993e21a1c7ea4181209750ab26286b95e65",
-    "tarball": "http://registry.npmjs.org/bauhausjs/-/bauhausjs-0.2.25-4.tgz"
+    "shasum": "fc147201f7e310ddfc0ed5547de5bded7daeaeb4",
+    "tarball": "http://registry.npmjs.org/bauhausjs/-/bauhausjs-0.2.26.tgz"
   },
   "directories": {},
-  "_resolved": "https://registry.npmjs.org/bauhausjs/-/bauhausjs-0.2.25-4.tgz",
+  "_resolved": "https://registry.npmjs.org/bauhausjs/-/bauhausjs-0.2.26.tgz",
   "gitHead": "e21e82507faa9509d499011da24f7aaf8c552133"
 }
