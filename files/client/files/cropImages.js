@@ -77,11 +77,11 @@ var cropImages = function (params) {
     this.stopOverScrolling = function (bool) {
         if (bool) {
             if (this.sta === false) {
-                this.sta = true;
                 this.stastoCache.height = document.body.style.height;
                 this.stastoCache.width = document.body.style.width;
                 this.stastoCache.overflow = document.body.style.overflow;
             }
+            this.sta = true;
             document.body.style.height = "100%";
             document.body.style.width = "100%";
             document.body.style.overflow = "hidden";
@@ -127,6 +127,7 @@ var cropImages = function (params) {
     };
 
     this.crop = function (file, elem, cropping) {
+        that.stopOverScrolling(true);
         that.file = file;
         that.choice(file);
         if (file.type.match('image.*')) {
@@ -404,7 +405,7 @@ var cropImages = function (params) {
 
             if (iw < oWidth || ih < oHeight) {
                 alert(that.textbadimg + oWidth + "x" + oHeight);
-                that.exit();
+                that.cancel();
             }
 
             that.data = {
@@ -498,8 +499,6 @@ var cropImages = function (params) {
             div.appendChild(iCropShow);
             div.appendChild(overlay);
             div.appendChild(menubar);
-
-            that.stopOverScrolling(true);
         };
         img.src = dataURL;
     };
@@ -693,7 +692,6 @@ var cropImages = function (params) {
         that.removeElementById('bauhausCropImageWrapper');
         var div = that.makeBlackDiv(that.waitupload);
         that.resizeAndReturn(src, that.data.kw, that.data.kh, that.data.ct, that.data.cl, that.data.nw, that.data.nh, that.data.max, that.data.circle);
-        console.log('test PRO');
         return false;
     };
 
@@ -701,6 +699,7 @@ var cropImages = function (params) {
         that.exit();
         var e = {};
         e.data = that.data;
+        e.file = that.file;
         that.trigger('oncancel', e);
         return false;
     };
