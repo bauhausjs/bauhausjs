@@ -46,7 +46,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                 if(scope.$parent != null && scope.$parent.doc != null && scope.$parent.doc._id != null){
                     scope._id = scope.$parent.doc._id;
                 } else {
-                    console.error('could not find ID');
+                    //console.error('could not find ID');
                     scope._id = null;
                 }
             };
@@ -86,7 +86,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                     scope.$apply();
                 }
                 var blob = scope.dataURItoBlob(e.dataUrl);
-                var name = evt.file.name.split('.');
+                var name = e.file.name.split('.');
                 name.pop();
                 scope.uploadHandler(blob, name.join('_'));
             });
