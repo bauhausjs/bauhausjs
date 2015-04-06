@@ -588,6 +588,18 @@ angular.module('textAngularSetup', [])
 						var imageUrl = '/img/loading.gif#'+timestamp;
 						var bg = that.$editor().wrapSelection('insertImage', imageUrl, true);
 						//debugger;
+						c.listen('oncancel', function(evt){
+							var elements = evt.file.bg.getElementsByTagName('img');
+							for(var i in elements){
+								if(elements[i] && elements[i].src && elements[i].src.search(evt.file.imageUrl) >= 0){
+									elements[i].remove();
+								}
+							}
+							var te = document.createTextNode('');
+							evt.file.bg.appendChild(te);
+							evt.file.bg.focus();
+						});
+
 						c.listen('export', function (evt) {
 							//evt.file.cropScope.$editor().wrapSelection('insertImage', 'http://www.vetprofessionals.com/catprofessional/images/home-cat.jpg', true);
 							var getHTTPObject = function () {
