@@ -86,7 +86,7 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                     scope.$apply();
                 }
                 var blob = scope.dataURItoBlob(e.dataUrl);
-                var name = evt.file.name.split('.');
+                var name = e.file.name.split('.');
                 name.pop();
                 scope.uploadHandler(blob, name.join('_'));
             });
