@@ -589,15 +589,7 @@ angular.module('textAngularSetup', [])
 						var bg = that.$editor().wrapSelection('insertImage', imageUrl, true);
 						//debugger;
 						c.listen('oncancel', function(evt){
-							var elements = evt.file.bg.getElementsByTagName('img');
-							for(var i in elements){
-								if(elements[i] && elements[i].src && elements[i].src.search(evt.file.imageUrl) >= 0){
-									elements[i].remove();
-								}
-							}
-							var te = document.createTextNode('');
-							evt.file.bg.appendChild(te);
-							evt.file.bg.focus();
+							evt.file.removeLoader(evt);
 						});
 
 						c.listen('export', function (evt) {
@@ -644,8 +636,12 @@ angular.module('textAngularSetup', [])
 								var xhr = getHTTPObject();
 
 								xhr.onreadystatechange = function () {
-									if (xhr.readyState == 4 && xhr.status == 200) {
+									if (xhr.readyState == 4) {
+										if(xhr.status == 200){
 											callback(false, evt, xhr);
+										} else {
+											evt.file.removeLoader(evt);
+										}
 									}
 								};
 
@@ -671,15 +667,18 @@ angular.module('textAngularSetup', [])
 							uploadFileBlob(blob, {'name': name.join('_')}, evt, function(err, evt, xhr){
 								if(err){
 									console.error('Upload Error', err);
+									evt.file.removeLoader(evt);
 									return alert('Upload Fehlgeschlagen! #1');
 								}
 								try {
 									var ret = JSON.parse(xhr.responseText);
 								} catch(e){
+									evt.file.removeLoader(evt);
 									return alert('Upload Fehlgeschlagen! #2');
 								}
 
 								if(ret.success == false || ret.file == null){
+									evt.file.removeLoader(evt);
 									return alert('Upload Fehlgeschlagen! #3');
 								}
 
@@ -709,11 +708,25 @@ angular.module('textAngularSetup', [])
 						});
 						file.bg = bg;
 						file.imageUrl = imageUrl;
+
+						file.removeLoader = function(evt){
+							var elements = evt.file.bg.getElementsByTagName('img');
+							for(var i in elements){
+								if(elements[i] && elements[i].src && elements[i].src.search(evt.file.imageUrl) >= 0){
+									elements[i].remove();
+								}
+							}
+							var te = document.createTextNode('');
+							evt.file.bg.appendChild(te);
+							evt.file.bg.focus();
+						}
+
 						c.crop(file, e, opts);
 						//console.log('Läuft bei mir', e.files[0]);
 					}
 
 					var file = e.files[0];
+
 					file._id = _id;
 					file.cropScope = this;
 					startCropping(e, file, cropOptions, this);
