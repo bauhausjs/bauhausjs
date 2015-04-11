@@ -33,7 +33,11 @@ userSchema.methods.toJSON = function() {
     return user;
 };
 
-userSchema.plugin(passportLocalMongoose);
+var passportLocalMongooseOptions = {
+    usernameLowerCase: true
+};
+
+userSchema.plugin(passportLocalMongoose, passportLocalMongooseOptions);
 
 var user = module.exports = mongoose.model('User', userSchema); 
 user.schema = userSchema;
