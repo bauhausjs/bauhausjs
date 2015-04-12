@@ -5,12 +5,13 @@ var sha1 = require('sha1');
 var Schema = mongoose.Schema;
 
 var userSchema = new Schema({
-    email: String,
-    resetPasswordToken: String,
-    confirmMailToken: String,
+    username: String,
     emailConfirmed: Boolean,
     roles: [Schema.Types.ObjectId],
-    fields: {}
+    fields: {},
+    created: { type: Date, default: Date.now },
+    resetPasswordToken: String,
+    confirmMailToken: String,
 }, {collection: 'users'});
 
 
@@ -28,13 +29,17 @@ userSchema.methods.setConfirmMailToken = function () {
 
 userSchema.methods.toJSON = function() {
     var user = this.toObject();
-    delete user.salt;
-    delete user.hash;
+    delete user.login;
+    delete user.reset;
     return user;
 };
-
 var passportLocalMongooseOptions = {
-    usernameLowerCase: true
+    usernameLowerCase: true,
+    hashField: "login.hash",
+    saltField: "login.salt",
+    attemptsField: "login.attempts",
+    lastLoginField: "login.last",
+    limitAttempts: false
 };
 
 userSchema.plugin(passportLocalMongoose, passportLocalMongooseOptions);
