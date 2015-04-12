@@ -1,6 +1,6 @@
 {
   "name": "bauhausjs",
-  "version": "0.2.30",
+  "version": "0.2.30-1",
   "description": "A modular CMS for Node.js",
   "scripts": {
     "test": "env NODE_ENV=test mocha page/test/ content/test/",
@@ -44,7 +44,7 @@
   "peerDependencies": {
     "express": "3.5.x",
     "mongoose": "3.8.x",
-    "baucis": "^0.20.5",
+    "baucis": "0.18.x",
     "debug": "0.8.x",
     "passport": "0.2.x",
     "passport-local": "1.0.x",
