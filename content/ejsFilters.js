@@ -1,4 +1,5 @@
-var ejs = require('ejs');
+// deprecated
+/*var ejs = require('ejs');
 
 ejs.filters.img = function (id, options) {
     if (!id) return id;
@@ -8,4 +9,4 @@ ejs.filters.img = function (id, options) {
         optionString += o + '=' + options[o] + '&';
     }
     return '<img src="/assets/' + id + '?' + optionString + '">';
-}
+}*/
