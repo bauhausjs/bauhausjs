@@ -1,11 +1,11 @@
 
 module.exports = function (bauhausConfig) {
     bauhausConfig.addDocument('Pages', {
-        name: 'Page',
+        //name: 'Page',
         model: 'Page',
         collection: 'pages',
-        icon: 'leaf',
-        url: '/pages2',
+        /*icon: 'leaf',
+        url: '/pages2',*/
         fieldsets: [
             { id: 'main', legend: 'Main' }
         ],
