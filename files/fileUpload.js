@@ -36,6 +36,13 @@ module.exports = function (bauhausConfig) {
                 if (containerArray[containerArray.length - 1] === '') {
                     containerArray.pop();
                 }
+                req.isPrivateFile = false;
+                for (var i in containerArray) {
+                    if (containerArray[i].toLowerCase() === 'private') {
+                       req.isPrivateFile = true;
+                    }
+                }
+
                 options.container = containerArray.join('.');
             }
 
@@ -62,20 +69,42 @@ module.exports = function (bauhausConfig) {
 
     app.post('/', function (req, res, next) {
         if (req.files != null && req.files.file != null && req.multerUpload && req.multerErrors < 1) {
-
+           console.log('meta', req.multerContainer.metadata);
             rightSystem.setFileRights(req.uploadDir + req.files.file.remote, req.session.user.id, function (err) {
                 if (err != null) {
+                    console.error('Upload failed [bauhaus => fileUpload.js] #1', err);
                     res.json({
                         "success": false,
-                        "info": "Upload failed!",
-                        "err": err
+                        "info": "Upload failed!"
                     });
                 } else {
-                    res.json({
-                        "success": true,
-                        "info": "Upload Successful!",
-                        "file": req.uploadDir + req.files.file.remote
-                    });
+                   if(req.isPrivateFile == false && req.multerContainer != null && req.multerContainer.metadata['x-readset'] !== 'true'){
+                      console.log('setright');
+                      req.multerContainer.metadata['x-container-meta-x-readset'] = "true";
+                       req.multerContainer.metadata['X-Container-Read'] = ".r:*";
+                       pkgclient._updateContainerMetadata(req.multerContainer, req.multerContainer.metadata, function(err, container) {
+                  			if (err) {
+                               console.error('Upload failed [bauhaus => fileUpload.js] #2', err);
+                               res.json({
+                                   "success": false,
+                                   "info": "Upload failed!"
+                               });
+                  			} else {
+                              console.log('done rig');
+                               res.json({
+                                   "success": true,
+                                   "info": "Upload Successful!",
+                                   "file": req.uploadDir + req.files.file.remote
+                               });
+                  			}
+                  		});
+                   } else {
+                       res.json({
+                           "success": true,
+                           "info": "Upload Successful!",
+                           "file": req.uploadDir + req.files.file.remote
+                       });
+                 }
                 }
             });
         } else {

@@ -35,6 +35,7 @@ module.exports = function (bauhausConfig) {
                     res.status(500).send('Error 500: Content-Type of requested file defect or not available!');
                 } else {
                     res.setHeader("content-type", file.contentType);
+                    res.setHeader('Cache-Control', 'public, max-age=1210428');
 
                     var rs = pkgclient.download({
                         container: container, //'testcontainer',
