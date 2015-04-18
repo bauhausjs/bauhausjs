@@ -69,7 +69,7 @@ module.exports = function (bauhausConfig) {
 
     app.post('/', function (req, res, next) {
         if (req.files != null && req.files.file != null && req.multerUpload && req.multerErrors < 1) {
-           console.log('meta', req.multerContainer.metadata);
+           //console.log('meta', req.multerContainer.metadata);
             rightSystem.setFileRights(req.uploadDir + req.files.file.remote, req.session.user.id, function (err) {
                 if (err != null) {
                     console.error('Upload failed [bauhaus => fileUpload.js] #1', err);
@@ -79,7 +79,7 @@ module.exports = function (bauhausConfig) {
                     });
                 } else {
                    if(req.isPrivateFile == false && req.multerContainer != null && req.multerContainer.metadata['x-readset'] !== 'true'){
-                      console.log('setright');
+                      //console.log('setright');
                       req.multerContainer.metadata['x-container-meta-x-readset'] = "true";
                        req.multerContainer.metadata['X-Container-Read'] = ".r:*";
                        pkgclient._updateContainerMetadata(req.multerContainer, req.multerContainer.metadata, function(err, container) {
@@ -90,7 +90,7 @@ module.exports = function (bauhausConfig) {
                                    "info": "Upload failed!"
                                });
                   			} else {
-                              console.log('done rig');
+                              //console.log('done rig');
                                res.json({
                                    "success": true,
                                    "info": "Upload Successful!",
