@@ -1,7 +1,6 @@
 var rightsMiddleware = require('./rightsMiddleware.js');
 //var pkgcloud = require('pkgcloud');
 var pkgcloudClient = require('./pkgCloudClient.js');
-//var pkgCache = require('./pkgCache.js');
 var express = require('express');
 var fs = require('fs-extra');
 
@@ -14,7 +13,7 @@ module.exports = function (bauhausConfig) {
 
     var app = express();
 
-    app.use(rightsMiddleware());
+    app.use(rightsMiddleware(bauhausConfig));
 
     app.use(function (req, res, next) {
         var splittedPath = req.path.split('/');
@@ -43,16 +42,12 @@ module.exports = function (bauhausConfig) {
                     });
                     rs.pipe(res);
 
-                    /*pkgCache.writeStreamToCache(rs);
-
-                    if(bauhausConfig.pkgCache.active === true){
-                        var ws = fs.createWriteStream();
-                    }*/
                 }
             }
         });
     });
 
+    // old way: deliver from HD. 
     //app.use(express.static(pathconfig.filesDir));
 
     return app;
