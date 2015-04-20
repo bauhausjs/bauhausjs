@@ -44,7 +44,7 @@ var passportLocalMongooseOptions = {
     attemptsField: "login.attempts",
     lastLoginField: "login.last",
     limitAttempts: true,
-    interval: 50
+    interval: 10
 };
 
 userSchema.plugin(passportLocalMongoose, passportLocalMongooseOptions);
