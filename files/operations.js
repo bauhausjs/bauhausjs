@@ -49,7 +49,7 @@ module.exports = function (bauhausConfig) {
                         };
                     });
                 } else {
-                    console.error('Could not find modelWithS');
+                    console.error('Could not find modelWithS', modelWithS);
                 }
             }
         });

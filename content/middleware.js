@@ -75,6 +75,12 @@ middleware.renderContent = function (contentTypes) {
         var renderParallel = [];
         for (var c in req.bauhaus.content.data) {
             var data = req.bauhaus.content.data[c];
+            // add additional information to template
+            data.content.user = {};
+            data.content.user.username = req.user.username;
+            data.content.user._id = req.user._id;
+            data.content.user.fields = req.user.fields;
+            
             var typeName = data._type;
             if (typeName in contentTypes) {
                 var contentType = contentTypes[typeName];
