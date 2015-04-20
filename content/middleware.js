@@ -75,6 +75,7 @@ middleware.renderContent = function (contentTypes) {
         var renderParallel = [];
         for (var c in req.bauhaus.content.data) {
             var data = req.bauhaus.content.data[c];
+            
             // add additional information to template
             data.content.user = null;
             if(req.user != null){

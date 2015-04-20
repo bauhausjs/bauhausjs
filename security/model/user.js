@@ -9,6 +9,10 @@ var userSchema = new Schema({
     emailConfirmed: Boolean,
     roles: [Schema.Types.ObjectId],
     fields: {},
+    login:  {
+        attempts: {type: Number, default: 0}, 
+        last: {type: Date, default: Date.now}
+    },
     created: { type: Date, default: Date.now },
     resetPasswordToken: String,
     confirmMailToken: String,
@@ -39,7 +43,8 @@ var passportLocalMongooseOptions = {
     saltField: "login.salt",
     attemptsField: "login.attempts",
     lastLoginField: "login.last",
-    limitAttempts: false
+    limitAttempts: true,
+    interval: 50
 };
 
 userSchema.plugin(passportLocalMongoose, passportLocalMongooseOptions);
