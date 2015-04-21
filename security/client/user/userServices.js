@@ -1,7 +1,7 @@
 angular.module('bauhaus.user.services', []);
 
 angular.module('bauhaus.user.services').factory('CurrentUser', function ($resource) {
-    return $resource('api/CurrentUser', {}, {
+    return $resource('api/users/currentuser', {}, {
         get: {
             method: 'GET',
             isArray: false

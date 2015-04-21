@@ -1,7 +1,7 @@
 angular.module('bauhaus.general.services', []);
 
 angular.module('bauhaus.general.services').factory('Documents', function ($resource) {
-    return $resource('api/Documents', {}, {
+    return $resource('api/documents', {}, {
         get: {
             method: 'GET',
             isArray: false

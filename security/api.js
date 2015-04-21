@@ -1,18 +1,12 @@
 var baucis = require('baucis'),
+    mongoose = require('mongoose'),
     Role = require('./model/role'),
     User = require('./model/user');
 
 module.exports = function (bauhausConfig) {
+    var roleController = baucis.rest(mongoose.model('Role')).select('name permissions');
 
-    var roleController = baucis.rest({
-        singular:'Role', 
-        select:'name permissions', swagger: true
-    });
-
-    var userController = baucis.rest({
-        singular:'User', 
-        select:'username roles fields', swagger: true
-    });
+    var userController = baucis.rest(mongoose.model('User')).select('username roles fields');
 
     /* Middleware which is add for put method (=update user) to store password after user was stored */
     userController.query('put', function (req, res, next) {
@@ -33,10 +27,7 @@ module.exports = function (bauhausConfig) {
         }
     });
 
-
-    api = baucis();
-
-    api.get('/CurrentUser', function (req, res, next) {
+    userController.get('/currentuser', function (req, res, next) {
         if (req.session.user) {
             var user = {
                 id: req.session.user.id,
@@ -53,13 +44,16 @@ module.exports = function (bauhausConfig) {
         }
     }); 
 
-    api.get('/CustomUserFields', function (req, res, next) {
+    userController.get('/customuserfields', function (req, res, next) {
         res.json(bauhausConfig.customUserFields);
     });
 
-    api.get('/Permissions', function (req, res, next) {
+    userController.get('/currentuser/permissions', function (req, res, next) {
         res.json(bauhausConfig.security.permissions)
     });
 
-    return api;
+    return {
+        userController: userController,
+        roleController: roleController
+    };
 };

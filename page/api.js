@@ -1,12 +1,11 @@
 var baucis = require('baucis'),
-    Page = require('./model/page');
+    Page = require('./model/page'),
+    mongoose = require('mongoose'),
+    express = require('express');
 
 module.exports = function (bauhausConfig) {
 
-    var pageController = baucis.rest({
-        singular:'Page', 
-        select:'_type _w name route title label parentId path public isSecure roles'
-    });
+    var pageController = baucis.rest(mongoose.model('Page')).select('_type _w name route title label parentId path public isSecure roles');
 
     var getTree = function (request, response, next) {
         // Setting pageId to null finds root
@@ -26,14 +25,14 @@ module.exports = function (bauhausConfig) {
         });
     };
 
-    pageController.get('/getTree/:id?', getTree);
+    var app = express();
 
-    // Create page REST middleware
-    var api = baucis({swagger:true});    
+    pageController.get('/gettree/:id?', getTree);
+  
     // Add page Types to API
-    api.get('/PageTypes', function (req, res) {
+    pageController.get('/pagetypes', function (req, res) {
         res.json(bauhausConfig.pageTypes);
     });
 
-    return api;
+    return pageController;
 }

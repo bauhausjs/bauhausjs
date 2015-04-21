@@ -1,7 +1,7 @@
 angular.module('bauhaus.page.services', []);
 
 angular.module('bauhaus.page.services').factory('Page', function ($resource) {
-    return $resource('api/Pages/:pageId', {}, {
+    return $resource('api/pages/:pageId', {}, {
         get: {
             method: 'GET',
             params: { pageId: 'pageId' },
@@ -19,7 +19,7 @@ angular.module('bauhaus.page.services').factory('Page', function ($resource) {
 });
 
 angular.module('bauhaus.page.services').factory('PageTree', function ($resource) {
-    return $resource('api/Pages/getTree', {}, {
+    return $resource('api/pages/gettree', {}, {
         get: {
             method: 'GET',
             isArray: false
@@ -154,7 +154,7 @@ angular.module('bauhaus.page.services').factory('SharedPageTree', function (Page
 
 
 angular.module('bauhaus.page.services').factory('PageType', function ($resource) {
-    return $resource('api/PageTypes', {}, {
+    return $resource('api/pages/pagetypes', {}, {
         get: {
             method: 'GET',
             isArray: false
@@ -180,7 +180,7 @@ angular.module('bauhaus.page.services').factory('SharedPageType', function (Page
 });
 
 angular.module('bauhaus.page.services').factory('ContentType', function ($resource) {
-    return $resource('api/ContentTypes', {}, {
+    return $resource('api/contents/contenttypes', {}, {
         get: {
             method: 'GET',
             isArray: false
@@ -206,7 +206,7 @@ angular.module('bauhaus.page.services').factory('SharedContentType', function (C
 });
 
 angular.module('bauhaus.page.services').factory('Content', function ($resource) {
-    return $resource('api/Contents/:contentId', {}, {
+    return $resource('api/contents/:contentId', {}, {
         get: {
             method: 'GET',
             params: { contentId: '@_id' }
@@ -227,7 +227,7 @@ angular.module('bauhaus.page.services').factory('Content', function ($resource) 
 });
 
 angular.module('bauhaus.page.services').factory('PageContent', function ($resource) {
-    return $resource('api/Contents?conditions={"_page":":pageId"}', {}, {
+    return $resource('api/contents?conditions={"_page":":pageId"}', {}, {
         get: {
             method: 'GET',
             params: { pageId: '@pageId' },
