@@ -77,6 +77,8 @@ middleware.renderContent = function (contentTypes) {
             var data = req.bauhaus.content.data[c];
             
             // add additional information to template
+            if(data.content == null)
+                data.content = {};
             data.content.user = null;
             if(req.user != null){
                 data.content.user = {};
