@@ -167,8 +167,9 @@ angular.module('bauhaus.page.directives').directive('bauhausHtml', function () {
         link: function (scope, el, attr) {
 
             scope.$watch('value', function (newVal, oldVal) {
-               //console.log('testnewval', newVal);
-                if(newVal == null){
+                //console.log('default', scope.config.options.defaultValue);
+                //console.log('testnewval', newVal);
+                if(newVal == null || newVal == ''){
                    if(scope.config != null && scope.config.options && scope.config.options.defaultValue != null){
                       scope.value = scope.config.options.defaultValue;
                    }
