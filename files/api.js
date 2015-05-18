@@ -119,7 +119,26 @@ module.exports = function (bauhausConfig) {
                     files.push(filesBack[i].name);
                 }
             }
-            pkgclient.getContainers(function (err, containers) {
+            pkgclient.getContainers(function (errIn, containers) {
+               if (errIn != null) {
+                   console.error('ERROR: pkgclient.getContainers failed: ', errIn);
+                   if (err != null) {
+                      console.error('ERROR: pkgclient.getFiles failed: ', err);
+                   }
+                   return res.json({
+                       "success": false,
+                       "info": "Reading dir failed.",
+                       "err": "Reading dir failed."
+                   });
+               }
+               if (err != null) {
+                   console.error('ERROR: pkgclient.getFiles failed: ', err);
+                   return res.json({
+                       "success": false,
+                       "info": "Reading dir failed.",
+                       "err": "Reading dir failed."
+                   });
+               }
                 //console.log('files:', containers.length);
                 var searchRegEx = req.container + "[.]*";
                 var deep = req.container.split('.').length;
@@ -139,18 +158,12 @@ module.exports = function (bauhausConfig) {
                     files.push('/' + i + '/');
                 }
                 //console.log('files:', files.length);
-                if (err) {
-                    res.json({
-                        "success": false,
-                        "info": "Reading dir failed."
-                    });
-                } else {
-                    res.json({
-                        "success": true,
-                        "info": "Reading Successful!",
-                        "files": files
-                    });
-                }
+                 res.json({
+                     "success": true,
+                     "info": "Reading Successful!",
+                     "files": files
+                 });
+
             });
 
 
@@ -162,7 +175,8 @@ module.exports = function (bauhausConfig) {
             'name': req.container
         }, function (err, containerRet) {
             //console.log('container', containerRet);
-            if (err) {
+            if (err != null) {
+                console.error('Creating dir failed.', err);
                 res.json({
                     "success": false,
                     "info": "Creating dir failed."
@@ -179,14 +193,16 @@ module.exports = function (bauhausConfig) {
     app.post(pre + '/dirop/removefile', function (req, res) {
         if (req.jsonData.file != null) {
             pkgclient.removeFile(req.container, req.jsonData.file, function (err) {
-                if (err && err.length > 0) {
+                if (err != null) {
+                   console.error('Removing from cloud failed.', err);
                     res.json({
                         "success": false,
                         "info": "Removing from cloud failed."
                     });
                 } else {
                     rightSystem.removeFiles([req.dir + req.jsonData.file], function (err) {
-                        if (err) {
+                        if (err != null) {
+                           console.error('Removing from rightSystem failed.', err);
                             res.json({
                                 "success": false,
                                 "info": "Removing from rightSystem failed."
