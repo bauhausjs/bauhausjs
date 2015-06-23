@@ -397,7 +397,9 @@ angular.module('bauhaus.document.directives').directive('bauhausFile', function 
                     } else {
                         scope.uploadState = "Datei wird hochgeladen...";
                         var blob = document.getElementById(uploadId).files[0];
-                        scope.uploadHandler(blob);
+                        var name = blob.name.split('.');
+                        name.pop();
+                        scope.uploadHandler(blob, name.join('_'));
                     }
                 } else {
                     scope.uploadState = "Dateityp nicht erlaubt!";
