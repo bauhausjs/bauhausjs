@@ -1,7 +1,7 @@
 angular.module('bauhaus.role.services', []);
 
 angular.module('bauhaus.role.services').factory('Role', function ($resource) {
-    return $resource('api/Roles/:roleId', { roleId: '@_id' }, {
+    return $resource('api/roles/:roleId', { roleId: '@_id' }, {
         get: {
             method: 'GET',
             params: { roleId: 'roleId' },
@@ -49,7 +49,7 @@ angular.module('bauhaus.role.services').factory('SharedRoles', function ($rootSc
 });
 
 angular.module('bauhaus.role.services').factory('Permission', function ($resource) {
-    return $resource('api/Permissions', {}, {
+    return $resource('api/users/currentuser/permissions', {}, {
         query: {
             method: 'GET',
             isArray: false

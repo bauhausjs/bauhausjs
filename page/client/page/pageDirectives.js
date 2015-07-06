@@ -27,12 +27,15 @@ angular.module('bauhaus.page.directives').directive('bauhausForm', function ($co
         },
         link: function (scope, el, attr) {
             var html ='<div>';
-            for (var f in scope.config.fields) {
-                var field = scope.config.fields[f];
-                html += '<bauhaus-' + field.type +
-                        ' ng-model="content.content.' + field.name  +
-                        '" field-config="config.fields[' + f + ']" ></bauhaus-' + field.type + '>';
+            if (scope.config && scope.config.fields) {
+                for (var f in scope.config.fields) {
+                    var field = scope.config.fields[f];
+                    html += '<bauhaus-' + field.type +
+                            ' ng-model="content.content.' + field.name  +
+                            '" field-config="config.fields[' + f + ']" ></bauhaus-' + field.type + '>';
+                }   
             }
+            
             html += '</div>';
 
             el.replaceWith($compile(html)(scope));

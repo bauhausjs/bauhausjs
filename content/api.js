@@ -1,13 +1,12 @@
 var baucis = require('baucis'),
     async = require('async'),
-    Content = require('./model/content')
-    populateConfig = require('../document/helper').populateConfig;
+    Content = require('./model/content'),
+    mongoose = require('mongoose'),
+    populateConfig = require('../document/helper').populateConfig,
+    express = require('express');
 
 module.exports = function (bauhausConfig) {
-    var controller = baucis.rest({
-        singular:'Content', 
-        select:'_type content meta _page', swagger: true
-    });
+    var controller = baucis.rest(mongoose.model('Content')).select('_type content meta _page');
 
     // Populates fields for both single or collection queries
     controller.request('get', function populateReferences (req, res, next) {
@@ -25,11 +24,10 @@ module.exports = function (bauhausConfig) {
         next();
     });
 
-    var api = baucis();
 
-    api.get('/ContentTypes', function (req, res, next) {
+    controller.get('/ContentTypes', function (req, res, next) {
         res.json(bauhausConfig.contentTypes);
     });
 
-    return api;
+    return controller;
 }

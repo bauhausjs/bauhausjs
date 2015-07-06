@@ -2,6 +2,7 @@ angular.module('bauhaus.document.services', []);
 
 angular.module('bauhaus.document.services').factory('DocumentService', function ($resource) {
     return function (type) {
+        type = type.toLowerCase();
         return $resource('api/' + type + '/:id', { id: '@_id' }, {
             get: {
                 method: 'GET',

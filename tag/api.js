@@ -1,13 +1,10 @@
 var baucis = require('baucis')
-    Tag = require('./model/tag');
+    Tag = require('./model/tag'),
+    mongoose = require('mongoose');
 
 module.exports = function (bauhausConfig) {
 
-    var tagController = baucis.rest({
-        singular: 'Tag'
-    });
+    var tagController = baucis.rest(mongoose.model('Tag'));
 
-    var app = baucis(); 
-
-    return app;   
+    return tagController;   
 };
