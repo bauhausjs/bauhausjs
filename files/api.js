@@ -5,7 +5,6 @@ var File = require('./model/file');
 var fileUpload = require('./fileUpload.js');
 var rightSystem = require('./rightSystem.js');
 var pkgcloudClient = require('./pkgCloudClient.js');
-var Project = require('../../../lib/project/model/project.js');
 /*var pathconfig = require('./pathconfig.js');
 var fsOp = require('./fsOp.js');
 var fileUpload = require('./fileUpload.js');
@@ -88,6 +87,8 @@ module.exports = function (bauhausConfig) {
 
     app.post(pre + '/getProjectNameById', function (req, res) {
         if (req.jsonData.id != null) {
+            // ugly: require project module only when name resolution is requested
+            var Project = require('../../../lib/project/model/project.js');
             Project.findById(req.jsonData.id, function (err, project) {
                 if (err != null || project == null) {
                     res.json({
