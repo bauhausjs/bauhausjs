@@ -2,3 +2,4 @@ node_modules/
 *.swp
 backend/build/
 backend/public
+.DS_Store
