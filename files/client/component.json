@@ -1,5 +1,6 @@
 {
     "scripts": [
+        "files/pica.min.js"
         "files/globalEvent.js",
         "files/files.js",
         "files/cropImages.js",
