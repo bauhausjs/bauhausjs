@@ -11,11 +11,16 @@ module.exports = function (bauhausConfig) {
     // Populates fields for both single or collection queries
     controller.request('get', function populateReferences (req, res, next) {
         req.baucis.outgoing(function (doc, callback) {
-            var contentType = bauhausConfig.contentTypes[ doc._type ];
+
+            var docType = doc.doc._type;
+            var contentType = bauhausConfig.contentTypes[ docType ];
             var populationConfig = populateConfig(contentType, 'content.');
             
             if (populationConfig.length > 0) {
-                doc.populate(populationConfig, callback);
+                doc.doc.populate(populationConfig, function(err, result){
+                    callback(null, doc);
+                });
+
             } else {
                 callback(null, doc);
             }

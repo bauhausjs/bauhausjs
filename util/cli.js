@@ -30,6 +30,6 @@ cli.welcome = function (app) {
     console.log('\u001b[90m       v' + version + '          | | \u001b[93m    /\\    \u001b[91m |       | \u001b[94m  ,-´-, ');
     console.log('\u001b[90m                        | | \u001b[93m   /  \\   \u001b[91m |       | \u001b[94m /     \\ ');
     console.log('\u001b[90m      ' + mode + '      \u001b[90m| | \u001b[93m  /    \\  \u001b[91m |       | \u001b[94m \\     / ');
-    console.log('\u001b[90m                        | | \u001b[93m /______\\ \u001b[91m |_______| \u001b[94m  `-,-´');
+    console.log('\u001b[90m                        | | \u001b[93m /______\\ \u001b[91m |_______| \u001b[94m  `-,-´\033[0m');
     console.log('');
 };
