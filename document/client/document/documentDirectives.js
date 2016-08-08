@@ -188,7 +188,10 @@ angular.module('bauhaus.document.directives').directive('bauhausEnum', function 
         restrict: 'AEC',
         template: '<div class="page-content-field">' +
                   '     <label class="page-content-field-label">{{config.label}}</label>' +
-                  '     <select ng-model="value" ng-options="name as label for (name, label) in options">' + 
+                  '     <select ng-model="value">' +
+                  '       <option value="">-- bitte wählen --</option>' +
+                  '       <option ng-selected= "{{obj.value == defaultValue}}" ng-repeat="obj in options" value="{{obj.value}}">{{obj.label}}</option>' +
+                  '     </select>' +
                   '</div>',
         scope: {
             value: '=ngModel',
@@ -196,7 +199,13 @@ angular.module('bauhaus.document.directives').directive('bauhausEnum', function 
         },
         link: function (scope, el, attr) {
             // Load labels of related documents
-            scope.options = scope.config.options.enums || {};
+            scope.options = [];
+            scope.defaultValue = scope.config.options.defaultValue;
+
+            for(var i in scope.config.options.enums){
+                scope.options.push({value:i, label: scope.config.options.enums[i]});
+            }
+
         }
     };
 });

@@ -4,5 +4,4 @@ backend/build/
 backend/public
 .DS_Store
 npm-debug.log
-
-.DS_Store
+.idea/
