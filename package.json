@@ -35,7 +35,8 @@
     "bower": "^1.4.1",
     "fs-extra": "^0.14.0",
     "multer-pkgcloud": "^0.2.0",
-    "pkgcloud": "^1.2.0-alpha.0"
+    "pkgcloud": "^1.2.0-alpha.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "mocha": "~1.18.2",

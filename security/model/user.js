@@ -16,8 +16,20 @@ var userSchema = new Schema({
     created: { type: Date, default: Date.now },
     resetPasswordToken: String,
     confirmMailToken: String,
+    newLogin: {
+        userId: String,
+        pwData: {
+            hash: String,
+            meta: {
+                salt: String,
+                hashBytes: Number,
+                opslimit: Number,
+                memlimit: Number,
+                algorithm: String
+            }
+        }
+    }
 }, {collection: 'users'});
-
 
 userSchema.methods.setResetPasswordToken = function () {
     var time = Date.now().toString();
