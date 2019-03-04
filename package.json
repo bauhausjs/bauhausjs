@@ -1,6 +1,6 @@
 {
   "name": "bauhausjs",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "A modular CMS for Node.js",
   "scripts": {
     "test": "env NODE_ENV=test mocha page/test/ content/test/",
