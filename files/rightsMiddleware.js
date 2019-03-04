@@ -72,6 +72,9 @@ module.exports = function (bauhausConfig) {
                 }
             }
         } else {
+            // Pipe everything
+            return next();
+            /*
             try {
                 var splittedPath = req.path.split('/');         
                 if (req.path[0] === "/") {             
@@ -82,7 +85,7 @@ module.exports = function (bauhausConfig) {
                 res.redirect(301, bauhausConfig.swiftPublicFilesURL + '/' + container + '/' + remote);
             } catch (e) {
                 next();
-            }
+            }*/
         }
     }
 
