@@ -78,7 +78,8 @@ module.exports = function (bauhausConfig) {
                         "info": "Upload failed!"
                     });
                 } else {
-                   if(req.isPrivateFile == false && req.multerContainer != null && req.multerContainer.metadata['x-readset'] !== 'true'){
+                    // All files are private => add "false && "
+                   if(false && req.isPrivateFile == false && req.multerContainer != null && req.multerContainer.metadata['x-readset'] !== 'true'){
                       //console.log('setright');
                       req.multerContainer.metadata['x-container-meta-x-readset'] = "true";
                        req.multerContainer.metadata['X-Container-Read'] = ".r:*";

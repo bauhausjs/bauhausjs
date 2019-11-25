@@ -72,6 +72,18 @@ module.exports = function (bauhausConfig) {
                 }
             }
         } else {
+            // Deny documents when user is not logged in
+            const extension = req.cpPath.split('.').pop();
+            if (extension === 'pdf' || extension === 'docx' || extension === 'doc') {
+                if (req.session != null && req.session.user != null) {
+                    return next();
+                } else {
+                    return deny(req, res);
+                }
+            }
+            // Pipe everything
+            return next();
+            /*
             try {
                 var splittedPath = req.path.split('/');         
                 if (req.path[0] === "/") {             
@@ -82,7 +94,7 @@ module.exports = function (bauhausConfig) {
                 res.redirect(301, bauhausConfig.swiftPublicFilesURL + '/' + container + '/' + remote);
             } catch (e) {
                 next();
-            }
+            }*/
         }
     }
 
