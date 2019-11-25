@@ -13,7 +13,7 @@ module.exports = function (bauhausConfig) {
 
     var app = express();
 
-    app.use(rightsMiddleware(bauhausConfig));
+    // app.use(rightsMiddleware(bauhausConfig));
 
     app.use(function (req, res, next) {
         var splittedPath = req.path.split('/');
